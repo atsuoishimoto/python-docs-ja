@@ -35,28 +35,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-      - name: Install dependencies
-        run: |
-          sudo apt update -y && sudo apt install gettext -y
-          pip3 install --upgrade pip
-          pip3 install -r requirements.txt -r cpython/Doc/requirements.txt
-      - name: Update translations
-        run: |
-          sh scripts/update.sh
-        env:
-          TX_TOKEN: ${{ secrets.TX_TOKEN }}
-          LANGUAGE: ${{ env.LANGUAGE }}
-      - name: Wrap catalog message files
-        run: |
-          powrap --modified
-      - name: Commit and push changes
-        if: github.repository == 'python/python-docs-ja'
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git status
-          git add -A
-          git diff-index --quiet HEAD || ( git commit -m "Update translations from Transifex" && git push )
+
 
   merge:
     # Merge translations previously updated into older branches to make sure
@@ -88,29 +67,3 @@ jobs:
         with:
           ref: ${{ matrix.branch }}
           path: ${{ matrix.branch }}
-      - name: Install dependencies
-        run: |
-          sudo apt update -y && sudo apt install gettext -y
-          pip3 install pomerge powrap
-      - name: Merge overwriting on stable release branch
-        if: ${{ matrix.overwrite == true }}
-        run: |
-          pomerge --from ${{ env.CURRENT_BRANCH }}/**/*.po --to ${{ matrix.branch }}/**/*.po
-      - name: Merge without overwriting on EOL or security-fix release branch
-        if: ${{ matrix.overwrite != true }}
-        run: |
-          pomerge --no-overwrite --from ${{ env.CURRENT_BRANCH }}/**/*.po --to ${{ matrix.branch }}/**/*.po
-      - name: Wrap catalog message files
-        run: |
-          powrap --modified -C ${{ matrix.branch }}
-      - name: Commit and push changes
-        if: github.repository == 'rffontenelle/python-docs-pt-br'
-        run: |
-          cd ${{ matrix.branch }}
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git status
-          git add -A
-          git diff-index --quiet HEAD || ( git commit -m "Merge ${{ env.CURRENT_BRANCH }} into ${{ matrix.branch }}" && git push )
-
-
