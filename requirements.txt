@@ -4,3 +4,4 @@ powrap
 pospell
 pomerge
 translate-toolkit
+splitpo

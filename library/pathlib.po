@@ -2715,6 +2715,8 @@ msgid ""
 "include the *path* as a prefix, unlike the results of ``glob."
 "glob(root_dir=path)``."
 msgstr ""
+"pathlib の ``path.glob()`` や ``path.rglob()`` の戻り値は、"
+"``glob.glob(root_dir=path)`` の結果とは異なり、*path* をプレフィックスとして含みます。"
 
 #: ../../library/pathlib.rst:1840
 msgid ""
