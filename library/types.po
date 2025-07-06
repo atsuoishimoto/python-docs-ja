@@ -464,7 +464,7 @@ msgstr ":class:`!types.GenericAlias` クラスの紹介"
 
 #: ../../library/types.rst:313
 msgid "The type of :ref:`union type expressions<types-union>`."
-msgstr ":ref:`合集型表現 <types-union>` の型です。"
+msgstr ":ref:`ユニオン型式 <types-union>` の型です。"
 
 #: ../../library/types.rst:319
 msgid "This is now an alias for :class:`typing.Union`."
