@@ -91,7 +91,7 @@ msgid ""
 ":ref:`run Python coroutines <coroutine>` concurrently and have full control "
 "over their execution;"
 msgstr ""
-"並行に :ref:`Python コルーチンを実行 <coroutine>` し、その実行を完全に制御する"
+"並行に :ref:`Python コルーチンを実行 <coroutine>` し、その実行を完全に制御する;"
 
 #: ../../library/asyncio.rst:37
 msgid "perform :ref:`network IO and IPC <asyncio-streams>`;"
@@ -159,7 +159,7 @@ msgstr "asyncio REPL"
 msgid ""
 "You can experiment with an ``asyncio`` concurrent context in the :term:"
 "`REPL`:"
-msgstr "":term:`REPL` で ``asyncio`` の並行コンテキストを試すことができます:"
+msgstr ":term:`REPL` で ``asyncio`` の並行コンテキストを試すことができます:"
 
 #: ../../library/asyncio.rst:67
 msgid ""
