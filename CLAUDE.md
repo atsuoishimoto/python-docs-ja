@@ -149,6 +149,98 @@ options:
 2. 既存翻訳の品質が改善されている  
 3. コード例等の翻訳不要な部分は適切に `msgstr ""` のまま残されている
 
+### 4.3 翻訳作業完了前の必須チェック手順（最終確認）
+
+**重要**: 翻訳作業の最後には、**必ず**以下の手順を実行して未翻訳部分が残っていないか確認してください。この手順は翻訳作業の品質を保証するために必須です。
+
+#### 最終チェックスクリプトの実行
+
+翻訳対象ファイルに対して以下のPythonスクリプトを実行し、未翻訳のテキストエントリが残っていないか確認します：
+
+```python
+python3 -c "
+import re
+with open('対象ファイル.po', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# POエントリを分割して真に空のものをカウント
+entries = re.split(r'\n\n(?=#)', content)
+empty_count = 0
+
+for i, entry in enumerate(entries):
+    if 'msgid' in entry and 'msgstr \"\"' in entry:
+        lines = entry.strip().split('\n')
+        msgstr_started = False
+        is_empty = True
+        
+        # msgidの内容をチェック
+        msgid_content = ''
+        for line in lines:
+            if line.startswith('msgid'):
+                msgid_content = line
+            elif line.startswith('\"') and not msgstr_started:
+                msgid_content += line
+        
+        # コードサンプルでないテキストエントリかチェック
+        is_code_only = ('def ' in msgid_content or 
+                       'class ' in msgid_content or 
+                       'assert ' in msgid_content or
+                       'print(' in msgid_content or
+                       'return ' in msgid_content or
+                       msgid_content.count('\\\\\"') > 2)
+        
+        for line in lines:
+            if line.startswith('msgstr'):
+                msgstr_started = True
+                if '\"\"' in line and len(line.strip()) > 9:
+                    is_empty = False
+                    break
+            elif msgstr_started and line.startswith('\"'):
+                is_empty = False
+                break
+        
+        if is_empty and not is_code_only:
+            empty_count += 1
+            print(f'未翻訳テキストエントリ {i+1}:')
+            print(msgid_content[:200] + '...' if len(msgid_content) > 200 else msgid_content)
+            print('---')
+
+print(f'残り未翻訳テキストエントリ数: {empty_count}')
+if empty_count == 0:
+    print('✅ All translatable text entries have been translated!')
+else:
+    print('⚠️  未翻訳のテキストエントリが残っています。これらを翻訳してから作業を完了してください。')
+"
+```
+
+#### チェック結果の処理
+
+1. **未翻訳エントリが見つからない場合（empty_count = 0）**: 
+   - 翻訳作業完了
+   - 「✅ All translatable text entries have been translated!」が表示されることを確認
+
+2. **未翻訳エントリが見つかった場合**: 
+   - **必ず**すべてのエントリを翻訳してから作業を完了する
+   - 翻訳方針:
+     - **コードサンプル**: `def`、`class`、`assert`、`print`、`return`等を含む場合は通常そのままコピー
+     - **説明文**: 日本語に翻訳
+     - **エラーメッセージ**: 日本語に翻訳
+     - **ドキュメント文字列**: 日本語に翻訳
+     - **技術用語**: 既存の翻訳スタイルに合わせて統一
+
+3. **再チェック**: 
+   - 未翻訳エントリを修正後、再度スクリプトを実行
+   - 「残り未翻訳テキストエントリ数: 0」になるまで繰り返す
+
+#### このチェックが重要な理由
+
+- 分割→翻訳→結合の過程で翻訳が失われる場合がある
+- 大きなファイルでは一部のエントリが見落とされる可能性がある
+- 翻訳の品質と完全性を保証するため
+- ユーザーに未完成の翻訳を提供することを防ぐため
+
+**注意**: この最終チェックを省略してはいけません。翻訳作業の品質保証において必須の手順です。
+
 ## Repository Structure
 
 The repository is organized as follows:
