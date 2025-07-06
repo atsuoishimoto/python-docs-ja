@@ -241,6 +241,85 @@ else:
 
 **注意**: この最終チェックを省略してはいけません。翻訳作業の品質保証において必須の手順です。
 
+### 4.4 翻訳漏れ防止のための必須手順
+
+翻訳漏れを完全に防ぐため、以下の手順を**必ず**実行してください：
+
+#### 翻訳作業開始前の事前確認
+
+1. **重複エントリの検出**:
+```bash
+# 同じmsgidが複数回登場していないかチェック
+rg -o 'msgid "[^"]*"' ファイル名.po | sort | uniq -d
+```
+
+2. **未翻訳エントリの総数把握**:
+```bash
+# 翻訳前の未翻訳エントリ数を記録
+python3 -c "
+import re
+with open('ファイル名.po', 'r', encoding='utf-8') as f:
+    content = f.read()
+print(f'翻訳前未翻訳エントリ数: {len(re.findall(r\"msgstr \\\"\\\"\", content))}')
+"
+```
+
+#### 翻訳作業中の段階的確認
+
+3. **定期的な進捗確認**:
+   - 50エントリごとに翻訳状況をチェック
+   - 重複エントリを発見した場合は**すべて**翻訳する
+
+4. **分割ファイル処理時の特別措置**:
+   - 各分割ファイルの翻訳完了後、即座に未翻訳エントリ数をチェック
+   - 結合前に各分割ファイルの翻訳完了を確認
+
+#### 翻訳作業完了前の厳格な最終チェック
+
+5. **最終チェックスクリプト（改良版）**:
+```python
+python3 -c "
+import re
+with open('ファイル名.po', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# 重複エントリも含めてすべての未翻訳エントリをチェック
+all_entries = re.findall(r'(#: [^\n]+\nmsgid[^m]+?msgstr \"\")', content, re.DOTALL)
+untranslated_text = []
+
+for entry in all_entries:
+    # コードサンプルを除外
+    if not any(marker in entry for marker in ['def ', 'class ', 'assert ', 'print(', 'return ', '>>>', 'import ', 'raise ']):
+        untranslated_text.append(entry[:200])
+
+print(f'未翻訳テキストエントリ数: {len(untranslated_text)}')
+if untranslated_text:
+    print('\\n未翻訳エントリ:')
+    for i, entry in enumerate(untranslated_text, 1):
+        print(f'{i}: {entry}...')
+        print('---')
+    print('\\n⚠️  これらのエントリを翻訳してから作業を完了してください。')
+else:
+    print('✅ すべての翻訳対象エントリが翻訳済みです！')
+"
+```
+
+#### 品質保証のための二重チェック
+
+6. **翻訳完了後の検証**:
+   - 翻訳前後の未翻訳エントリ数の差分を確認
+   - 重複エントリがすべて翻訳されていることを確認
+   - 既存翻訳の品質向上も完了していることを確認
+
+#### 緊急時の対応
+
+7. **翻訳漏れ発見時の対応**:
+   - 発見した未翻訳エントリを即座に記録
+   - 同じ`msgid`の他のエントリも確認
+   - 翻訳完了まで作業を継続
+
+**重要**: この手順を省略することは品質保証上許可されません。すべての翻訳対象エントリが完了するまで作業を継続してください。
+
 ## Repository Structure
 
 The repository is organized as follows:
