@@ -77,6 +77,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - 元のファイルが更新されて翻訳が完了
    - 一時ファイル（`.splitted/`, `.splitted_done/`）は自動削除
 
+5. **作業ファイルの削除**:
+   - 翻訳完了後、作成された作業ファイル（`translated_*.po` など）を削除
+   - 作業ディレクトリを整理し、不要なファイルを残さない
+
 #### 4.0 翻訳ワークフローシステム
 
 翻訳作業は中断・再開が可能な専用システムで管理されます。
@@ -163,6 +167,7 @@ options:
   1. `joinpo -o translated_pathlib.po .splitted_done/pathlib/*.po`
   2. 元のファイルを翻訳済みファイルで更新
   3. 一時ファイルとディレクトリを削除
+  4. 作業ファイル（`translated_*.po`）を削除
 
 
 

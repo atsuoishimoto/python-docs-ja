@@ -139,3 +139,8 @@ clean:
 	find -name '*.mo' -delete
 	@echo "Cleaning build directory"
 	$(MAKE) -C venv/cpython/Doc/ clean
+
+.PHONY: publish
+publish:
+	@echo "Publishing documentation to S3..."
+	cd venv/cpython/Doc/build/html && aws s3 sync . s3://test-pythondoc-ja-cloude1
