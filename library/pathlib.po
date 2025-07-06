@@ -500,6 +500,12 @@ msgid ""
 ">>> str(p)\n"
 "'c:\\\\Program Files'"
 msgstr ""
+">>> p = PurePath('/etc')\n"
+">>> str(p)\n"
+"'/etc'\n"
+">>> p = PureWindowsPath('c:/Program Files')\n"
+">>> str(p)\n"
+"'c:\\\\Program Files'"
 
 #: ../../library/pathlib.rst:270
 msgid ""
@@ -514,6 +520,8 @@ msgid ""
 ">>> bytes(p)\n"
 "b'/etc'"
 msgstr ""
+">>> bytes(p)\n"
+"b'/etc'"
 
 #: ../../library/pathlib.rst:277
 msgid ""
@@ -548,6 +556,13 @@ msgid ""
 ">>> p.parts\n"
 "('c:\\\\', 'Program Files', 'PSF')"
 msgstr ""
+">>> p = PurePath('/usr/bin/python3')\n"
+">>> p.parts\n"
+"('/', 'usr', 'bin', 'python3')\n"
+"\n"
+">>> p = PureWindowsPath('c:/Program Files/PSF')\n"
+">>> p.parts\n"
+"('c:\\\\', 'Program Files', 'PSF')"
 
 #: ../../library/pathlib.rst:299
 msgid "(note how the drive and local root are regrouped in a single part)"
@@ -582,6 +597,12 @@ msgid ""
 ">>> PurePosixPath('/etc').drive\n"
 "''"
 msgstr ""
+">>> PureWindowsPath('c:/Program Files/').drive\n"
+"'c:'\n"
+">>> PureWindowsPath('/Program Files/').drive\n"
+"''\n"
+">>> PurePosixPath('/etc').drive\n"
+"''"
 
 #: ../../library/pathlib.rst:329
 msgid "UNC shares are also considered drives::"
@@ -592,6 +613,8 @@ msgid ""
 ">>> PureWindowsPath('//host/share/foo.txt').drive\n"
 "'\\\\\\\\host\\\\share'"
 msgstr ""
+">>> PureWindowsPath('//host/share/foo.txt').drive\n"
+"'\\\\\\\\host\\\\share'"
 
 #: ../../library/pathlib.rst:336
 msgid "A string representing the (local or global) root, if any::"
@@ -606,6 +629,12 @@ msgid ""
 ">>> PurePosixPath('/etc').root\n"
 "'/'"
 msgstr ""
+">>> PureWindowsPath('c:/Program Files/').root\n"
+"'\\\\'\n"
+">>> PureWindowsPath('c:Program Files/').root\n"
+"''\n"
+">>> PurePosixPath('/etc').root\n"
+"'/'"
 
 #: ../../library/pathlib.rst:345
 msgid "UNC shares always have a root::"
@@ -616,6 +645,8 @@ msgid ""
 ">>> PureWindowsPath('//host/share').root\n"
 "'\\\\'"
 msgstr ""
+">>> PureWindowsPath('//host/share').root\n"
+"'\\\\'"
 
 #: ../../library/pathlib.rst:350
 msgid ""
@@ -634,6 +665,12 @@ msgid ""
 ">>> PurePosixPath('////etc').root\n"
 "'/'"
 msgstr ""
+">>> PurePosixPath('//etc').root\n"
+"'//'\n"
+">>> PurePosixPath('///etc').root\n"
+"'/'\n"
+">>> PurePosixPath('////etc').root\n"
+"'/'"
 
 #: ../../library/pathlib.rst:362
 msgid ""
@@ -651,6 +688,8 @@ msgid ""
 "an implementation-defined manner, although more than two leading slashes "
 "shall be treated as a single slash.\"*"
 msgstr ""
+"*\"2つの連続するスラッシュで始まるパス名は実装定義の方法で解釈される場合がありますが、"
+"3つ以上の先頭スラッシュは単一のスラッシュとして扱われます。\"*"
 
 #: ../../library/pathlib.rst:372
 msgid "The concatenation of the drive and root::"
@@ -667,6 +706,14 @@ msgid ""
 ">>> PureWindowsPath('//host/share').anchor\n"
 "'\\\\\\\\host\\\\share\\\\'"
 msgstr ""
+">>> PureWindowsPath('c:/Program Files/').anchor\n"
+"'c:\\\\'\n"
+">>> PureWindowsPath('c:Program Files/').anchor\n"
+"'c:'\n"
+">>> PurePosixPath('/etc').anchor\n"
+"'/'\n"
+">>> PureWindowsPath('//host/share').anchor\n"
+"'\\\\\\\\host\\\\share\\\\'"
 
 #: ../../library/pathlib.rst:386
 msgid ""
@@ -684,6 +731,13 @@ msgid ""
 ">>> p.parents[2]\n"
 "PureWindowsPath('c:/')"
 msgstr ""
+">>> p = PureWindowsPath('c:/foo/bar/setup.py')\n"
+">>> p.parents[0]\n"
+"PureWindowsPath('c:/foo/bar')\n"
+">>> p.parents[1]\n"
+"PureWindowsPath('c:/foo')\n"
+">>> p.parents[2]\n"
+"PureWindowsPath('c:/')"
 
 #: ../../library/pathlib.rst:397
 msgid ""
@@ -785,7 +839,7 @@ msgstr "一般的にはファイル拡張子と呼ばれています。"
 
 #: ../../library/pathlib.rst:460 ../../library/pathlib.rst:475
 msgid "A single dot (\"``.``\") is considered a valid suffix."
-msgstr ""
+msgstr "単一のドット (``\".``\") は有効なサフィックスとみなされます。"
 
 #: ../../library/pathlib.rst:464
 msgid "A list of the path's suffixes, often called file extensions::"
@@ -864,6 +918,8 @@ msgid ""
 "This method is string-based; it neither accesses the filesystem nor treats "
 "\"``..``\" segments specially. The following code is equivalent:"
 msgstr ""
+"このメソッドは文字列ベースです。ファイルシステムにアクセスしたり、"
+"\"``..``\" セグメントを特別に扱うことはありません。以下のコードは等価です:"
 
 #: ../../library/pathlib.rst:542
 msgid ""
@@ -887,12 +943,16 @@ msgid ""
 "Windows path names that contain a colon, or end with a dot or a space, are "
 "considered reserved. UNC paths may be reserved."
 msgstr ""
+"コロンを含む、またはドットやスペースで終わる Windows パス名は予約されています。"
+"UNC パスも予約されている場合があります。"
 
 #: ../../library/pathlib.rst:555
 msgid ""
 "This method is deprecated; use :func:`os.path.isreserved` to detect reserved "
 "paths on Windows."
 msgstr ""
+"このメソッドは非推奨です。Windows で予約されたパスを検出するには "
+":func:`os.path.isreserved` を使用してください。"
 
 #: ../../library/pathlib.rst:561
 msgid ""
@@ -973,6 +1033,10 @@ msgid ""
 "\"``**``\" isn't supported (it acts like non-recursive \"``*``\"), and if a "
 "relative pattern is provided, then matching is done from the right::"
 msgstr ""
+"このメソッドは :meth:`~PurePath.full_match` と似ていますが、空のパターンは "
+"許可されません (:exc:`ValueError` が発生します)。再帰ワイルドカード "
+"\"``**``\" はサポートされていません (非再帰の \"``*``\" のように動作します)。"
+"相対パターンが提供された場合、マッチングは右から行われます::"
 
 #: ../../library/pathlib.rst:613
 msgid ""
@@ -1051,6 +1115,11 @@ msgid ""
 "*walk_up* option as it assumes that no symlinks are present in the path; "
 "call :meth:`~Path.resolve` first if necessary to resolve symlinks."
 msgstr ""
+"この関数は :class:`PurePath` の一部であり、文字列を使用して動作します。"
+"基礎となるファイル構造をチェックしたりアクセスしたりしません。"
+"これは *walk_up* オプションに影響を与える可能性があります。"
+"パスにシンボリックリンクが存在しないことを前提としているためです。"
+"必要に応じて、最初に :meth:`~Path.resolve` を呼び出してシンボリックリンクを解決してください。"
 
 #: ../../library/pathlib.rst:665
 msgid ""
@@ -1148,6 +1217,8 @@ msgid ""
 "A single dot (\"``.``\") is considered a valid suffix. In previous "
 "versions, :exc:`ValueError` is raised if a single dot is supplied."
 msgstr ""
+"単一のドット (\"``.``\") は有効なサフィックスとみなされます。以前のバージョンでは、"
+"単一のドットが提供された場合 :exc:`ValueError` が発生していました。"
 
 #: ../../library/pathlib.rst:738
 msgid ""
@@ -1156,6 +1227,10 @@ msgid ""
 "such as from :attr:`parent` and :meth:`relative_to`. Subclasses may override "
 "this method to pass information to derivative paths, for example::"
 msgstr ""
+"指定された *pathsegments* を組み合わせて、同じタイプの新しいパスオブジェクトを作成します。"
+"このメソッドは :attr:`parent` や :meth:`relative_to` などから派生パスが作成される"
+"たびに呼び出されます。サブクラスはこのメソッドをオーバーライドして、"
+"派生パスに情報を渡すことができます。例::"
 
 #: ../../library/pathlib.rst:743
 msgid ""
@@ -1280,6 +1355,8 @@ msgid ""
 "Some concrete path methods can raise an :exc:`OSError` if a system call "
 "fails (for example because the path doesn't exist)."
 msgstr ""
+"一部の具象パスメソッドは、システムコールが失敗した場合 "
+"(例えばパスが存在しない場合) に :exc:`OSError` を発生させる可能性があります。"
 
 #: ../../library/pathlib.rst:834
 msgid "Parsing and generating URIs"
@@ -1290,12 +1367,16 @@ msgid ""
 "Concrete path objects can be created from, and represented as, 'file' URIs "
 "conforming to :rfc:`8089`."
 msgstr ""
+"具象パスオブジェクトは :rfc:`8089` に準拠した 'file' URI から作成したり、"
+"'file' URI として表現したりできます。"
 
 #: ../../library/pathlib.rst:841
 msgid ""
 "File URIs are not portable across machines with different :ref:`filesystem "
 "encodings <filesystem-encoding>`."
 msgstr ""
+"File URI は異なる :ref:`filesystem encodings <filesystem-encoding>` を持つマシン間での"
+"移植性はありません。"
 
 #: ../../library/pathlib.rst:846
 msgid "Return a new path object from parsing a 'file' URI. For example::"
@@ -1309,7 +1390,7 @@ msgstr ""
 
 #: ../../library/pathlib.rst:851
 msgid "On Windows, DOS device and UNC paths may be parsed from URIs::"
-msgstr ""
+msgstr "Windows では、DOS デバイスや UNC パスを URI からパースできます::"
 
 #: ../../library/pathlib.rst:853
 msgid ""
@@ -1321,7 +1402,7 @@ msgstr ""
 
 #: ../../library/pathlib.rst:858
 msgid "Several variant forms are supported::"
-msgstr ""
+msgstr "いくつかのバリアント形式がサポートされています::"
 
 #: ../../library/pathlib.rst:860
 msgid ""
@@ -1340,6 +1421,8 @@ msgid ""
 ":exc:`ValueError` is raised if the URI does not start with ``file:``, or the "
 "parsed path isn't absolute."
 msgstr ""
+"URI が ``file:`` で始まらない、またはパースされたパスが絶対パスでない場合、"
+":exc:`ValueError` が発生します。"
 
 #: ../../library/pathlib.rst:874
 msgid ""
@@ -1347,6 +1430,9 @@ msgid ""
 "if the authority isn't empty or ``localhost``, then on Windows a UNC path is "
 "returned (as before), and on other platforms a :exc:`ValueError` is raised."
 msgstr ""
+"URL 権限がローカルホスト名と一致する場合、それは破棄されます。それ以外で、"
+"権限が空でないか ``localhost`` でない場合、Windows では UNC パスが返され (以前と同じ)、"
+"他のプラットフォームでは :exc:`ValueError` が発生します。"
 
 #: ../../library/pathlib.rst:883
 msgid ""
@@ -1372,6 +1458,8 @@ msgid ""
 "possible but deprecated. The method's use of :func:`os.fsencode` makes it "
 "strictly impure."
 msgstr ""
+":class:`Path` ではなく :class:`PurePath` からこのメソッドを呼び出すことは可能ですが、非推奨です。"
+"このメソッドの :func:`os.fsencode` の使用が、厳密には純粋でないものにしています。"
 
 #: ../../library/pathlib.rst:903
 msgid "Expanding and resolving paths"
@@ -1480,6 +1568,9 @@ msgid ""
 "resolved as far as possible and any remainder is appended without checking "
 "whether it exists."
 msgstr ""
+"パスが存在しないかシンボリックリンクループが検出され、*strict* が ``True`` の場合、"
+":exc:`OSError` が発生します。*strict* が ``False`` の場合、パスは可能な限り解決され、"
+"残りの部分は存在をチェックせずに追加されます。"
 
 #: ../../library/pathlib.rst:977
 msgid "The *strict* parameter was added (pre-3.6 behavior is strict)."
@@ -1491,6 +1582,9 @@ msgid ""
 "strict mode, and no exception is raised in non-strict mode. In previous "
 "versions, :exc:`RuntimeError` is raised no matter the value of *strict*."
 msgstr ""
+"シンボリックリンクループは他のエラーと同じように扱われます。ストリクトモードでは "
+":exc:`OSError` が発生し、非ストリクトモードでは例外は発生しません。以前のバージョンでは、"
+"*strict* の値に関係なく :exc:`RuntimeError` が発生していました。"
 
 #: ../../library/pathlib.rst:988
 msgid ""
@@ -1775,6 +1869,9 @@ msgid ""
 "help reduce the number of system calls needed when switching on file type. "
 "For example::"
 msgstr ""
+"ファイルタイプ情報のクエリをサポートする :class:`~pathlib.types.PathInfo` オブジェクトです。"
+"このオブジェクトは結果をキャッシュするメソッドを公開し、ファイルタイプを切り替える際に"
+"必要なシステムコール数を減らすのに役立ちます。例::"
 
 #: ../../library/pathlib.rst:1195
 msgid ""
@@ -1798,6 +1895,9 @@ msgid ""
 "the parent directory. Merely accessing :attr:`Path.info` does not perform "
 "any filesystem queries."
 msgstr ""
+"パスが :meth:`Path.iterdir` から生成された場合、この属性は親ディレクトリのスキャンから得られた"
+"ファイルタイプに関する情報で初期化されます。単に :attr:`Path.info` にアクセスするだけでは"
+"ファイルシステムクエリは実行されません。"
 
 #: ../../library/pathlib.rst:1212
 msgid ""
@@ -1806,6 +1906,9 @@ msgid ""
 "this attribute. There is no way to reset the cache; instead you can create a "
 "new path object with an empty info cache via ``p = Path(p)``."
 msgstr ""
+"最新の情報を取得するには、この属性のメソッドではなく :meth:`Path.is_dir`、"
+":meth:`~Path.is_file`、:meth:`~Path.is_symlink` を呼び出すのが最適です。キャッシュをリセットする方法はありません。"
+"代わりに ``p = Path(p)`` で空の情報キャッシュを持つ新しいパスオブジェクトを作成できます。"
 
 #: ../../library/pathlib.rst:1221
 msgid "Reading and writing files"
@@ -2003,6 +2106,8 @@ msgid ""
 "suppressed. In previous versions, such exceptions are suppressed in many "
 "cases, but not all."
 msgstr ""
+"ファイルシステムのスキャンで発生した :exc:`OSError` 例外はすべて抑制されます。"
+"以前のバージョンでは、このような例外は多くの場合に抑制されましたが、すべてではありませんでした。"
 
 #: ../../library/pathlib.rst:1379
 msgid ""
@@ -2029,6 +2134,8 @@ msgid ""
 "Generate the file names in a directory tree by walking the tree either top-"
 "down or bottom-up."
 msgstr ""
+"ディレクトリツリーをトップダウンまたはボトムアップでたどって、"
+"ディレクトリツリー内のファイル名を生成します。"
 
 #: ../../library/pathlib.rst:1402
 msgid ""
@@ -2036,6 +2143,9 @@ msgid ""
 "but excluding '.' and '..'), the method yields a 3-tuple of ``(dirpath, "
 "dirnames, filenames)``."
 msgstr ""
+"*self* をルートとするディレクトリツリー内の各ディレクトリ (*self* を含みますが、"
+"'.' と '..' は除きます) に対し、このメソッドは ``(dirpath, dirnames, filenames)`` の"
+"3-タプルを yield します。"
 
 #: ../../library/pathlib.rst:1406
 msgid ""
@@ -2046,6 +2156,11 @@ msgid ""
 "begins with *self*) to a file or directory in *dirpath*, do ``dirpath / "
 "name``. Whether or not the lists are sorted is file system-dependent."
 msgstr ""
+"*dirpath* は現在たどっているディレクトリへの :class:`Path` です。"
+"*dirnames* は *dirpath* 内のサブディレクトリ名の文字列リストです (``'.'`` と ``'..'`` は除きます)。"
+"*filenames* は *dirpath* 内のディレクトリ以外のファイル名の文字列リストです。"
+"*dirpath* 内のファイルまたはディレクトリへのフルパス (*self* から始まる) を得るには、"
+"``dirpath / name`` とします。リストがソートされているかどうかはファイルシステムに依存します。"
 
 #: ../../library/pathlib.rst:1414
 msgid ""
@@ -2057,6 +2172,11 @@ msgid ""
 "*top_down*, the list of subdirectories is retrieved before the triples for "
 "the directory and its subdirectories are walked."
 msgstr ""
+"オプション引数 *top_down* が真 (デフォルト) の場合、ディレクトリのタプルは"
+"そのサブディレクトリのタプルよりも先に生成されます (ディレクトリはトップダウンでたどられます)。"
+"*top_down* が偽の場合、ディレクトリのタプルはそのすべてのサブディレクトリのタプルの後に"
+"生成されます (ディレクトリはボトムアップでたどられます)。*top_down* の値に関係なく、"
+"サブディレクトリのリストはディレクトリとそのサブディレクトリがたどられる前に取得されます。"
 
 #: ../../library/pathlib.rst:1422
 msgid ""
@@ -2070,6 +2190,13 @@ msgid ""
 "of :meth:`Path.walk` since the directories in *dirnames* have already been "
 "generated by the time *dirnames* is yielded to the caller."
 msgstr ""
+"*top_down* が真の場合、呼び出し元は *dirnames* リストをインプレースで変更でき (例えば、"
+":keyword:`del` やスライス代入を使用)、:meth:`Path.walk` は *dirnames* に残っている名前の"
+"サブディレクトリにのみ再帰します。これは検索を省く、訪問の特定の順序を強制する、"
+"または :meth:`Path.walk` が再開される前に呼び出し元が作成またはリネームしたディレクトリを"
+":meth:`Path.walk` に知らせるために使用できます。*top_down* が偽の場合に *dirnames* を変更しても、"
+"*dirnames* が呼び出し元に yield される時点で *dirnames* 内のディレクトリはすでに生成されているため、"
+":meth:`Path.walk` の動作に影響を与えません。"
 
 #: ../../library/pathlib.rst:1432
 msgid ""
@@ -2079,6 +2206,11 @@ msgid ""
 "error to continue the walk or re-raise it to stop the walk. Note that the "
 "filename is available as the ``filename`` attribute of the exception object."
 msgstr ""
+"デフォルトでは、:func:`os.scandir` からのエラーは無視されます。オプション引数"
+"*on_error* が指定された場合、それは呼び出し可能であるべきです。:exc:`OSError` インスタンスを"
+"一つの引数として呼び出されます。この呼び出し可能オブジェクトはエラーを処理してたどることを"
+"継続したり、それを再発生させてたどることを停止したりできます。ファイル名は例外オブジェクトの"
+"``filename`` 属性として利用できることに注意してください。"
 
 #: ../../library/pathlib.rst:1438
 msgid ""
@@ -2088,6 +2220,10 @@ msgid ""
 "their targets, and consequently visit directories pointed to by symlinks "
 "(where supported)."
 msgstr ""
+"デフォルトでは、:meth:`Path.walk` はシンボリックリンクをたどらず、代わりに *filenames* リストに"
+"追加します。*follow_symlinks* を真に設定すると、シンボリックリンクを解決し、そのターゲットに"
+"応じて *dirnames* や *filenames* に配置し、結果的にシンボリックリンクが指すディレクトリを"
+"訪問します (サポートされている場合)。"
 
 #: ../../library/pathlib.rst:1445
 msgid ""
@@ -2107,18 +2243,26 @@ msgid ""
 "try to descend into it. To prevent such behavior, remove directories from "
 "*dirnames* as appropriate."
 msgstr ""
+":meth:`Path.walk` は、たどっているディレクトリが実行中に変更されないことを仮定しています。"
+"例えば、*dirnames* のディレクトリがシンボリックリンクに置き換えられ、*follow_symlinks* が偽の場合でも、"
+":meth:`Path.walk` は依然としてそこに降りていこうとします。このような動作を防ぐために、"
+"適切に *dirnames* からディレクトリを削除してください。"
 
 #: ../../library/pathlib.rst:1458
 msgid ""
 "Unlike :func:`os.walk`, :meth:`Path.walk` lists symlinks to directories in "
 "*filenames* if *follow_symlinks* is false."
 msgstr ""
+":func:`os.walk` とは異なり、*follow_symlinks* が偽の場合、:meth:`Path.walk` は"
+"ディレクトリへのシンボリックリンクを *filenames* にリストします。"
 
 #: ../../library/pathlib.rst:1461
 msgid ""
 "This example displays the number of bytes used by all files in each "
 "directory, while ignoring ``__pycache__`` directories::"
 msgstr ""
+"この例では、``__pycache__`` ディレクトリを無視しながら、各ディレクトリ内の"
+"すべてのファイルが使用するバイト数を表示します::"
 
 #: ../../library/pathlib.rst:1464
 msgid ""
@@ -2143,6 +2287,8 @@ msgid ""
 "Walking the tree bottom-up is essential as :func:`rmdir` doesn't allow "
 "deleting a directory before it is empty::"
 msgstr ""
+"次の例は :func:`shutil.rmtree` の簡単な実装です。:func:`rmdir` はディレクトリが空になる前に"
+"それを削除することを許可しないため、ツリーをボトムアップでたどることが不可欠です::"
 
 #: ../../library/pathlib.rst:1481
 msgid ""
@@ -2155,6 +2301,14 @@ msgid ""
 "    for name in dirs:\n"
 "        (root / name).rmdir()"
 msgstr ""
+"# ディレクトリ \"top\" からアクセス可能なすべてを削除します。\n"
+"# 注意: これは危険です！例えば、top == Path('/') の場合、\n"
+"# すべてのファイルを削除する可能性があります。\n"
+"for root, dirs, files in top.walk(top_down=False):\n"
+"    for name in files:\n"
+"        (root / name).unlink()\n"
+"    for name in dirs:\n"
+"        (root / name).rmdir()"
 
 #: ../../library/pathlib.rst:1494
 msgid "Creating files and directories"
@@ -2179,6 +2333,8 @@ msgid ""
 "The :meth:`~Path.open`, :meth:`~Path.write_text` and :meth:`~Path."
 "write_bytes` methods are often used to create files."
 msgstr ""
+":meth:`~Path.open`、:meth:`~Path.write_text`、:meth:`~Path.write_bytes` メソッドは"
+"ファイルを作成するためにしばしば使用されます。"
 
 #: ../../library/pathlib.rst:1511
 msgid ""
@@ -2222,6 +2378,8 @@ msgid ""
 "given path already exists in the file system and is not a directory (same "
 "behavior as the POSIX ``mkdir -p`` command)."
 msgstr ""
+"*exist_ok* が真の場合、指定されたパスがファイルシステムに既に存在し、かつディレクトリでない"
+"場合を除いて、:exc:`FileExistsError` は発生しません (POSIX の ``mkdir -p`` コマンドと同じ動作)。"
 
 #: ../../library/pathlib.rst:1530
 msgid "The *exist_ok* parameter was added."
@@ -2229,7 +2387,7 @@ msgstr "*exist_ok* 引数が追加されました。"
 
 #: ../../library/pathlib.rst:1536
 msgid "Make this path a symbolic link pointing to *target*."
-msgstr ""
+msgstr "このパスを *target* を指すシンボリックリンクにします。"
 
 #: ../../library/pathlib.rst:1538
 msgid ""
@@ -2290,13 +2448,15 @@ msgstr ""
 
 #: ../../library/pathlib.rst:1580
 msgid "Copying, moving and deleting"
-msgstr ""
+msgstr "コピー、移動、削除"
 
 #: ../../library/pathlib.rst:1584
 msgid ""
 "Copy this file or directory tree to the given *target*, and return a new :"
 "class:`!Path` instance pointing to *target*."
 msgstr ""
+"このファイルまたはディレクトリツリーを指定された *target* にコピーし、*target* を指す"
+"新しい :class:`!Path` インスタンスを返します。"
 
 #: ../../library/pathlib.rst:1587
 msgid ""
@@ -2305,6 +2465,9 @@ msgid ""
 "default), the symlink's target is copied. Otherwise, the symlink is "
 "recreated at the destination."
 msgstr ""
+"ソースがファイルの場合、ターゲットが既存のファイルであれば置き換えられます。"
+"ソースがシンボリックリンクで *follow_symlinks* が真 (デフォルト) の場合、シンボリックリンクの"
+"ターゲットがコピーされます。そうでなければ、シンボリックリンクが宛先で再作成されます。"
 
 #: ../../library/pathlib.rst:1592
 msgid ""
@@ -2315,6 +2478,11 @@ msgid ""
 "argument has no effect when copying files on Windows (where metadata is "
 "always preserved)."
 msgstr ""
+"*preserve_metadata* が偽 (デフォルト) の場合、ディレクトリ構造とファイルデータのみが"
+"コピーされることが保証されます。*preserve_metadata* を真に設定すると、"
+"サポートされている場合にファイルやディレクトリのアクセス権限、フラグ、最終アクセス時刻、"
+"変更時刻、拡張属性がコピーされることが保証されます。この引数は Windows でファイルを"
+"コピーする際には効果がありません (メタデータは常に保存されます)。"
 
 #: ../../library/pathlib.rst:1600
 msgid ""
@@ -2322,6 +2490,9 @@ msgid ""
 "performs a lightweight copy, where data blocks are only copied when "
 "modified. This is known as copy-on-write."
 msgstr ""
+"オペレーティングシステムとファイルシステムがサポートしている場合、このメソッドは"
+"軽量コピーを実行し、データブロックは変更時にのみコピーされます。"
+"これはコピーオンライトと呼ばれます。"
 
 #: ../../library/pathlib.rst:1610
 msgid ""
@@ -2329,6 +2500,9 @@ msgid ""
 "be an existing directory. Other arguments are handled identically to :meth:"
 "`Path.copy`. Returns a new :class:`!Path` instance pointing to the copy."
 msgstr ""
+"このファイルまたはディレクトリツリーを指定された *target_dir* にコピーします。"
+"*target_dir* は既存のディレクトリである必要があります。他の引数は :meth:`Path.copy` と同じように処理されます。"
+"コピーを指す新しい :class:`!Path` インスタンスを返します。"
 
 #: ../../library/pathlib.rst:1620
 msgid ""
@@ -2373,6 +2547,7 @@ msgid ""
 "It is implemented in terms of :func:`os.rename` and gives the same "
 "guarantees."
 msgstr ""
+"これは :func:`os.rename` を使用して実装され、同じ保証を提供します。"
 
 #: ../../library/pathlib.rst:1641 ../../library/pathlib.rst:1655
 msgid "Added return value, return the new :class:`!Path` instance."
@@ -2393,6 +2568,8 @@ msgid ""
 "Move this file or directory tree to the given *target*, and return a new :"
 "class:`!Path` instance pointing to *target*."
 msgstr ""
+"このファイルまたはディレクトリツリーを指定された *target* に移動し、*target* を指す"
+"新しい :class:`!Path` インスタンスを返します。"
 
 #: ../../library/pathlib.rst:1664
 msgid ""
@@ -2401,6 +2578,9 @@ msgid ""
 "point to the same file or directory, or the *target* is a non-empty "
 "directory, then :exc:`OSError` is raised."
 msgstr ""
+"*target* が存在しない場合は作成されます。このパスと *target* の両方が既存のファイルの場合、"
+"ターゲットが上書きされます。両方のパスが同じファイルまたはディレクトリを指しているか、"
+"*target* が空でないディレクトリの場合、:exc:`OSError` が発生します。"
 
 #: ../../library/pathlib.rst:1669
 msgid ""
@@ -2408,6 +2588,8 @@ msgid ""
 "`os.replace`. Otherwise, this path is copied (preserving metadata and "
 "symlinks) and then deleted."
 msgstr ""
+"両方のパスが同じファイルシステム上にある場合、移動は :func:`os.replace` で実行されます。"
+"そうでなければ、このパスがコピーされ (メタデータとシンボリックリンクを保持して) 削除されます。"
 
 #: ../../library/pathlib.rst:1678
 msgid ""
@@ -2415,6 +2597,9 @@ msgid ""
 "be an existing directory. Returns a new :class:`!Path` instance pointing to "
 "the moved path."
 msgstr ""
+"このファイルまたはディレクトリツリーを指定された *target_dir* に移動します。"
+"*target_dir* は既存のディレクトリである必要があります。移動したパスを指す"
+"新しい :class:`!Path` インスタンスを返します。"
 
 #: ../../library/pathlib.rst:1687
 msgid ""
@@ -2535,37 +2720,39 @@ msgstr ""
 
 #: ../../library/pathlib.rst:1770
 msgid "Pattern language"
-msgstr ""
+msgstr "パターン言語"
 
 #: ../../library/pathlib.rst:1772
 msgid ""
 "The following wildcards are supported in patterns for :meth:`~PurePath."
 "full_match`, :meth:`~Path.glob` and :meth:`~Path.rglob`:"
 msgstr ""
+":meth:`~PurePath.full_match`、:meth:`~Path.glob`、:meth:`~Path.rglob` のパターンでは"
+"以下のワイルドカードがサポートされています:"
 
 #: ../../library/pathlib.rst:1775
 msgid "``**`` (entire segment)"
-msgstr ""
+msgstr "``**`` (セグメント全体)"
 
 #: ../../library/pathlib.rst:1776
 msgid "Matches any number of file or directory segments, including zero."
-msgstr ""
+msgstr "ゼロを含め、任意の数のファイルまたはディレクトリセグメントにマッチします。"
 
 #: ../../library/pathlib.rst:1777
 msgid "``*`` (entire segment)"
-msgstr ""
+msgstr "``*`` (セグメント全体)"
 
 #: ../../library/pathlib.rst:1778
 msgid "Matches one file or directory segment."
-msgstr ""
+msgstr "一つのファイルまたはディレクトリセグメントにマッチします。"
 
 #: ../../library/pathlib.rst:1779
 msgid "``*`` (part of a segment)"
-msgstr ""
+msgstr "``*`` (セグメントの一部)"
 
 #: ../../library/pathlib.rst:1780
 msgid "Matches any number of non-separator characters, including zero."
-msgstr ""
+msgstr "ゼロを含め、任意の数のセパレータ以外の文字にマッチします。"
 
 #: ../../library/pathlib.rst:1781
 msgid "``?``"
@@ -2573,7 +2760,7 @@ msgstr "``?``"
 
 #: ../../library/pathlib.rst:1782
 msgid "Matches one non-separator character."
-msgstr ""
+msgstr "一つのセパレータ以外の文字にマッチします。"
 
 #: ../../library/pathlib.rst:1783
 msgid "``[seq]``"
@@ -2586,6 +2773,9 @@ msgid ""
 "lowercase ASCII letter. Multiple ranges can be combined: ``[a-zA-Z0-9_]`` "
 "matches any ASCII letter, digit, or underscore."
 msgstr ""
+"*seq* 内の一文字にマッチします。*seq* は文字のシーケンスです。範囲表現がサポートされています。"
+"例えば、``[a-z]`` は任意の小文字 ASCII 文字にマッチします。複数の範囲を組み合わせることもできます:"
+"``[a-zA-Z0-9_]`` は任意の ASCII 文字、数字、またはアンダースコアにマッチします。"
 
 #: ../../library/pathlib.rst:1788
 msgid "``[!seq]``"
@@ -2596,6 +2786,7 @@ msgid ""
 "Matches one character not in *seq*, where *seq* follows the same rules as "
 "above."
 msgstr ""
+"*seq* に含まれない一文字にマッチします。*seq* は上記と同じルールに従います。"
 
 #: ../../library/pathlib.rst:1791
 msgid ""
@@ -2607,7 +2798,7 @@ msgstr ""
 
 #: ../../library/pathlib.rst:1794
 msgid "The \"``**``\" wildcard enables recursive globbing. A few examples:"
-msgstr ""
+msgstr "\"``**``\" ワイルドカードは再帰的な glob を有効にします。いくつかの例:"
 
 #: ../../library/pathlib.rst:1797
 msgid "Pattern"
@@ -2655,24 +2846,32 @@ msgid ""
 "Globbing with the \"``**``\" wildcard visits every directory in the tree. "
 "Large directory trees may take a long time to search."
 msgstr ""
+"\"``**``\" ワイルドカードでの glob はツリー内のすべてのディレクトリを訪問します。"
+"大きなディレクトリツリーの検索には長時間かかる場合があります。"
 
 #: ../../library/pathlib.rst:1809
 msgid ""
 "Globbing with a pattern that ends with \"``**``\" returns both files and "
 "directories. In previous versions, only directories were returned."
 msgstr ""
+"\"``**``\" で終わるパターンでの glob はファイルとディレクトリの両方を返します。"
+"以前のバージョンでは、ディレクトリのみが返されていました。"
 
 #: ../../library/pathlib.rst:1813
 msgid ""
 "In :meth:`Path.glob` and :meth:`~Path.rglob`, a trailing slash may be added "
 "to the pattern to match only directories."
 msgstr ""
+":meth:`Path.glob` と :meth:`~Path.rglob` では、ディレクトリのみにマッチさせるために"
+"パターンの末尾にスラッシュを追加できます。"
 
 #: ../../library/pathlib.rst:1816
 msgid ""
 "Globbing with a pattern that ends with a pathname components separator (:"
 "data:`~os.sep` or :data:`~os.altsep`) returns only directories."
 msgstr ""
+"パス名コンポーネントセパレータ (:data:`~os.sep` または :data:`~os.altsep`) で終わる"
+"パターンでの glob はディレクトリのみを返します。"
 
 #: ../../library/pathlib.rst:1822
 msgid "Comparison to the :mod:`glob` module"
@@ -2683,18 +2882,24 @@ msgid ""
 "The patterns accepted and results generated by :meth:`Path.glob` and :meth:"
 "`Path.rglob` differ slightly from those by the :mod:`glob` module:"
 msgstr ""
+":meth:`Path.glob` と :meth:`Path.rglob` が受け入れるパターンと生成する結果は、"
+":mod:`glob` モジュールのものと少し異なります:"
 
 #: ../../library/pathlib.rst:1827
 msgid ""
 "Files beginning with a dot are not special in pathlib. This is like passing "
 "``include_hidden=True`` to :func:`glob.glob`."
 msgstr ""
+"pathlib ではドットで始まるファイルは特別ではありません。これは :func:`glob.glob` に"
+"``include_hidden=True`` を渡すのと同じです。"
 
 #: ../../library/pathlib.rst:1829
 msgid ""
 "\"``**``\" pattern components are always recursive in pathlib. This is like "
 "passing ``recursive=True`` to :func:`glob.glob`."
 msgstr ""
+"pathlib では \"``**``\" パターンコンポーネントは常に再帰的です。これは :func:`glob.glob` に"
+"``recursive=True`` を渡すのと同じです。"
 
 #: ../../library/pathlib.rst:1831
 msgid ""
@@ -2702,12 +2907,17 @@ msgid ""
 "This behaviour has no equivalent in :func:`glob.glob`, but you can pass "
 "``recurse_symlinks=True`` to :meth:`Path.glob` for compatible behaviour."
 msgstr ""
+"pathlib ではデフォルトで \"``**``\" パターンコンポーネントはシンボリックリンクをたどりません。"
+"この動作は :func:`glob.glob` には同等のものがありませんが、互換性のために"
+":meth:`Path.glob` に ``recurse_symlinks=True`` を渡すことができます。"
 
 #: ../../library/pathlib.rst:1834
 msgid ""
 "Like all :class:`PurePath` and :class:`Path` objects, the values returned "
 "from :meth:`Path.glob` and :meth:`Path.rglob` don't include trailing slashes."
 msgstr ""
+"すべての :class:`PurePath` および :class:`Path` オブジェクトと同様に、"
+":meth:`Path.glob` と :meth:`Path.rglob` から返される値には末尾スラッシュは含まれません。"
 
 #: ../../library/pathlib.rst:1837
 msgid ""
@@ -2725,10 +2935,13 @@ msgid ""
 "results of ``glob.glob(root_dir=path)`` never include an empty string that "
 "would correspond to *path*."
 msgstr ""
+"pathlib の ``path.glob()`` と ``path.rglob()`` から返される値は、例えば \"``**``\" で glob するときなどに"
+"*path* 自体を含む場合があります。一方、``glob.glob(root_dir=path)`` の結果には *path* に対応する"
+"空文字列は絶対に含まれません。"
 
 #: ../../library/pathlib.rst:1847
 msgid "Comparison to the :mod:`os` and :mod:`os.path` modules"
-msgstr ":mod:`os` と :mod:`os.path` モジュールの比較"
+msgstr ":mod:`os` と :mod:`os.path` モジュールとの比較"
 
 #: ../../library/pathlib.rst:1849
 msgid ""
@@ -2738,6 +2951,11 @@ msgid ""
 "level ``str`` and ``bytes`` objects, which is a more *procedural* approach. "
 "Some users consider the object-oriented style to be more readable."
 msgstr ""
+"pathlib は :class:`PurePath` と :class:`Path` オブジェクトを使用してパス操作を実装しており、"
+"*オブジェクト指向* であると言われています。一方、:mod:`os` と :mod:`os.path` モジュールは"
+"低レベルの ``str`` や ``bytes`` オブジェクトで動作する関数を提供しており、"
+"より *手続き型* のアプローチです。一部のユーザーはオブジェクト指向スタイルの方が"
+"読みやすいと考えています。"
 
 #: ../../library/pathlib.rst:1855
 msgid ""
@@ -2745,6 +2963,9 @@ msgid ""
 "ref:`paths relative to directory descriptors <dir_fd>`. These features "
 "aren't available in pathlib."
 msgstr ""
+":mod:`os` と :mod:`os.path` の多くの関数は ``bytes`` パスや"
+":ref:`ディレクトリディスクリプタ相対パス <dir_fd>` をサポートしています。"
+"これらの機能は pathlib では利用できません。"
 
 #: ../../library/pathlib.rst:1859
 msgid ""
@@ -2752,6 +2973,9 @@ msgid ""
 "`os.path` modules, are written in C and are very speedy. pathlib is written "
 "in pure Python and is often slower, but rarely slow enough to matter."
 msgstr ""
+"Python の ``str`` や ``bytes`` 型、および :mod:`os` や :mod:`os.path` モジュールの一部は"
+"C で書かれており、非常に高速です。pathlib は純粋な Python で書かれており、"
+"しばしば遅くなりますが、問題になるほど遅いことはあまりありません。"
 
 #: ../../library/pathlib.rst:1863
 msgid ""
@@ -2761,11 +2985,16 @@ msgid ""
 "are involved, :meth:`Path.absolute` preserves these segments for greater "
 "safety."
 msgstr ""
+"pathlib のパス正規化は :mod:`os.path` よりも少し主張があり、一貫性があります。"
+"例えば、:func:`os.path.abspath` はパスから \"``..``\" セグメントを削除しますが、"
+"シンボリックリンクが関わっている場合に意味が変わる可能性があります。"
+":meth:`Path.absolute` はより高い安全性のためにこれらのセグメントを保持します。"
 
 #: ../../library/pathlib.rst:1868
 msgid ""
 "pathlib's path normalization may render it unsuitable for some applications:"
 msgstr ""
+"pathlib のパス正規化により、一部のアプリケーションには不適切になる場合があります:"
 
 #: ../../library/pathlib.rst:1870
 msgid ""
@@ -2790,6 +3019,7 @@ msgid ""
 "As a consequence of these differences, pathlib is not a drop-in replacement "
 "for :mod:`os.path`."
 msgstr ""
+"これらの違いの結果として、pathlib は :mod:`os.path` のドロップイン置換ではありません。"
 
 #: ../../library/pathlib.rst:1886
 msgid "Corresponding tools"
@@ -3070,6 +3300,10 @@ msgid ""
 "is a lexical operation that raises :exc:`ValueError` when its inputs' "
 "anchors differ (e.g. if one path is absolute and the other relative.)"
 msgstr ""
+":func:`os.path.relpath` は :func:`~os.path.abspath` を呼び出してパスを絶対パスにし、"
+"\"``..``\" 部分を削除します。一方、:meth:`PurePath.relative_to` は入力のアンカーが異なる場合"
+"(例えば一方が絶対パスでもう一方が相対パスの場合) に :exc:`ValueError` を発生させる"
+"字句操作です。"
 
 #: ../../library/pathlib.rst:1933
 msgid ""
@@ -3077,6 +3311,8 @@ msgid ""
 "can't be resolved, whereas :meth:`Path.expanduser` raises :exc:"
 "`RuntimeError`."
 msgstr ""
+":func:`os.path.expanduser` はホームディレクトリが解決できない場合にパスを変更せずに返しますが、"
+":meth:`Path.expanduser` は :exc:`RuntimeError` を発生させます。"
 
 #: ../../library/pathlib.rst:1936
 msgid ""
@@ -3084,6 +3320,9 @@ msgid ""
 "symlinks, which may change the meaning of the path, whereas :meth:`Path."
 "absolute` leaves any \"``..``\" components in the path."
 msgstr ""
+":func:`os.path.abspath` はシンボリックリンクを解決せずに \"``..``\" コンポーネントを削除し、"
+"パスの意味を変える可能性があります。一方、:meth:`Path.absolute` はパス内の"
+"\"``..``\" コンポーネントをそのまま残します。"
 
 #: ../../library/pathlib.rst:1939
 msgid ""
@@ -3091,6 +3330,9 @@ msgid ""
 "*dirnames* and *filenames*, whereas :meth:`Path.walk` categorizes all "
 "symlinks into *filenames* when *follow_symlinks* is false (the default.)"
 msgstr ""
+":func:`os.walk` はパスを *dirnames* と *filenames* に分類する際に常にシンボリックリンクをたどります。"
+"一方、:meth:`Path.walk` は *follow_symlinks* が偽 (デフォルト) の場合、すべてのシンボリックリンクを"
+"*filenames* に分類します。"
 
 #: ../../library/pathlib.rst:1945
 msgid "Protocols"
@@ -3100,6 +3342,7 @@ msgstr "プロトコル"
 msgid ""
 "The :mod:`pathlib.types` module provides types for static type checking."
 msgstr ""
+":mod:`pathlib.types` モジュールは静的型チェック用の型を提供します。"
 
 #: ../../library/pathlib.rst:1958
 msgid ""
@@ -3107,18 +3350,24 @@ msgid ""
 "info>` attribute. Implementations may return cached results from their "
 "methods."
 msgstr ""
+":attr:`Path.info <pathlib.Path.info>` 属性を記述する :class:`typing.Protocol` です。"
+"実装はメソッドからキャッシュされた結果を返す場合があります。"
 
 #: ../../library/pathlib.rst:1964
 msgid ""
 "Return ``True`` if the path is an existing file or directory, or any other "
 "kind of file; return ``False`` if the path doesn't exist."
 msgstr ""
+"パスが既存のファイル、ディレクトリ、またはその他の種類のファイルである場合は ``True`` を返します。"
+"パスが存在しない場合は ``False`` を返します。"
 
 #: ../../library/pathlib.rst:1967
 msgid ""
 "If *follow_symlinks* is ``False``, return ``True`` for symlinks without "
 "checking if their targets exist."
 msgstr ""
+"*follow_symlinks* が ``False`` の場合、ターゲットが存在するかどうかをチェックせずに、"
+"シンボリックリンクに対して ``True`` を返します。"
 
 #: ../../library/pathlib.rst:1972
 msgid ""
@@ -3126,6 +3375,8 @@ msgid ""
 "directory; return ``False`` if the path is (or points to) any other kind of "
 "file, or if it doesn't exist."
 msgstr ""
+"パスがディレクトリ、またはディレクトリを指すシンボリックリンクである場合は ``True`` を返します。"
+"パスがその他の種類のファイルであるか、または存在しない場合は ``False`` を返します。"
 
 #: ../../library/pathlib.rst:1976
 msgid ""
@@ -3133,6 +3384,8 @@ msgid ""
 "directory (without following symlinks); return ``False`` if the path is any "
 "other kind of file, or if it doesn't exist."
 msgstr ""
+"*follow_symlinks* が ``False`` の場合、パスがディレクトリである場合のみ「シンボリックリンクをたどらずに」"
+" ``True`` を返します。パスがその他の種類のファイルであるか、または存在しない場合は ``False`` を返します。"
 
 #: ../../library/pathlib.rst:1982
 msgid ""
@@ -3140,6 +3393,8 @@ msgid ""
 "file; return ``False`` if the path is (or points to) a directory or other "
 "non-file, or if it doesn't exist."
 msgstr ""
+"パスがファイル、またはファイルを指すシンボリックリンクである場合は ``True`` を返します。"
+"パスがディレクトリ、その他のファイル以外であるか、または存在しない場合は ``False`` を返します。"
 
 #: ../../library/pathlib.rst:1986
 msgid ""
@@ -3147,6 +3402,8 @@ msgid ""
 "file (without following symlinks); return ``False`` if the path is a "
 "directory or other non-file, or if it doesn't exist."
 msgstr ""
+"*follow_symlinks* が ``False`` の場合、パスがファイルである場合のみ「シンボリックリンクをたどらずに」"
+" ``True`` を返します。パスがディレクトリ、その他のファイル以外であるか、または存在しない場合は ``False`` を返します。"
 
 #: ../../library/pathlib.rst:1992
 msgid ""
@@ -3154,6 +3411,8 @@ msgid ""
 "``False`` if the path is a directory or any kind of file, or if it doesn't "
 "exist."
 msgstr ""
+"パスがシンボリックリンクである場合 (リンク先が破損していても) ``True`` を返します。"
+"パスがディレクトリ、その他の種類のファイルであるか、または存在しない場合は ``False`` を返します。"
 
 #: ../../library/pathlib.rst:11
 msgid "path"

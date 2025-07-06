@@ -61,7 +61,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 #### 4.1 ファイルの分割
 
-.poファイルのサイズが20kbを超える場合は、すべてをまとめて処理せず、splitpoコマンドでpoファイルを50エントリずつに分割して、それぞれを翻訳します。
+.poファイルのサイズが20kbを超える場合は、すべてをまとめて処理せず、splitpoコマンドでpoファイルを30エントリずつに分割して、それぞれを翻訳します。
 
 
 ```
@@ -84,9 +84,9 @@ options:
 
 実行例:
 
-  `splitpo -o /tmp/split_pathlib -e 50 library/pathlib.po`
+  `splitpo -o /tmp/split_pathlib -e 30 library/pathlib.po`
 
-このコマンドは、poファイルを50エントリごとに分割します。
+このコマンドは、poファイルを30エントリごとに分割します。
 
 Split files are named with the pattern `{original_name}_part_{number}.po`:
 - `input.po` → `input_part_000.po`, `input_part_001.po`, etc.
