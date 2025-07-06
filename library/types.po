@@ -149,7 +149,7 @@ msgstr "``__prepare__`` 名前空間フックの導入"
 
 #: ../../library/types.rst:74
 msgid "Resolve MRO entries dynamically as specified by :pep:`560`."
-msgstr ""
+msgstr ":pep:`560` で指定されたとおりに MRO エントリを動的に解決します。"
 
 #: ../../library/types.rst:76
 msgid ""
@@ -160,6 +160,7 @@ msgid ""
 "it doesn't have an :meth:`!__mro_entries__` method, then it is included in "
 "the return tuple unchanged."
 msgstr ""
+"この関数は、 *bases* 内にある :class:`type` のインスタンスでないアイテムを探し、 :meth:`~object.__mro_entries__` メソッドを持つオブジェクトを、このメソッドを呼び出した結果をアンパックしたものに置き換えたタプルを返します。 *bases* のアイテムが :class:`type` のインスタンスである場合、または :meth:`!__mro_entries__` メソッドを持たない場合は、戻り値のタプルには変更されずに含まれます。"
 
 #: ../../library/types.rst:87
 msgid ""
@@ -168,6 +169,7 @@ msgid ""
 "(following the mechanisms laid out in :pep:`560`). This is useful for "
 "introspecting :ref:`Generics <user-defined-generics>`."
 msgstr ""
+"いずれかの基底クラスに対して :meth:`~object.__mro_entries__` メソッドが呼び出される前に、 *cls* の基底クラスとして元々与えられたオブジェクトのタプルを返します (:pep:`560` で定められた仕組みに従って)。これは :ref:`ジェネリクス <user-defined-generics>` の内省に有用です。"
 
 #: ../../library/types.rst:92
 msgid ""
@@ -176,6 +178,7 @@ msgid ""
 "``__orig_bases__`` attribute, :attr:`cls.__bases__ <type.__bases__>` is "
 "returned."
 msgstr ""
+"``__orig_bases__`` 属性を持つクラスの場合、この関数は ``cls.__orig_bases__`` の値を返します。 ``__orig_bases__`` 属性を持たないクラスの場合、 :attr:`cls.__bases__ <type.__bases__>` が返されます。"
 
 #: ../../library/types.rst:97
 msgid "Examples::"
@@ -304,6 +307,7 @@ msgid ""
 "The type of :ref:`code objects <code-objects>` such as returned by :func:"
 "`compile`."
 msgstr ""
+":func:`compile` によって返されるような :ref:`コードオブジェクト <code-objects>` の型です。"
 
 #: ../../library/types.rst:193
 msgid ""
@@ -321,12 +325,14 @@ msgid ""
 "required by the initializer.  The audit event only occurs for direct "
 "instantiation of code objects, and is not raised for normal compilation."
 msgstr ""
+"監査対象の引数は、イニシャライザの必要とする名前や位置と一致しない可能性があることに注意してください。この監査イベントは、コードオブジェクトの直接インスタンス化の場合にのみ発生し、通常のコンパイル時には発生しません。"
 
 #: ../../library/types.rst:201
 msgid ""
 "The type for cell objects: such objects are used as containers for a "
 "function's :term:`closure variables <closure variable>`."
 msgstr ""
+"セルオブジェクトの型です。このオブジェクトは、関数の :term:`クロージャ変数 <closure variable>` のコンテナとして使用されます。"
 
 #: ../../library/types.rst:209
 msgid "The type of methods of user-defined class instances."
@@ -347,12 +353,14 @@ msgid ""
 "The type of methods of some built-in data types and base classes such as :"
 "meth:`object.__init__` or :meth:`object.__lt__`."
 msgstr ""
+":meth:`object.__init__` や :meth:`object.__lt__` のような、一部の組み込みデータ型や基底クラスのメソッドの型です。"
 
 #: ../../library/types.rst:230
 msgid ""
 "The type of *bound* methods of some built-in data types and base classes. "
 "For example it is the type of :code:`object().__str__`."
 msgstr ""
+"一部の組み込みデータ型や基底クラスの *バインドされた* メソッドの型です。例えば、 :code:`object().__str__` の型です。"
 
 #: ../../library/types.rst:238
 msgid "The type of :data:`NotImplemented`."
@@ -362,12 +370,14 @@ msgstr ":data:`NotImplemented` の型です。"
 msgid ""
 "The type of methods of some built-in data types such as :meth:`str.join`."
 msgstr ""
+":meth:`str.join` のような、一部の組み込みデータ型のメソッドの型です。"
 
 #: ../../library/types.rst:252
 msgid ""
 "The type of *unbound* class methods of some built-in data types such as "
 "``dict.__dict__['fromkeys']``."
 msgstr ""
+"``dict.__dict__['fromkeys']`` のような、一部の組み込みデータ型の *アンバインドされた* クラスメソッドの型です。"
 
 #: ../../library/types.rst:260
 msgid ""
@@ -379,17 +389,18 @@ msgstr ""
 
 #: ../../library/types.rst:265
 msgid ":ref:`Documentation on module objects <module-objects>`"
-msgstr ""
+msgstr ":ref:`モジュールオブジェクトのドキュメント <module-objects>`"
 
 #: ../../library/types.rst:266
 msgid ""
 "Provides details on the special attributes that can be found on instances "
 "of :class:`!ModuleType`."
 msgstr ""
+":class:`!ModuleType` のインスタンスにおいて見つかる特殊属性の詳細を提供しています。"
 
 #: ../../library/types.rst:269
 msgid ":func:`importlib.util.module_from_spec`"
-msgstr ""
+msgstr ":func:`importlib.util.module_from_spec`"
 
 #: ../../library/types.rst:270
 msgid ""
@@ -399,6 +410,7 @@ msgid ""
 "ModuleType` instances which ensures the various attributes are set "
 "appropriately."
 msgstr ""
+":class:`!ModuleType` コンストラクタを使用して作成したモジュールは、多くの特殊属性が未設定であるか、デフォルト値に設定された状態で作成されます。 :func:`!module_from_spec` は、さまざまな属性が適切に設定されることを保証する、より堅牢な :class:`!ModuleType` インスタンスの作成方法を提供しています。"
 
 #: ../../library/types.rst:278
 msgid "The type of :data:`Ellipsis`."
@@ -409,6 +421,7 @@ msgid ""
 "The type of :ref:`parameterized generics <types-genericalias>` such as "
 "``list[int]``."
 msgstr ""
+"``list[int]`` のような :ref:`パラメータ化されたジェネリクス <types-genericalias>` の型です。"
 
 #: ../../library/types.rst:287
 msgid ""
@@ -416,6 +429,7 @@ msgid ""
 "``tuple`` or ``dict``.  ``t_args`` should be a :class:`tuple` (possibly of "
 "length 1) of types which parameterize ``t_origin``::"
 msgstr ""
+"``t_origin`` は、 ``list`` 、 ``tuple`` 、 ``dict`` のような、パラメータ化されていないジェネリッククラスであるべきです。 ``t_args`` は、 ``t_origin`` をパラメータ化する型の (長さは 1 であるかもしれない) :class:`tuple` であるべきです。::"
 
 #: ../../library/types.rst:291
 msgid ""
@@ -429,15 +443,15 @@ msgstr ""
 
 #: ../../library/types.rst:300
 msgid "This type can now be subclassed."
-msgstr ""
+msgstr "この型は今はサブクラス化できます。"
 
 #: ../../library/types.rst:305
 msgid ":ref:`Generic Alias Types<types-genericalias>`"
-msgstr ""
+msgstr ":ref:`ジェネリックエイリアス型 <types-genericalias>`"
 
 #: ../../library/types.rst:306
 msgid "In-depth documentation on instances of :class:`!types.GenericAlias`"
-msgstr ""
+msgstr ":class:`!types.GenericAlias` のインスタンスに関する詳細なドキュメント"
 
 #: ../../library/types.rst:308
 msgid ":pep:`585` - Type Hinting Generics In Standard Collections"
@@ -446,15 +460,15 @@ msgstr ""
 
 #: ../../library/types.rst:309
 msgid "Introducing the :class:`!types.GenericAlias` class"
-msgstr ""
+msgstr ":class:`!types.GenericAlias` クラスの紹介"
 
 #: ../../library/types.rst:313
 msgid "The type of :ref:`union type expressions<types-union>`."
-msgstr ""
+msgstr ":ref:`合集型表現 <types-union>` の型です。"
 
 #: ../../library/types.rst:319
 msgid "This is now an alias for :class:`typing.Union`."
-msgstr ""
+msgstr "現在これは :class:`typing.Union` のエイリアスです。"
 
 #: ../../library/types.rst:323
 msgid ""
@@ -470,12 +484,14 @@ msgid ""
 "available attributes and operations, and guidance on creating tracebacks "
 "dynamically."
 msgstr ""
+"利用可能な属性と操作、およびトレースバックの動的作成のガイダンスについては、 :ref:`言語リファレンス <traceback-objects>` を参照してください。"
 
 #: ../../library/types.rst:332
 msgid ""
 "The type of :ref:`frame objects <frame-objects>` such as found in :attr:`tb."
 "tb_frame <traceback.tb_frame>` if ``tb`` is a traceback object."
 msgstr ""
+"``tb`` がトレースバックオブジェクトの場合、 :attr:`tb.tb_frame <traceback.tb_frame>` にあるような :ref:`フレームオブジェクト <frame-objects>` の型です。"
 
 #: ../../library/types.rst:338
 msgid ""
@@ -485,6 +501,7 @@ msgid ""
 "purpose as the :class:`property` type, but for classes defined in extension "
 "modules."
 msgstr ""
+":attr:`FrameType.f_locals <frame.f_locals>` や ``array.array.typecode`` のような、拡張モジュールにおいて ``PyGetSetDef`` で定義されたオブジェクトの型です。この型はオブジェクトの属性の記述子として使用され、 :class:`property` 型と同じ目的を持ちますが、こちらは拡張モジュールで定義されたクラスのためのものです。"
 
 #: ../../library/types.rst:347
 msgid ""
@@ -506,6 +523,7 @@ msgid ""
 "will be added as an attribute on the class. This allows the slot to appear "
 "in the class's :attr:`~type.__dict__`."
 msgstr ""
+"さらに、 :attr:`~object.__slots__` 属性でクラスが定義された場合、各スロットに対して :class:`!MemberDescriptorType` のインスタンスがクラスの属性として追加されます。これによりスロットがクラスの :attr:`~type.__dict__` に現れるようになります。"
 
 #: ../../library/types.rst:358
 msgid ""
@@ -530,6 +548,7 @@ msgid ""
 "Updated to support the new union (``|``) operator from :pep:`584`, which "
 "simply delegates to the underlying mapping."
 msgstr ""
+":pep:`584` からの新しい合集演算子 (``|``) をサポートするように更新されました。これは単に元になったマッピングに委託します。"
 
 #: ../../library/types.rst:376
 msgid ""
@@ -590,15 +609,15 @@ msgstr "元になったマッピングの values に対する新しいビュー�
 
 #: ../../library/types.rst:418
 msgid "Return a reverse iterator over the keys of the underlying mapping."
-msgstr ""
+msgstr "元になったマッピングのキーを逆順で繰り返すイテレータを返します。"
 
 #: ../../library/types.rst:424
 msgid "Return a hash of the underlying mapping."
-msgstr ""
+msgstr "元になったマッピングのハッシュを返します。"
 
 #: ../../library/types.rst:430
 msgid "The type of :ref:`capsule objects <capsules>`."
-msgstr ""
+msgstr ":ref:`カプセルオブジェクト <capsules>` の型です。"
 
 #: ../../library/types.rst:436
 msgid "Additional Utility Classes and Functions"
@@ -617,6 +636,7 @@ msgid ""
 "Unlike :class:`object`, with :class:`!SimpleNamespace` you can add and "
 "remove attributes."
 msgstr ""
+":class:`object` とは異なり、 :class:`!SimpleNamespace` では属性を追加したり削除したりできます。"
 
 #: ../../library/types.rst:446
 msgid ""
@@ -628,6 +648,7 @@ msgid ""
 "key-value pairs from that argument (either a mapping object or an :term:"
 "`iterable` object producing key-value pairs). All such keys must be strings."
 msgstr ""
+":py:class:`SimpleNamespace` オブジェクトは :class:`dict` と同じ方法で初期化できます。つまり、キーワード引数、単一の位置引数、または両方で初期化できます。キーワード引数で初期化した場合、それらは直接元になる名前空間に追加されます。また、位置引数で初期化した場合、元になる名前空間はその引数からのキーバリューペアで更新されます (マッピングオブジェクトまたはキーバリューペアを生成する :term:`イテラブル <iterable>` オブジェクト)。このようなキーはすべて文字列でなければなりません。"
 
 #: ../../library/types.rst:457
 msgid "The type is roughly equivalent to the following code::"
@@ -665,16 +686,18 @@ msgstr ""
 msgid ""
 ":class:`!SimpleNamespace` objects are supported by :func:`copy.replace`."
 msgstr ""
+":class:`!SimpleNamespace` オブジェクトは :func:`copy.replace` でサポートされます。"
 
 #: ../../library/types.rst:481
 msgid ""
 "Attribute order in the repr changed from alphabetical to insertion (like "
 "``dict``)."
 msgstr ""
+"repr の属性の順序がアルファベット順から挿入順 (``dict`` のように) に変更されました。"
 
 #: ../../library/types.rst:485
 msgid "Added support for an optional positional argument."
-msgstr ""
+msgstr "オプションの位置引数のサポートが追加されました。"
 
 #: ../../library/types.rst:490
 msgid "Route attribute access on a class to __getattr__."
