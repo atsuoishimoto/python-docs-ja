@@ -2013,12 +2013,28 @@ msgid ""
 "        case _:\n"
 "            never_call_me(arg)  # OK, arg is of type Never (or NoReturn)"
 msgstr ""
+"from typing import Never  # または NoReturn\n"
+"\n"
+"def never_call_me(arg: Never) -> None:\n"
+"    pass\n"
+"\n"
+"def int_or_str(arg: int | str) -> None:\n"
+"    never_call_me(arg)  # 型チェッカーエラー\n"
+"    match arg:\n"
+"        case int():\n"
+"            print(\"It's an int\")\n"
+"        case str():\n"
+"            print(\"It's a str\")\n"
+"        case _:\n"
+"            never_call_me(arg)  # OK, arg は Never 型 (または NoReturn)"
 
 #: ../../library/typing.rst:971
 msgid ""
 ":data:`!Never` and :data:`!NoReturn` have the same meaning in the type "
 "system and static type checkers treat both equivalently."
-msgstr ":data:`!Never` と :data:`!NoReturn` は型システムにおいて同じ意味を持ち、静的型チェッカーは両方を等価に扱います。"
+msgstr ""
+":data:`!Never` と :data:`!NoReturn` は型システムにおいて同じ意味を持ち、"
+"静的型チェッカーは両者を同等に扱います。"
 
 #: ../../library/typing.rst:976
 msgid "Added :data:`NoReturn`."
@@ -2030,7 +2046,7 @@ msgstr ":data:`Never` が追加されました。"
 
 #: ../../library/typing.rst:984
 msgid "Special type to represent the current enclosed class."
-msgstr "現在囲まれているクラスを表現する特別な型です。"
+msgstr "現在の囲んでいるクラスを表現する特別な型です。"
 
 #: ../../library/typing.rst:988
 msgid ""
@@ -2047,12 +2063,25 @@ msgid ""
 "reveal_type(SubclassOfFoo().return_self())  # Revealed type is "
 "\"SubclassOfFoo\""
 msgstr ""
+"from typing import Self, reveal_type\n"
+"\n"
+"class Foo:\n"
+"    def return_self(self) -> Self:\n"
+"        ...\n"
+"        return self\n"
+"\n"
+"class SubclassOfFoo(Foo): pass\n"
+"\n"
+"reveal_type(Foo().return_self())  # 推論された型は \"Foo\"\n"
+"reveal_type(SubclassOfFoo().return_self())  # 推論された型は "
+"\"SubclassOfFoo\""
 
 #: ../../library/typing.rst:1000
 msgid ""
 "This annotation is semantically equivalent to the following, albeit in a "
 "more succinct fashion::"
-msgstr "このアノテーションは以下と意味的には同等ですが、より簡潔な形式です::"
+msgstr ""
+"このアノテーションは、より簡潔な形ではありますが、以下と意味的に同等です::"
 
 #: ../../library/typing.rst:1003
 msgid ""
@@ -2065,6 +2094,14 @@ msgid ""
 "        ...\n"
 "        return self"
 msgstr ""
+"from typing import TypeVar\n"
+"\n"
+"Self = TypeVar(\"Self\", bound=\"Foo\")\n"
+"\n"
+"class Foo:\n"
+"    def return_self(self: Self) -> Self:\n"
+"        ...\n"
+"        return self"
 
 #: ../../library/typing.rst:1012
 msgid ""
@@ -2074,33 +2111,32 @@ msgid ""
 "object returned from ``SubclassOfFoo.return_self`` as being of type ``Foo`` "
 "rather than ``SubclassOfFoo``."
 msgstr ""
-"一般的に、上記の例のように ``self`` を返す場合は、戻り値のアノテーションに "
-"``Self`` を使用すべきです。もし ``Foo.return_self`` が ``\"Foo\"`` を返すと "
-"アノテーションされていた場合、型チェッカーは ``SubclassOfFoo.return_self`` "
-"から返されるオブジェクトを ``SubclassOfFoo`` ではなく ``Foo`` 型として推論して "
-"しまいます。"
+"一般的に、上記の例のように何かが ``self`` を返す場合は、戻り値のアノテーションとして ``Self`` を使用すべきです。"
+"``Foo.return_self`` が ``\"Foo\"`` を返すとアノテートされていた場合、型チェッカーは "
+"``SubclassOfFoo.return_self`` から返されるオブジェクトの型を ``SubclassOfFoo`` ではなく ``Foo`` と推論します。"
 
 #: ../../library/typing.rst:1018
 msgid "Other common use cases include:"
-msgstr "その他の一般的な使用例は以下の通りです:"
+msgstr "その他の一般的な使用例には以下があります:"
 
 #: ../../library/typing.rst:1020
 msgid ""
 ":class:`classmethod`\\s that are used as alternative constructors and return "
 "instances of the ``cls`` parameter."
 msgstr ""
-"代替コンストラクタとして使用され、``cls`` パラメータのインスタンスを返す "
-":class:`classmethod` 。"
+"代替コンストラクターとして使用され、``cls`` パラメーターのインスタンスを返す :class:`classmethod` 。"
 
 #: ../../library/typing.rst:1022
 msgid "Annotating an :meth:`~object.__enter__` method which returns self."
-msgstr "selfを返す :meth:`~object.__enter__` メソッドをアノテーションする。"
+msgstr "self を返す :meth:`~object.__enter__` メソッドのアノテーション。"
 
 #: ../../library/typing.rst:1024
 msgid ""
 "You should not use ``Self`` as the return annotation if the method is not "
 "guaranteed to return an instance of a subclass when the class is subclassed::"
 msgstr ""
+"クラスがサブクラス化されたときにメソッドがサブクラスのインスタンスを返すことが保証されていない場合は、"
+"``Self`` を戻り値のアノテーションとして使用すべきではありません::"
 
 #: ../../library/typing.rst:1028
 msgid ""
@@ -2111,6 +2147,12 @@ msgid ""
 "    def returns_eggs(self) -> \"Eggs\":\n"
 "        return Eggs()"
 msgstr ""
+"class Eggs:\n"
+"    # ここで Self を使うのは間違った戻り値のアノテーションである。\n"
+"    # 返されるオブジェクトは常に Eggs のインスタンスであり、\n"
+"    # サブクラスでも同様である\n"
+"    def returns_eggs(self) -> \"Eggs\":\n"
+"        return Eggs()"
 
 #: ../../library/typing.rst:1035
 msgid "See :pep:`673` for more details."
@@ -2120,7 +2162,8 @@ msgstr "より詳しくは :pep:`673` を参照してください。"
 msgid ""
 "Special annotation for explicitly declaring a :ref:`type alias <type-"
 "aliases>`."
-msgstr ":ref:`型エイリアス <type-aliases>` を明示的に宣言するための特別なアノテーションです。"
+msgstr ""
+":ref:`型エイリアス <type-aliases>` を明示的に宣言するための特別なアノテーションです。"
 
 #: ../../library/typing.rst:1045
 msgid ""
@@ -2128,13 +2171,18 @@ msgid ""
 "\n"
 "Factors: TypeAlias = list[int]"
 msgstr ""
+"from typing import TypeAlias\n"
+"\n"
+"Factors: TypeAlias = list[int]"
 
 #: ../../library/typing.rst:1049
 msgid ""
 "``TypeAlias`` is particularly useful on older Python versions for annotating "
 "aliases that make use of forward references, as it can be hard for type "
 "checkers to distinguish these from normal variable assignments:"
-msgstr "``TypeAlias`` は、前方参照を使用するエイリアスをアノテーションするために、特に古いPythonバージョンで有用です。型チェッカーがこれらを通常の変数代入と区別するのが困難な場合があるためです:"
+msgstr ""
+"``TypeAlias`` は、前方参照を使用するエイリアスのアノテーションにおいて、古いPythonバージョンで特に有用です。"
+"型チェッカーがこれらを通常の変数代入と区別するのが困難な場合があります:"
 
 #: ../../library/typing.rst:1053
 msgid ""
@@ -2153,6 +2201,19 @@ msgid ""
 "    @classmethod\n"
 "    def make_box_of_strings(cls) -> BoxOfStrings: ..."
 msgstr ""
+"from typing import Generic, TypeAlias, TypeVar\n"
+"\n"
+"T = TypeVar(\"T\")\n"
+"\n"
+"# \"Box\" はまだ存在しないため、\n"
+"# Python <3.12 での前方参照にはクォートを使用する必要があります。\n"
+"# ``TypeAlias`` を使用することで、これが型エイリアスの宣言であり、\n"
+"# 文字列への変数代入ではないことを型チェッカーに伝えられます。\n"
+"BoxOfStrings: TypeAlias = \"Box[str]\"\n"
+"\n"
+"class Box(Generic[T]):\n"
+"    @classmethod\n"
+"    def make_box_of_strings(cls) -> BoxOfStrings: ..."
 
 #: ../../library/typing.rst:1069
 msgid "See :pep:`613` for more details."
@@ -2168,13 +2229,9 @@ msgid ""
 "`TypeAlias` is not currently planned, but users are encouraged to migrate "
 "to :keyword:`type` statements."
 msgstr ""
-":data:`TypeAlias` は :keyword:`type` 文が推奨されるため非推奨となりました。 "
-":keyword:`type` 文は :class:`TypeAliasType` のインスタンスを作成し、フォ "
-"ワードリファレンスをネイティブサポートします。 :data:`TypeAlias` と :class:"
-"`TypeAliasType` は似たような目的で似たような名前を持っていますが、これら "
-"は別物であり、後者は前者の型ではありません。 :data:`TypeAlias` の削除は現 "
-"在のところ計画されていませんが、ユーザーは :keyword:`type` 文に移行するこ "
-"とを推奨します。"
+":data:`TypeAlias` は、:class:`TypeAliasType` のインスタンスを作成し、前方参照をネイティブにサポートする :keyword:`type` 文の採用により非推奨となりました。"
+":data:`TypeAlias` と :class:`TypeAliasType` は同様の目的を持ち、名前も似ていますが、別物であり、後者は前者の型ではありません。"
+":data:`TypeAlias` の削除は現在のところ予定されていませんが、ユーザーは :keyword:`type` 文への移行が奨励されています。"
 
 #: ../../library/typing.rst:1084
 msgid "Special forms"
@@ -2199,7 +2256,9 @@ msgstr ""
 msgid ""
 "To define a union, use e.g. ``Union[int, str]`` or the shorthand ``int | "
 "str``. Using that shorthand is recommended. Details:"
-msgstr "ユニオンを定義するには、例えば ``Union[int, str]`` または短縮形の ``int | str`` を使用します。短縮形の使用が推奨されます。詳細:"
+msgstr ""
+"ユニオンを定義するには、例えば ``Union[int, str]`` または省略形の ``int | str`` を使用します。"
+"省略形の使用が推奨されます。詳細:"
 
 #: ../../library/typing.rst:1095
 msgid "The arguments must be types and there must be at least one."
@@ -2217,7 +2276,9 @@ msgstr "Union[Union[int, str], float] == Union[int, str, float]"
 msgid ""
 "However, this does not apply to unions referenced through a type alias, to "
 "avoid forcing evaluation of the underlying :class:`TypeAliasType`::"
-msgstr "ただし、これは型エイリアスを通じて参照されるユニオンには適用されません。これは底層の :class:`TypeAliasType` の強制的な評価を避けるためです::"
+msgstr ""
+"しかし、これは基礎となる :class:`TypeAliasType` の評価を強制することを避けるため、"
+"型エイリアスを通じて参照されるユニオンには適用されません::"
 
 #: ../../library/typing.rst:1104
 msgid ""
@@ -2233,7 +2294,7 @@ msgstr "引数が一つのユニオン型は消えます。例えば::"
 
 #: ../../library/typing.rst:1109
 msgid "Union[int] == int  # The constructor actually returns int"
-msgstr "Union[int] == int  # コンストラクタは実際にはintを返す"
+msgstr "Union[int] == int  # コンストラクタは実際には int を返す"
 
 #: ../../library/typing.rst:1111 ../../library/typing.rst:1253
 msgid "Redundant arguments are skipped, e.g.::"
@@ -2262,7 +2323,7 @@ msgstr "``Union[X][Y]`` と書くことは出来ません。"
 
 #: ../../library/typing.rst:1123
 msgid "Don't remove explicit subclasses from unions at runtime."
-msgstr "実行時にユニオン型から明示的なサブクラスを除去しません。"
+msgstr ""
 "明示的に書かれているサブクラスを、実行時に直和型から取り除かなくなりました。"
 
 #: ../../library/typing.rst:1126
@@ -2281,12 +2342,9 @@ msgid ""
 "Union)``. For compatibility with earlier versions of Python, use "
 "``get_origin(obj) is typing.Union or get_origin(obj) is types.UnionType``."
 msgstr ""
-":class:`types.UnionType` は :class:`Union` のエイリアスとなり、 "
-"``Union[int, str]`` と ``int | str`` は同じクラスのインスタンスを作成しま "
-"す。実行時にオブジェクトが ``Union`` であるかどうかを確認するには、 "
-"``isinstance(obj, Union)`` を使用します。古いバージョンの Python との互換 "
-"性を保つためには、 ``get_origin(obj) is typing.Union or get_origin(obj) is "
-"types.UnionType`` を使用してください。"
+":class:`types.UnionType` は :class:`Union` のエイリアスとなり、``Union[int, str]`` と ``int | str`` は同じクラスのインスタンスを作成します。"
+"実行時にオブジェクトが ``Union`` かどうかをチェックするには、``isinstance(obj, Union)`` を使用してください。"
+"以前のPythonバージョンとの互換性のため、``get_origin(obj) is typing.Union or get_origin(obj) is types.UnionType`` を使用してください。"
 
 #: ../../library/typing.rst:1140
 msgid "``Optional[X]`` is equivalent to ``X | None`` (or ``Union[X, None]``)."
@@ -2310,6 +2368,8 @@ msgid ""
 "def foo(arg: int = 0) -> None:\n"
 "    ..."
 msgstr ""
+"def foo(arg: int = 0) -> None:\n"
+"    ..."
 
 #: ../../library/typing.rst:1150
 msgid ""
@@ -2326,6 +2386,8 @@ msgid ""
 "def foo(arg: Optional[int] = None) -> None:\n"
 "    ..."
 msgstr ""
+"def foo(arg: Optional[int] = None) -> None:\n"
+"    ..."
 
 #: ../../library/typing.rst:1157
 msgid ""
@@ -2337,7 +2399,7 @@ msgstr ""
 
 #: ../../library/typing.rst:1163
 msgid "Special form for annotating higher-order functions."
-msgstr "高階関数をアノテーションするための特別な形式です。"
+msgstr "高階関数のアノテーション用の特別形式です。"
 
 #: ../../library/typing.rst:1165
 msgid ""
@@ -2349,13 +2411,11 @@ msgid ""
 "a :ref:`Callable <annotating-callables>`. The last parameter to "
 "``Concatenate`` must be a :class:`ParamSpec` or ellipsis (``...``)."
 msgstr ""
-"``Concatenate`` は :ref:`Callable <annotating-callables>` と :class:"
-"`ParamSpec` と組み合わせて使用し、他の callable のパラメータを追加、削除、 "
-"または変換する高階 callable にアノテーションを付けるために使用できます。使 "
-"用法は ``Concatenate[Arg1Type, Arg2Type, ..., ParamSpecVariable]`` の形式で "
-"す。 ``Concatenate`` は現在、 :ref:`Callable <annotating-callables>` の最初 "
-"の引数として使用する場合のみ有効です。 ``Concatenate`` の最後のパラメータ "
-"は :class:`ParamSpec` または省略記号 (``...``) である必要があります。"
+"``Concatenate`` は :ref:`Callable <annotating-callables>` と :class:`ParamSpec` と組み合わせて、"
+"別の呼び出し可能オブジェクトのパラメーターを追加、削除、または変換する高階呼び出し可能オブジェクトのアノテーションに使用できます。"
+"使用法は ``Concatenate[Arg1Type, Arg2Type, ..., ParamSpecVariable]`` の形式です。"
+"``Concatenate`` は現在、:ref:`Callable <annotating-callables>` の最初の引数として使用される場合のみ有効です。"
+"``Concatenate`` の最後のパラメーターは :class:`ParamSpec` または省略符 (``...``) でなければなりません。"
 
 #: ../../library/typing.rst:1174
 msgid ""
@@ -2367,12 +2427,9 @@ msgid ""
 "parameter types are dependent on the parameter types of the callable being "
 "passed in::"
 msgstr ""
-"例えば、デコレート対象の関数に :class:`threading.Lock` を提供するデコレー "
-"ター ``with_lock`` をアノテーションするには、 ``Concatenate`` を使用して "
-"``with_lock`` が最初の引数として ``Lock`` を受け取る callable を期待し、異 "
-"なる型シグネチャを持つ callable を返すことを示すことができます。この場合、 "
-":class:`ParamSpec` は返される callable のパラメータ型が、渡される callable の "
-"パラメータ型に依存することを示します::"
+"例えば、デコレートされた関数に :class:`threading.Lock` を提供するデコレーター ``with_lock`` のアノテーションに ``Concatenate`` を使用し、"
+"``with_lock`` が最初の引数として ``Lock`` を受け取る呼び出し可能オブジェクトを期待し、異なる型シグネチャを持つ呼び出し可能オブジェクトを返すことを示すことができます。"
+"この場合、:class:`ParamSpec` は返される呼び出し可能オブジェクトのパラメーター型が渡される呼び出し可能オブジェクトのパラメーター型に依存することを示します::"
 
 #: ../../library/typing.rst:1182
 msgid ""
@@ -2401,14 +2458,37 @@ msgid ""
 "# We don't need to pass in the lock ourselves thanks to the decorator.\n"
 "sum_threadsafe([1.1, 2.2, 3.3])"
 msgstr ""
+"from collections.abc import Callable\n"
+"from threading import Lock\n"
+"from typing import Concatenate\n"
+"\n"
+"# 一度に一つのスレッドだけが関数を実行していることを保証するためにこのロックを使用します。\n"
+"# 任意の時刻で。\n"
+"my_lock = Lock()\n"
+"\n"
+"def with_lock[**P, R](f: Callable[Concatenate[Lock, P], R]) -> Callable[P, "
+"R]:\n"
+"    '''ロックを提供する型安全なデコレーター。'''\n"
+"    def inner(*args: P.args, **kwargs: P.kwargs) -> R:\n"
+"        # 最初の引数としてロックを提供。\n"
+"        return f(my_lock, *args, **kwargs)\n"
+"    return inner\n"
+"\n"
+"@with_lock\n"
+"def sum_threadsafe(lock: Lock, numbers: list[float]) -> float:\n"
+"    '''スレッドセーフな方法で数値のリストを合計します。'''\n"
+"    with lock:\n"
+"        return sum(numbers)\n"
+"\n"
+"# デコレーターのおかげで、自分自身でロックを渡す必要はありません。\n"
+"sum_threadsafe([1.1, 2.2, 3.3])"
 
 #: ../../library/typing.rst:1210 ../../library/typing.rst:2211
 msgid ""
 ":pep:`612` -- Parameter Specification Variables (the PEP which introduced "
 "``ParamSpec`` and ``Concatenate``)"
 msgstr ""
-":pep:`612` -- Parameter Specification Variables (``ParamSpec`` と "
-"``Concatenate`` を導入した PEP)"
+":pep:`612` -- パラメーター仕様変数 (``ParamSpec`` と ``Concatenate`` を導入したPEP)"
 
 #: ../../library/typing.rst:1212
 msgid ":class:`ParamSpec`"
@@ -2420,13 +2500,14 @@ msgstr ":ref:`annotating-callables`"
 
 #: ../../library/typing.rst:1217
 msgid "Special typing form to define \"literal types\"."
-msgstr "「リテラル型」を定義するための特別な型付け形式です。"
+msgstr "\"リテラル型\" を定義するための特別な型付け形式です。"
 
 #: ../../library/typing.rst:1219
 msgid ""
 "``Literal`` can be used to indicate to type checkers that the annotated "
 "object has a value equivalent to one of the provided literals."
-msgstr "``Literal`` は、アノテートされたオブジェクトが提供されたリテラルのいずれかと等価な値を持つことを型チェッカーに示すために使用できます。"
+msgstr ""
+"``Literal`` は、アノテートされたオブジェクトが提供されたリテラルのいずれかと同等の値を持つことを型チェッカーに示すために使用できます。"
 
 #: ../../library/typing.rst:1225
 msgid ""
@@ -2440,6 +2521,15 @@ msgid ""
 "open_helper('/some/path', 'r')      # Passes type check\n"
 "open_helper('/other/path', 'typo')  # Error in type checker"
 msgstr ""
+"def validate_simple(data: Any) -> Literal[True]:  # 常に True を返す\n"
+"    ...\n"
+"\n"
+"type Mode = Literal['r', 'rb', 'w', 'wb']\n"
+"def open_helper(file: str, mode: Mode) -> str:\n"
+"    ...\n"
+"\n"
+"open_helper('/some/path', 'r')      # 型チェックを通過\n"
+"open_helper('/other/path', 'typo')  # 型チェッカーでエラー"
 
 #: ../../library/typing.rst:1235
 msgid ""
@@ -2458,21 +2548,23 @@ msgstr "追加の詳細:"
 
 #: ../../library/typing.rst:1241
 msgid "The arguments must be literal values and there must be at least one."
-msgstr "引数はリテラル値でなければならず、少なくとも一つは必要です。"
+msgstr "引数はリテラル値でなければならず、少なくとも一つ必要です。"
 
 #: ../../library/typing.rst:1243
 msgid "Nested ``Literal`` types are flattened, e.g.::"
-msgstr "ネストした ``Literal`` 型は平均化されます。例えば::"
+msgstr "ネストした ``Literal`` 型は平滑化されます。例えば::"
 
 #: ../../library/typing.rst:1245
 msgid "assert Literal[Literal[1, 2], 3] == Literal[1, 2, 3]"
-msgstr ""
+msgstr "assert Literal[Literal[1, 2], 3] == Literal[1, 2, 3]"
 
 #: ../../library/typing.rst:1247
 msgid ""
 "However, this does not apply to ``Literal`` types referenced through a type "
 "alias, to avoid forcing evaluation of the underlying :class:`TypeAliasType`::"
-msgstr "ただし、これは型エイリアスを通じて参照される ``Literal`` 型には適用されません。これは底層の :class:`TypeAliasType` の強制的な評価を避けるためです::"
+msgstr ""
+"しかし、これは基礎となる :class:`TypeAliasType` の評価を強制することを避けるため、"
+"型エイリアスを通じて参照される ``Literal`` 型には適用されません::"
 
 #: ../../library/typing.rst:1250
 msgid ""
@@ -2488,15 +2580,15 @@ msgstr "assert Literal[1, 2, 1] == Literal[1, 2]"
 
 #: ../../library/typing.rst:1257
 msgid "When comparing literals, the argument order is ignored, e.g.::"
-msgstr "リテラルを比較する際、引数の順序は無視されます。例えば::"
+msgstr "リテラルを比較するとき、引数の順序は無視されます。例えば::"
 
 #: ../../library/typing.rst:1259
 msgid "assert Literal[1, 2] == Literal[2, 1]"
-msgstr ""
+msgstr "assert Literal[1, 2] == Literal[2, 1]"
 
 #: ../../library/typing.rst:1261
 msgid "You cannot subclass or instantiate a ``Literal``."
-msgstr ""
+msgstr "``Literal`` のサブクラスを作成したり、インスタンスを作成することはできません。"
 
 #: ../../library/typing.rst:1263
 msgid "You cannot write ``Literal[X][Y]``."
@@ -2534,6 +2626,9 @@ msgid ""
 "    stats: ClassVar[dict[str, int]] = {} # class variable\n"
 "    damage: int = 10                     # instance variable"
 msgstr ""
+"class Starship:\n"
+"    stats: ClassVar[dict[str, int]] = {} # クラス変数\n"
+"    damage: int = 10                     # インスタンス変数"
 
 #: ../../library/typing.rst:1285
 msgid ":data:`ClassVar` accepts only types and cannot be further subscribed."
@@ -2558,20 +2653,24 @@ msgid ""
 "enterprise_d.stats = {} # Error, setting class variable on instance\n"
 "Starship.stats = {}     # This is OK"
 msgstr ""
+"enterprise_d = Starship(3000)\n"
+"enterprise_d.stats = {} # エラー、インスタンスにクラス変数を設定\n"
+"Starship.stats = {}     # これは OK"
 
 #: ../../library/typing.rst:1301
 msgid ":data:`ClassVar` can now be nested in :data:`Final` and vice versa."
-msgstr ":data:`ClassVar` は現在 :data:`Final` の中にネストでき、その逆も可能です。"
+msgstr ":data:`ClassVar` は :data:`Final` 内にネストできるようになり、逆も可能です。"
 
 #: ../../library/typing.rst:1305
 msgid "Special typing construct to indicate final names to type checkers."
-msgstr "型チェッカーにファイナル名を示すための特別な型付け構成です。"
+msgstr "型チェッカーに最終名を示すための特別な型構築子です。"
 
 #: ../../library/typing.rst:1307
 msgid ""
 "Final names cannot be reassigned in any scope. Final names declared in class "
 "scopes cannot be overridden in subclasses."
 msgstr ""
+"Final名は任意のスコープで再代入できません。クラススコープで宣言されたFinal名はサブクラスでオーバーライドできません。"
 
 #: ../../library/typing.rst:1312
 msgid ""
@@ -2584,6 +2683,14 @@ msgid ""
 "class FastConnector(Connection):\n"
 "    TIMEOUT = 1  # Error reported by type checker"
 msgstr ""
+"MAX_SIZE: Final = 9000\n"
+"MAX_SIZE += 1  # 型チェッカーがエラーを報告\n"
+"\n"
+"class Connection:\n"
+"    TIMEOUT: Final[int] = 10\n"
+"\n"
+"class FastConnector(Connection):\n"
+"    TIMEOUT = 1  # 型チェッカーがエラーを報告"
 
 #: ../../library/typing.rst:1321 ../../library/typing.rst:3234
 msgid ""
@@ -2595,26 +2702,25 @@ msgstr ""
 
 #: ../../library/typing.rst:1328
 msgid ":data:`Final` can now be nested in :data:`ClassVar` and vice versa."
-msgstr ":data:`Final` は現在 :data:`ClassVar` の中にネストでき、その逆も可能です。"
+msgstr ":data:`Final` は :data:`ClassVar` 内にネストできるようになり、逆も可能です。"
 
 #: ../../library/typing.rst:1332
 msgid "Special typing construct to mark a :class:`TypedDict` key as required."
-msgstr ":class:`TypedDict` のキーを必須としてマークするための特別な型付け構成です。"
+msgstr ":class:`TypedDict` のキーを必須としてマークするための特別な型構築子です。"
 
 #: ../../library/typing.rst:1334
 msgid ""
 "This is mainly useful for ``total=False`` TypedDicts. See :class:`TypedDict` "
 "and :pep:`655` for more details."
 msgstr ""
-"これは主に ``total=False`` TypedDict で有用です。詳細については :class:"
-"`TypedDict` と :pep:`655` を参照してください。"
+"これは主に ``total=False`` のTypedDictで有用です。詳細は :class:`TypedDict` と :pep:`655` を参照してください。"
 
 #: ../../library/typing.rst:1341
 msgid ""
 "Special typing construct to mark a :class:`TypedDict` key as potentially "
 "missing."
 msgstr ""
-":class:`TypedDict` のキーを不要としてマークするための特別な型付け構成です。"
+":class:`TypedDict` のキーを潜在的に欠落するものとしてマークするための特別な型構築子です。"
 
 #: ../../library/typing.rst:1344
 msgid "See :class:`TypedDict` and :pep:`655` for more details."
@@ -2624,7 +2730,8 @@ msgstr "より詳しくは、 :class:`TypedDict` と :pep:`655` を参照して�
 msgid ""
 "A special typing construct to mark an item of a :class:`TypedDict` as read-"
 "only."
-msgstr ":class:`TypedDict` のアイテムを読み取り専用としてマークするための特別な型付け構成です。"
+msgstr ""
+":class:`TypedDict` のアイテムを読み取り専用としてマークするための特別な型構築子です。"
 
 #: ../../library/typing.rst:1354
 msgid ""
@@ -2641,7 +2748,7 @@ msgstr ""
 "   year: int\n"
 "\n"
 "def mutate_movie(m: Movie) -> None:\n"
-"   m[\"year\"] = 1999  # 許可される\n"
+"   m[\"year\"] = 1999  # 許可\n"
 "   m[\"title\"] = \"The Matrix\"  # 型チェッカーエラー"
 
 #: ../../library/typing.rst:1362
@@ -2654,7 +2761,7 @@ msgstr "詳細は :class:`TypedDict` と :pep:`705` を参照してください�
 
 #: ../../library/typing.rst:1370
 msgid "Special typing form to add context-specific metadata to an annotation."
-msgstr "アノテーションにコンテキスト固有のメタデータを追加するための特別な型付け形式です。"
+msgstr "アノテーションにコンテキスト固有のメタデータを追加する特別な型付け形式。"
 
 #: ../../library/typing.rst:1372
 msgid ""
@@ -2662,7 +2769,10 @@ msgid ""
 "``Annotated[T, x]``. Metadata added using ``Annotated`` can be used by "
 "static analysis tools or at runtime. At runtime, the metadata is stored in "
 "a :attr:`!__metadata__` attribute."
-msgstr "アノテーション ``Annotated[T, x]`` を使用して、与えられた型 ``T`` にメタデータ ``x`` を追加します。``Annotated`` を使用して追加されたメタデータは、静的解析ツールや実行時に使用できます。実行時には、メタデータは :attr:`!__metadata__` 属性に保存されます。"
+msgstr ""
+"アノテーション ``Annotated[T, x]`` を使用して、与えられた型 ``T`` にメタデータ ``x`` を追加します。"
+" ``Annotated`` を使用して追加されたメタデータは、静的解析ツールや実行時に使用できます。"
+"実行時には、メタデータは :attr:`!__metadata__` 属性に格納されます。"
 
 #: ../../library/typing.rst:1377
 msgid ""
@@ -2671,7 +2781,11 @@ msgid ""
 "treat the annotation as ``T``. As such, ``Annotated`` can be useful for code "
 "that wants to use annotations for purposes outside Python's static typing "
 "system."
-msgstr "ライブラリやツールがアノテーション ``Annotated[T, x]`` に遇い、メタデータに対する特別なロジックを持たない場合、メタデータを無視してアノテーションを単に ``T`` として扱うべきです。このように、``Annotated`` はPythonの静的型付けシステム以外の目的でアノテーションを使用したいコードに有用です。"
+msgstr ""
+"ライブラリやツールがアノテーション ``Annotated[T, x]`` に遭遇し、メタデータに対する特別な"
+"ロジックを持たない場合、メタデータを無視して単純にアノテーションを ``T`` として扱うべきです。"
+"そのため、 ``Annotated`` は Python の静的型付けシステムの範囲外でアノテーションを使用したい"
+"コードに有用です。"
 
 #: ../../library/typing.rst:1383
 msgid ""
@@ -2682,11 +2796,11 @@ msgid ""
 "outside the scope of the typing system, but completely disables typechecking "
 "for a function or class."
 msgstr ""
-"``Annotated[T, x]`` をアノテーションとして使用しても、型チェッカーはメタ "
-"データ ``x`` を単に無視するため、 ``T`` の静的な型チェックは引き続き行われ "
-"ます。この点で、 ``Annotated`` は :func:`@no_type_check <no_type_check>` デ "
-"コレーターとは異なります。後者も型システムの範囲外でアノテーションを追加す "
-"るために使用できますが、関数やクラスの型チェックを完全に無効にします。"
+"アノテーションとして ``Annotated[T, x]`` を使用しても、型チェッカーは単純にメタデータ ``x`` を"
+"無視するため、 ``T`` の静的型チェックは引き続き可能です。この点で、 ``Annotated`` は "
+":func:`@no_type_check <no_type_check>` デコレータとは異なります。このデコレータも型付けシステム"
+"の範囲外でアノテーションを追加するために使用できますが、関数やクラスの型チェックを完全に"
+"無効にしてしまいます。"
 
 #: ../../library/typing.rst:1390
 msgid ""
@@ -2695,18 +2809,16 @@ msgid ""
 "encountering an ``Annotated`` type can scan through the metadata elements to "
 "determine if they are of interest (e.g., using :func:`isinstance`)."
 msgstr ""
-"メタデータの解釈方法の責任は、 ``Annotated`` アノテーションに遭遇したツー "
-"ルまたはライブラリにあります。 ``Annotated`` 型に遭遇したツールまたはライブ "
-"ラリは、メタデータ要素をスキャンして、それらが興味深いものかどうかを判断で "
-"きます（例：:func:`isinstance` を使用）。"
+"メタデータの解釈方法の責任は、 ``Annotated`` アノテーションに遭遇するツールやライブラリに"
+"あります。 ``Annotated`` 型に遭遇するツールやライブラリは、メタデータ要素をスキャンして、"
+"それらが興味深いものかどうかを判断できます（例: :func:`isinstance` を使用）。"
 
 #: ../../library/typing.rst:1398
 msgid ""
 "Here is an example of how you might use ``Annotated`` to add metadata to "
 "type annotations if you were doing range analysis:"
 msgstr ""
-"レンジ分析を行う場合に、 ``Annotated`` を使用して型アノテーションにメタデー "
-"タを追加する方法の例を示します:"
+"範囲解析を行う場合に ``Annotated`` を使用して型アノテーションにメタデータを追加する方法の例です:"
 
 #: ../../library/typing.rst:1401
 msgid ""
@@ -2718,6 +2830,13 @@ msgid ""
 "T1 = Annotated[int, ValueRange(-10, 5)]\n"
 "T2 = Annotated[T1, ValueRange(-20, 3)]"
 msgstr ""
+"@dataclass\n"
+"class ValueRange:\n"
+"    lo: int\n"
+"    hi: int\n"
+"\n"
+"T1 = Annotated[int, ValueRange(-10, 5)]\n"
+"T2 = Annotated[T1, ValueRange(-20, 3)]"
 
 #: ../../library/typing.rst:1411
 msgid ""
@@ -2725,9 +2844,9 @@ msgid ""
 "elements can be supplied as ``Annotated`` supports variadic arguments. The "
 "order of the metadata elements is preserved and matters for equality checks::"
 msgstr ""
-"``Annotated`` の最初の引数は有効な型でなければなりません。 ``Annotated`` "
-"は可変引数をサポートしているため、複数のメタデータ要素を提供できます。メタ "
-"データ要素の順序は保持され、等価性チェックにおいて重要です::"
+"``Annotated`` の最初の引数は有効な型でなければなりません。 ``Annotated`` は可変引数をサポート"
+"しているため、複数のメタデータ要素を提供できます。メタデータ要素の順序は保持され、等価性チェック"
+"において重要です::"
 
 #: ../../library/typing.rst:1415
 msgid ""
@@ -2740,6 +2859,14 @@ msgid ""
 "\n"
 "assert a1 != a2  # Order matters"
 msgstr ""
+"@dataclass\n"
+"class ctype:\n"
+"     kind: str\n"
+"\n"
+"a1 = Annotated[int, ValueRange(3, 10), ctype(\"char\")]\n"
+"a2 = Annotated[int, ctype(\"char\"), ValueRange(3, 10)]\n"
+"\n"
+"assert a1 != a2  # 順序が重要"
 
 #: ../../library/typing.rst:1424
 msgid ""
@@ -2747,17 +2874,17 @@ msgid ""
 "is allowed to add multiple metadata elements to one annotation and how to "
 "merge those annotations."
 msgstr ""
-"クライアントが1つのアノテーションに複数のメタデータ要素を追加できるかどう "
-"か、およびそれらのアノテーションをマージする方法を決定するのは、アノテー "
-"ションを使用するツールによります。"
+"クライアントが1つのアノテーションに複数のメタデータ要素を追加することが許可されているかどうか、"
+"およびそれらのアノテーションをマージする方法を決定するのは、アノテーションを消費するツールに"
+"委ねられています。"
 
 #: ../../library/typing.rst:1428
 msgid ""
 "Nested ``Annotated`` types are flattened. The order of the metadata elements "
 "starts with the innermost annotation::"
 msgstr ""
-"ネストされた ``Annotated`` 型は平坦化されます。メタデータ要素の順序は最も "
-"内側のアノテーションから始まります::"
+"ネストされた ``Annotated`` 型は平坦化されます。メタデータ要素の順序は最も内側の"
+"アノテーションから始まります::"
 
 #: ../../library/typing.rst:1431
 msgid ""
@@ -2766,6 +2893,10 @@ msgid ""
 "    int, ValueRange(3, 10), ctype(\"char\")\n"
 "]"
 msgstr ""
+"assert Annotated[Annotated[int, ValueRange(3, 10)], ctype(\"char\")] == "
+"Annotated[\n"
+"    int, ValueRange(3, 10), ctype(\"char\")\n"
+"]"
 
 #: ../../library/typing.rst:1435
 msgid ""
@@ -2773,9 +2904,8 @@ msgid ""
 "type alias, to avoid forcing evaluation of the underlying :class:"
 "`TypeAliasType`::"
 msgstr ""
-"ただし、これは型エイリアスを介して参照される ``Annotated`` 型には適用されま "
-"せん。基盤となる :class:`TypeAliasType` の評価を強制することを避けるためで "
-"す::"
+"ただし、これは型エイリアスを通じて参照される ``Annotated`` 型には適用されません。"
+"これは基盤となる :class:`TypeAliasType` の評価を強制しないためです::"
 
 #: ../../library/typing.rst:1438
 msgid ""
@@ -2791,7 +2921,7 @@ msgstr ""
 
 #: ../../library/typing.rst:1443
 msgid "Duplicated metadata elements are not removed::"
-msgstr "重複したメタデータ要素は削除されません::"
+msgstr "重複するメタデータ要素は削除されません::"
 
 #: ../../library/typing.rst:1445
 msgid ""
@@ -2799,10 +2929,13 @@ msgid ""
 "    int, ValueRange(3, 10), ValueRange(3, 10)\n"
 "]"
 msgstr ""
+"assert Annotated[int, ValueRange(3, 10)] != Annotated[\n"
+"    int, ValueRange(3, 10), ValueRange(3, 10)\n"
+"]"
 
 #: ../../library/typing.rst:1449
 msgid "``Annotated`` can be used with nested and generic aliases:"
-msgstr "``Annotated`` はネストされたジェネリックエイリアスで使用できます:"
+msgstr "``Annotated`` はネストされた型エイリアスやジェネリック型エイリアスと組み合わせて使用できます:"
 
 #: ../../library/typing.rst:1451
 msgid ""
@@ -2817,10 +2950,19 @@ msgid ""
 "# ``Annotated[list[tuple[int, int]], MaxLen(10)]``:\n"
 "type V = Vec[int]"
 msgstr ""
+"@dataclass\n"
+"class MaxLen:\n"
+"    value: int\n"
+"\n"
+"type Vec[T] = Annotated[list[tuple[T, T]], MaxLen(10)]\n"
+"\n"
+"# 型アノテーションで使用される場合、型チェッカーは \"V\" を\n"
+"# ``Annotated[list[tuple[int, int]], MaxLen(10)]`` と同じように扱います:\n"
+"type V = Vec[int]"
 
 #: ../../library/typing.rst:1463
 msgid "``Annotated`` cannot be used with an unpacked :class:`TypeVarTuple`::"
-msgstr "``Annotated`` はアンパックされた :class:`TypeVarTuple` と一緒に使用できません::"
+msgstr "``Annotated`` は展開された :class:`TypeVarTuple` と組み合わせて使用できません::"
 
 #: ../../library/typing.rst:1465
 msgid ""
@@ -2835,16 +2977,16 @@ msgid ""
 "where ``T1``, ``T2``, ... are :class:`TypeVars <TypeVar>`. This is invalid "
 "as only one type should be passed to Annotated."
 msgstr ""
-"``T1``, ``T2``, ... は :class:`TypeVars <TypeVar>` です。これは、 "
-"Annotated に渡すべき型は1つだけであるため無効です。"
+"ここで ``T1``, ``T2``, ... は :class:`TypeVars <TypeVar>` です。Annotated には1つの型のみを"
+"渡すべきであるため、これは無効です。"
 
 #: ../../library/typing.rst:1470
 msgid ""
 "By default, :func:`get_type_hints` strips the metadata from annotations. "
 "Pass ``include_extras=True`` to have the metadata preserved:"
 msgstr ""
-"デフォルトでは、 :func:`get_type_hints` はアノテーションからメタデータを削除 "
-"します。メタデータを保持するには ``include_extras=True`` を渡してください:"
+"デフォルトでは、 :func:`get_type_hints` はアノテーションからメタデータを除去します。"
+"メタデータを保持するには ``include_extras=True`` を渡します:"
 
 #: ../../library/typing.rst:1473
 msgid ""
@@ -2856,14 +2998,21 @@ msgid ""
 ">>> get_type_hints(func, include_extras=True)\n"
 "{'x': typing.Annotated[int, 'metadata'], 'return': <class 'NoneType'>}"
 msgstr ""
+">>> from typing import Annotated, get_type_hints\n"
+">>> def func(x: Annotated[int, \"metadata\"]) -> None: pass\n"
+"...\n"
+">>> get_type_hints(func)\n"
+"{'x': <class 'int'>, 'return': <class 'NoneType'>}\n"
+">>> get_type_hints(func, include_extras=True)\n"
+"{'x': typing.Annotated[int, 'metadata'], 'return': <class 'NoneType'>}"
 
 #: ../../library/typing.rst:1483
 msgid ""
 "At runtime, the metadata associated with an ``Annotated`` type can be "
 "retrieved via the :attr:`!__metadata__` attribute:"
 msgstr ""
-"実行時には、 ``Annotated`` 型に関連付けられたメタデータは :attr:`!"
-"__metadata__` 属性で取得できます:"
+"実行時には、 ``Annotated`` 型に関連付けられたメタデータは :attr:`!__metadata__` 属性を"
+"通じて取得できます:"
 
 #: ../../library/typing.rst:1486
 msgid ""
@@ -2874,14 +3023,19 @@ msgid ""
 ">>> X.__metadata__\n"
 "('very', 'important', 'metadata')"
 msgstr ""
+">>> from typing import Annotated\n"
+">>> X = Annotated[int, \"very\", \"important\", \"metadata\"]\n"
+">>> X\n"
+"typing.Annotated[int, 'very', 'important', 'metadata']\n"
+">>> X.__metadata__\n"
+"('very', 'important', 'metadata')"
 
 #: ../../library/typing.rst:1495
 msgid ""
 "If you want to retrieve the original type wrapped by ``Annotated``, use the :"
 "attr:`!__origin__` attribute:"
 msgstr ""
-"``Annotated`` でラップされた元の型を取得したい場合は、 :attr:`!__origin__` "
-"属性を使用してください:"
+"``Annotated`` でラップされた元の型を取得したい場合は、 :attr:`!__origin__` 属性を使用します:"
 
 #: ../../library/typing.rst:1498
 msgid ""
@@ -2890,16 +3044,22 @@ msgid ""
 ">>> Password.__origin__\n"
 "<class 'str'>"
 msgstr ""
+">>> from typing import Annotated, get_origin\n"
+">>> Password = Annotated[str, \"secret\"]\n"
+">>> Password.__origin__\n"
+"<class 'str'>"
 
 #: ../../library/typing.rst:1505
 msgid "Note that using :func:`get_origin` will return ``Annotated`` itself:"
-msgstr ":func:`get_origin` を使用すると ``Annotated`` 自身が返されることに注意してください:"
+msgstr ":func:`get_origin` を使用すると ``Annotated`` 自体が返されることに注意してください:"
 
 #: ../../library/typing.rst:1507
 msgid ""
 ">>> get_origin(Password)\n"
 "typing.Annotated"
 msgstr ""
+">>> get_origin(Password)\n"
+"typing.Annotated"
 
 #: ../../library/typing.rst:1514
 msgid ":pep:`593` - Flexible function and variable annotations"
@@ -2907,12 +3067,13 @@ msgstr ":pep:`593` - 柔軟な関数と変数のアノテーション"
 
 #: ../../library/typing.rst:1515
 msgid "The PEP introducing ``Annotated`` to the standard library."
-msgstr "標準ライブラリに ``Annotated`` を導入した PEP です。"
+msgstr "``Annotated`` を標準ライブラリに導入する PEP。"
 
 #: ../../library/typing.rst:1522 ../../library/typing.rst:1606
 msgid ""
 "Special typing construct for marking user-defined type predicate functions."
-msgstr "ユーザー定義の型述語関数をマークするための特別な型付け構成です。"
+msgstr ""
+"ユーザー定義の型述語関数をマークするための特別な型付け構造。"
 
 #: ../../library/typing.rst:1524
 msgid ""
@@ -2921,9 +3082,9 @@ msgid ""
 "runtime, functions marked this way should return a boolean and take at least "
 "one positional argument."
 msgstr ""
-"``TypeIs`` はユーザー定義の型述語関数の戻り値型をアノテーションするのに使用で "
-"きます。``TypeIs`` は単一の型引数のみを受け付けます。実行時に、この方法でマー "
-"クされた関数は真偽値を返し、少なくとも1つの位置引数を取る必要があります。"
+"``TypeIs`` は、ユーザー定義の型述語関数の戻り値の型をアノテーションするために使用できます。"
+"``TypeIs`` は単一の型引数のみを受け付けます。実行時には、このようにマークされた関数は boolean を返し、"
+"少なくとも1つの位置引数を取る必要があります。"
 
 #: ../../library/typing.rst:1529
 msgid ""
@@ -2934,11 +3095,10 @@ msgid ""
 "conditional expression here is sometimes referred to as a \"type "
 "predicate\"::"
 msgstr ""
-"``TypeIs`` は *型の絞り込み* （type narrowing）に効果的です。これは静的型 "
-"チェッカーがプログラムのコードフロー内で式のより正確な型を判定するために使 "
-"用する技術です。通常、型の絞り込みは条件付きコードフローを分析し、コードブ "
-"ロックに絞り込みを適用することで行われます。ここでの条件式は時々「型述語」 "
-"と呼ばれます::"
+"``TypeIs`` は *型の絞り込み* （type narrowing）の恩恵を受けることを目的としています。これは、"
+"プログラムのコードフロー内で式のより正確な型を決定するために静的型チェッカーが使用する技術です。"
+"通常、型の絞り込みは条件コードフローを分析し、その絞り込みをコードブロックに適用することによって行われます。"
+"ここでの条件式は「型述語」と呼ばれることがあります::"
 
 #: ../../library/typing.rst:1535
 msgid ""
@@ -2951,6 +3111,14 @@ msgid ""
 "        # Else, type of ``val`` is narrowed to ``float``.\n"
 "        ..."
 msgstr ""
+"def is_str(val: str | float):\n"
+"    # \"isinstance\" 型述語\n"
+"    if isinstance(val, str):\n"
+"        # ``val`` の型は ``str`` に絞り込まれる\n"
+"        ...\n"
+"    else:\n"
+"        # それ以外の場合、``val`` の型は ``float`` に絞り込まれる\n"
+"        ..."
 
 #: ../../library/typing.rst:1544
 msgid ""
@@ -2962,38 +3130,37 @@ msgid ""
 "incompatible (e.g., ``list[object]`` to ``list[int]``) or when the function "
 "does not return ``True`` for all instances of the narrowed type."
 msgstr ""
-"時にはユーザー定義の真偽関数を型述語として使用すると便利な場合があります。この "
-"ような関数は、静的型チェッカーにこの意図を知らせるために、戻り値型として "
-"``TypeIs[...]`` または :data:`TypeGuard` を使用すべきです。``TypeIs`` は通常 "
-"``TypeGuard`` よりも直感的な動作をしますが、入力と出力の型が非互換の場合（例： "
-"``list[object]`` から ``list[int]``）や、関数が絞り込まれた型のすべてのインス "
-"タンスに対して ``True`` を返さない場合には使用できません。"
+"ユーザー定義の boolean 関数を型述語として使用すると便利な場合があります。そのような関数は、"
+"この意図を静的型チェッカーに知らせるために、戻り値の型として ``TypeIs[...]`` または :data:`TypeGuard` を"
+"使用する必要があります。``TypeIs`` は通常 ``TypeGuard`` より直感的な動作をしますが、"
+"入力と出力の型が互換性がない場合（例：``list[object]`` から ``list[int]``）や、"
+"関数が絞り込まれた型のすべてのインスタンスに対して ``True`` を返さない場合には使用できません。"
 
 #: ../../library/typing.rst:1552
 msgid ""
 "Using  ``-> TypeIs[NarrowedType]`` tells the static type checker that for a "
 "given function:"
-msgstr "``-> TypeIs[NarrowedType]`` を使用することで、静的型チェッカーに特定の関数について以下を伝えます:"
+msgstr ""
+"``-> TypeIs[NarrowedType]`` を使用すると、与えられた関数について静的型チェッカーに次のことを"
+"伝えます:"
 
 #: ../../library/typing.rst:1555 ../../library/typing.rst:1616
 msgid "The return value is a boolean."
-msgstr "戻り値はブール値です。"
+msgstr "戻り値は boolean です。"
 
 #: ../../library/typing.rst:1556
 msgid ""
 "If the return value is ``True``, the type of its argument is the "
 "intersection of the argument's original type and ``NarrowedType``."
 msgstr ""
-"戻り値が ``True`` の場合、その引数の型は引数の元の型と ``NarrowedType`` の共通 "
-"集合となります。"
+"戻り値が ``True`` の場合、その引数の型は引数の元の型と ``NarrowedType`` の積集合になります。"
 
 #: ../../library/typing.rst:1558
 msgid ""
 "If the return value is ``False``, the type of its argument is narrowed to "
 "exclude ``NarrowedType``."
 msgstr ""
-"戻り値が ``False`` の場合、その引数の型は ``NarrowedType`` を除外するよう絞り込 "
-"まれます。"
+"戻り値が ``False`` の場合、その引数の型は ``NarrowedType`` を除外するように絞り込まれます。"
 
 #: ../../library/typing.rst:1563
 msgid ""
@@ -3018,6 +3185,25 @@ msgid ""
 "        # so only ``Unrelated`` is left.\n"
 "        assert_type(arg, Unrelated)"
 msgstr ""
+"from typing import assert_type, final, TypeIs\n"
+"\n"
+"class Parent: pass\n"
+"class Child(Parent): pass\n"
+"@final\n"
+"class Unrelated: pass\n"
+"\n"
+"def is_parent(val: object) -> TypeIs[Parent]:\n"
+"    return isinstance(val, Parent)\n"
+"\n"
+"def run(arg: Child | Unrelated):\n"
+"    if is_parent(arg):\n"
+"        # ``arg`` の型は ``Parent`` と ``Child`` の積集合に絞り込まれ、\n"
+"        # これは ``Child`` と等価です。\n"
+"        assert_type(arg, Child)\n"
+"    else:\n"
+"        # ``arg`` の型は ``Parent`` を除外するように絞り込まれるため、\n"
+"        # ``Unrelated`` のみが残ります。\n"
+"        assert_type(arg, Unrelated)"
 
 #: ../../library/typing.rst:1584
 msgid ""
@@ -3027,10 +3213,10 @@ msgid ""
 "behavior in the type system; it is the user's responsibility to write such "
 "functions in a type-safe manner."
 msgstr ""
-"``TypeIs`` の内部の型は関数の引数の型と一致していなければなりません。そうでない "
-"場合、静的型チェッカーはエラーを発生させます。間違って書かれた ``TypeIs`` 関数は "
-"型システムの健全性を損なう動作を引き起こす可能性があります。このような関数を型安全 "
-"な方法で書くことはユーザーの責任です。"
+"``TypeIs`` 内の型は関数の引数の型と一致している必要があります。一致していない場合、"
+"静的型チェッカーはエラーを発生させます。誤って書かれた ``TypeIs`` 関数は型システムで"
+"健全でない動作を引き起こす可能性があります。そのような関数を型安全な方法で書くのは"
+"ユーザーの責任です。"
 
 #: ../../library/typing.rst:1590
 msgid ""
@@ -3038,6 +3224,8 @@ msgid ""
 "``TypeIs`` maps to the type of the second parameter (after ``cls`` or "
 "``self``)."
 msgstr ""
+"``TypeIs`` 関数がクラスまたはインスタンスメソッドの場合、``TypeIs`` 内の型は"
+"2番目のパラメーター（``cls`` または ``self`` の後）の型にマップされます。"
 
 #: ../../library/typing.rst:1594
 msgid ""
@@ -3045,14 +3233,17 @@ msgid ""
 "if ``foo(arg)`` returns ``True``, then ``arg`` is an instance of ``TypeB``, "
 "and if it returns ``False``, it is not an instance of ``TypeB``."
 msgstr ""
+"要約すると、``def foo(arg: TypeA) -> TypeIs[TypeB]: ...`` の形式は、"
+"``foo(arg)`` が ``True`` を返す場合、``arg`` は ``TypeB`` のインスタンスであり、"
+"``False`` を返す場合、``TypeB`` のインスタンスではないことを意味します。"
 
 #: ../../library/typing.rst:1598
 msgid ""
 "``TypeIs`` also works with type variables.  For more information, see :pep:"
 "`742` (Narrowing types with ``TypeIs``)."
 msgstr ""
-"``TypeIs`` は型変数でも動作します。詳細については :pep:`742` (Narrowing "
-"types with ``TypeIs``) を参照してください。"
+"``TypeIs`` は型変数とも組み合わせて使用できます。詳細については、:pep:`742` "
+"（``TypeIs`` による型の絞り込み）を参照してください。"
 
 #: ../../library/typing.rst:1608
 msgid ""
@@ -3061,32 +3252,32 @@ msgid ""
 "similarly to :data:`TypeIs`, but has subtly different effects on type "
 "checking behavior (see below)."
 msgstr ""
-"型述語関数は、その引数が特定の型のインスタンスかどうかを返すユーザー定義関数です。 "
-"``TypeGuard`` は :data:`TypeIs` と似たような動作をしますが、型チェックの動作に "
-"微妙に異なる効果があります（下記参照）。"
+"型述語関数は、その引数が特定の型のインスタンスかどうかを返すユーザー定義関数です。"
+"``TypeGuard`` は :data:`TypeIs` と同様に機能しますが、型チェック動作に微妙に異なる"
+"影響を与えます（以下を参照）。"
 
 #: ../../library/typing.rst:1613
 msgid ""
 "Using  ``-> TypeGuard`` tells the static type checker that for a given "
 "function:"
 msgstr ""
-"``-> TypeGuard`` を使用すると、静的型チェッカーに対して指定された関数につ "
-"いて以下のことを伝えられます:"
+"``-> TypeGuard`` を使用すると、与えられた関数について静的型チェッカーに次のことを"
+"伝えます:"
 
 #: ../../library/typing.rst:1617
 msgid ""
 "If the return value is ``True``, the type of its argument is the type inside "
 "``TypeGuard``."
 msgstr ""
-"戻り値が ``True`` の場合、その引数の型は ``TypeGuard`` の内部の型になります。"
+"戻り値が ``True`` の場合、その引数の型は ``TypeGuard`` 内の型になります。"
 
 #: ../../library/typing.rst:1620
 msgid ""
 "``TypeGuard`` also works with type variables.  See :pep:`647` for more "
 "details."
 msgstr ""
-"``TypeGuard`` も型変数で動作します。詳細については :pep:`647` を参照してく "
-"ださい。"
+"``TypeGuard`` は型変数とも組み合わせて使用できます。詳細については :pep:`647` を"
+"参照してください。"
 
 #: ../../library/typing.rst:1624
 msgid ""
@@ -3102,6 +3293,17 @@ msgid ""
 "        # Type of ``val`` remains as ``list[object]``.\n"
 "        print(\"Not a list of strings!\")"
 msgstr ""
+"def is_str_list(val: list[object]) -> TypeGuard[list[str]]:\n"
+"    '''リスト内のすべてのオブジェクトが文字列かどうかを判定する'''\n"
+"    return all(isinstance(x, str) for x in val)\n"
+"\n"
+"def func1(val: list[object]):\n"
+"    if is_str_list(val):\n"
+"        # ``val`` の型は ``list[str]`` に絞り込まれる\n"
+"        print(\" \".join(val))\n"
+"    else:\n"
+"        # ``val`` の型は ``list[object]`` のまま\n"
+"        print(\"Not a list of strings!\")"
 
 #: ../../library/typing.rst:1636
 msgid "``TypeIs`` and ``TypeGuard`` differ in the following ways:"
@@ -3114,10 +3316,10 @@ msgid ""
 "narrowing ``list[object]`` to ``list[str]`` even though the latter is not a "
 "subtype of the former, since ``list`` is invariant."
 msgstr ""
-"``TypeIs`` は絞り込み対象の型が入力型のサブタイプである必要がありますが、 "
-"``TypeGuard`` にはその要求がありません。主な理由は、 ``list`` は共変でない "
-"ため、 ``list[str]`` は ``list[object]`` のサブタイプではありませんが、 "
-"``list[object]`` を ``list[str]`` に絞り込むような操作を可能にするためです。"
+"``TypeIs`` は絞り込まれた型が入力型のサブタイプであることを要求しますが、"
+"``TypeGuard`` は要求しません。主な理由は、``list`` が不変であるため、"
+"``list[str]`` が ``list[object]`` のサブタイプではないにもかかわらず、"
+"``list[object]`` を ``list[str]`` に絞り込むようなことを可能にするためです。"
 
 #: ../../library/typing.rst:1642
 msgid ""
@@ -3128,9 +3330,9 @@ msgid ""
 "type. (Technically, this is known as an intersection type.)"
 msgstr ""
 "``TypeGuard`` 関数が ``True`` を返すとき、型チェッカーは変数の型を正確に "
-"``TypeGuard`` 型に絞り込みます。 ``TypeIs`` 関数が ``True`` を返すとき、型 "
-"チェッカーは変数の以前に知られていた型と ``TypeIs`` 型を組み合わせてより正 "
-"確な型を推論できます（技術的には、これは交差型と呼ばれます）。"
+"``TypeGuard`` 型に絞り込みます。``TypeIs`` 関数が ``True`` を返すとき、"
+"型チェッカーは変数の以前に知られた型と ``TypeIs`` 型を組み合わせて、より正確な型を"
+"推論できます。（技術的には、これは積集合型として知られています。）"
 
 #: ../../library/typing.rst:1646
 msgid ""
@@ -3139,13 +3341,13 @@ msgid ""
 "``False``, type checkers can narrow the type of the variable to exclude the "
 "``TypeIs`` type."
 msgstr ""
-"``TypeGuard`` 関数が ``False`` を返すとき、型チェッカーは変数の型を全く絞 "
-"り込むことができません。 ``TypeIs`` 関数が ``False`` を返すとき、型チェッ "
-"カーは変数の型から ``TypeIs`` 型を除外するように絞り込むことができます。"
+"``TypeGuard`` 関数が ``False`` を返すとき、型チェッカーは変数の型を全く絞り込む"
+"ことができません。``TypeIs`` 関数が ``False`` を返すとき、型チェッカーは変数の型を"
+"``TypeIs`` 型を除外するように絞り込むことができます。"
 
 #: ../../library/typing.rst:1655
 msgid "Typing operator to conceptually mark an object as having been unpacked."
-msgstr "オブジェクトがアンパックされたことを概念的に示す型付け演算子です。"
+msgstr "概念的にオブジェクトが展開されたことをマークするための型付け演算子。"
 
 #: ../../library/typing.rst:1657
 msgid ""
@@ -3153,9 +3355,8 @@ msgid ""
 "<typevartuple>` is equivalent to using ``Unpack`` to mark the type variable "
 "tuple as having been unpacked::"
 msgstr ""
-"例えば、 :ref:`type variable tuple <typevartuple>` でアンパック演算子 ``*`` "
-"を使用することは、 ``Unpack`` を使用して型変数タプルがアンパックされたこと "
-"をマークすることと同等です::"
+"例えば、:ref:`型変数タプル <typevartuple>` に展開演算子 ``*`` を使用することは、"
+"``Unpack`` を使用して型変数タプルが展開されたことをマークすることと等価です::"
 
 #: ../../library/typing.rst:1661
 msgid ""
@@ -3166,7 +3367,7 @@ msgid ""
 msgstr ""
 "Ts = TypeVarTuple('Ts')\n"
 "tup: tuple[*Ts]\n"
-"# 実質的には:\n"
+"# 実質的には以下と同じ:\n"
 "tup: tuple[Unpack[Ts]]"
 
 #: ../../library/typing.rst:1666
@@ -3176,10 +3377,10 @@ msgid ""
 "<tuple>` types. You might see ``Unpack`` being used explicitly in older "
 "versions of Python, where ``*`` couldn't be used in certain places::"
 msgstr ""
-"実際、 ``Unpack`` は :class:`typing.TypeVarTuple <TypeVarTuple>` と :class:"
-"`builtins.tuple <tuple>` 型のコンテキストにおいて ``*`` と相互に使用できま "
-"す。 ``*`` が特定の場所で使用できなかった古いバージョンの Python では、 "
-"``Unpack`` が明示的に使用されているのを見ることがあります::"
+"実際、``Unpack`` は :class:`typing.TypeVarTuple <TypeVarTuple>` と "
+":class:`builtins.tuple <tuple>` 型のコンテキストで ``*`` と互換的に使用できます。"
+"``*`` が特定の場所で使用できなかった Python の古いバージョンでは、``Unpack`` が"
+"明示的に使用されているのを見ることがあります::"
 
 #: ../../library/typing.rst:1672
 msgid ""
@@ -3191,14 +3392,21 @@ msgid ""
 "tup: tuple[*Ts]         # Syntax error on Python <= 3.10!\n"
 "tup: tuple[Unpack[Ts]]  # Semantically equivalent, and backwards-compatible"
 msgstr ""
+"# Python の古いバージョンでは、TypeVarTuple と Unpack は\n"
+"# `typing_extensions` バックポートパッケージに配置されています。\n"
+"from typing_extensions import TypeVarTuple, Unpack\n"
+"\n"
+"Ts = TypeVarTuple('Ts')\n"
+"tup: tuple[*Ts]         # Python <= 3.10 では構文エラー！\n"
+"tup: tuple[Unpack[Ts]]  # 意味的には等価で、後方互換性があります"
 
 #: ../../library/typing.rst:1680
 msgid ""
 "``Unpack`` can also be used along with :class:`typing.TypedDict` for typing "
 "``**kwargs`` in a function signature::"
 msgstr ""
-"``Unpack`` は :class:`typing.TypedDict` と組み合わせて関数シグネチャの "
-"``**kwargs`` の型付けにも使用できます::"
+"``Unpack`` は :class:`typing.TypedDict` と組み合わせて、関数シグネチャで"
+"``**kwargs`` を型付けするためにも使用できます::"
 
 #: ../../library/typing.rst:1683
 msgid ""
@@ -3212,13 +3420,21 @@ msgid ""
 "# and `year` of type `int`.\n"
 "def foo(**kwargs: Unpack[Movie]): ..."
 msgstr ""
+"from typing import TypedDict, Unpack\n"
+"\n"
+"class Movie(TypedDict):\n"
+"    name: str\n"
+"    year: int\n"
+"\n"
+"# この関数は2つのキーワード引数を期待します - `str` 型の `name` と\n"
+"# `int` 型の `year`。\n"
+"def foo(**kwargs: Unpack[Movie]): ..."
 
 #: ../../library/typing.rst:1693
 msgid ""
 "See :pep:`692` for more details on using ``Unpack`` for ``**kwargs`` typing."
 msgstr ""
-"``**kwargs`` の型付けでの ``Unpack`` の使用に関する詳細については :pep: "
-"`692` を参照してください。"
+"``**kwargs`` の型付けに ``Unpack`` を使用することの詳細については :pep:`692` を参照してください。"
 
 #: ../../library/typing.rst:1698
 msgid "Building generic types and type aliases"
@@ -3230,8 +3446,8 @@ msgid ""
 "intended purpose is to be building blocks for creating generic types and "
 "type aliases."
 msgstr ""
-"以下のクラスはアノテーションとして直接使用すべきではありません。これらの "
-"目的は、ジェネリック型と型エイリアスを作成するための構成要素となることです。"
+"以下のクラスは直接アノテーションとして使用すべきではありません。これらの意図された目的は、"
+"ジェネリック型と型エイリアスを作成するための構成要素となることです。"
 
 #: ../../library/typing.rst:1704
 msgid ""
@@ -3240,9 +3456,8 @@ msgid ""
 "with Python 3.11 and earlier, they can also be created without the dedicated "
 "syntax, as documented below."
 msgstr ""
-"これらのオブジェクトは特別な構文（ :ref:`type parameter lists <type-params>` "
-"と :keyword:`type` 文）で作成できます。 Python 3.11 以前との互換性のため、 "
-"以下に記載されているように専用構文なしでも作成できます。"
+"これらのオブジェクトは特別な構文（:ref:`型パラメータリスト <type-params>` と :keyword:`type` 文）を通じて作成できます。"
+"Python 3.11 以前との互換性のため、以下に記載されているように、専用の構文なしでも作成できます。"
 
 #: ../../library/typing.rst:1711
 msgid "Abstract base class for generic types."
@@ -3253,6 +3468,7 @@ msgid ""
 "A generic type is typically declared by adding a list of type parameters "
 "after the class name::"
 msgstr ""
+"ジェネリック型は通常、クラス名の後に型パラメータのリストを追加することで宣言されます::"
 
 #: ../../library/typing.rst:1716
 msgid ""
@@ -3261,12 +3477,18 @@ msgid ""
 "        ...\n"
 "        # Etc."
 msgstr ""
+"class Mapping[KT, VT]:\n"
+"    def __getitem__(self, key: KT) -> VT:\n"
+"        ...\n"
+"        # など"
 
 #: ../../library/typing.rst:1721
 msgid ""
 "Such a class implicitly inherits from ``Generic``. The runtime semantics of "
 "this syntax are discussed in the :ref:`Language Reference <generic-classes>`."
 msgstr ""
+"このようなクラスは ``Generic`` から暗黙的に継承されます。この構文のランタイムセマンティクスについては、"
+":ref:`言語リファレンス <generic-classes>` で説明されています。"
 
 #: ../../library/typing.rst:1725
 msgid "This class can then be used as follows::"
@@ -3280,14 +3502,18 @@ msgid ""
 "    except KeyError:\n"
 "        return default"
 msgstr ""
+"def lookup_name[X, Y](mapping: Mapping[X, Y], key: X, default: Y) -> Y:\n"
+"    try:\n"
+"        return mapping[key]\n"
+"    except KeyError:\n"
+"        return default"
 
 #: ../../library/typing.rst:1733
 msgid ""
 "Here the brackets after the function name indicate a :ref:`generic function "
 "<generic-functions>`."
 msgstr ""
-"ここで関数名の後の角括弧は :ref:`generic function <generic-functions>` を示 "
-"しています。"
+"ここで関数名の後の角括弧は :ref:`ジェネリック関数 <generic-functions>` を示しています。"
 
 #: ../../library/typing.rst:1736
 msgid ""
@@ -3295,8 +3521,8 @@ msgid ""
 "explicitly inheriting from ``Generic``. In this case, the type parameters "
 "must be declared separately::"
 msgstr ""
-"後方互換性のため、ジェネリッククラスは ``Generic`` から明示的に継承するこ "
-"とでも宣言できます。この場合、型パラメータは別途宣言する必要があります::"
+"後方互換性のため、ジェネリッククラスは ``Generic`` から明示的に継承することでも宣言できます。"
+"この場合、型パラメータは別途宣言する必要があります::"
 
 #: ../../library/typing.rst:1741
 msgid ""
@@ -3308,6 +3534,13 @@ msgid ""
 "        ...\n"
 "        # Etc."
 msgstr ""
+"KT = TypeVar('KT')\n"
+"VT = TypeVar('VT')\n"
+"\n"
+"class Mapping(Generic[KT, VT]):\n"
+"    def __getitem__(self, key: KT) -> VT:\n"
+"        ...\n"
+"        # など"
 
 #: ../../library/typing.rst:1753
 msgid "Type variable."
@@ -3319,22 +3552,23 @@ msgid ""
 "for :ref:`generic functions <generic-functions>`, :ref:`generic classes "
 "<generic-classes>`, and :ref:`generic type aliases <generic-type-aliases>`::"
 msgstr ""
-"型変数を構築する推奨方法は、 :ref:`generic functions <generic-functions>` 、 "
-":ref:`generic classes <generic-classes>` 、および :ref:`generic type aliases "
-"<generic-type-aliases>` 専用の構文を使用することです::"
+"型変数を構築する推奨される方法は、:ref:`ジェネリック関数 <generic-functions>`、:ref:`ジェネリッククラス <generic-classes>`、"
+":ref:`ジェネリック型エイリアス <generic-type-aliases>` 用の専用構文を使用することです::"
 
 #: ../../library/typing.rst:1760
 msgid ""
 "class Sequence[T]:  # T is a TypeVar\n"
 "    ..."
 msgstr ""
+"class Sequence[T]:  # T は TypeVar\n"
+"    ..."
 
 #: ../../library/typing.rst:1763
 msgid ""
 "This syntax can also be used to create bounded and constrained type "
 "variables::"
 msgstr ""
-"この構文は境界のある型変数と制約のある型変数を作成するためにも使用できます::"
+"この構文は、境界付きと制約付きの型変数を作成するためにも使用できます::"
 
 #: ../../library/typing.rst:1766
 msgid ""
@@ -3346,6 +3580,12 @@ msgid ""
 "str or bytes\n"
 "    ..."
 msgstr ""
+"class StrSequence[S: str]:  # S は `str` 上限を持つ TypeVar;\n"
+"    ...                     # S は \"`str` によって境界付けされている\" と言える\n"
+"\n"
+"\n"
+"class StrOrBytesSequence[A: (str, bytes)]:  # A は str または bytes に制約された TypeVar\n"
+"    ..."
 
 #: ../../library/typing.rst:1773
 msgid ""
@@ -3360,9 +3600,9 @@ msgid ""
 "S = TypeVar('S', bound=str)  # Can be any subtype of str\n"
 "A = TypeVar('A', str, bytes)  # Must be exactly str or bytes"
 msgstr ""
-"T = TypeVar('T')  # 何でも可\n"
-"S = TypeVar('S', bound=str)  # str のサブタイプ\n"
-"A = TypeVar('A', str, bytes)  # 正確に str または bytes"
+"T = TypeVar('T')  # 何でも可能\n"
+"S = TypeVar('S', bound=str)  # str のサブタイプなら何でも可能\n"
+"A = TypeVar('A', str, bytes)  # str または bytes のみ"
 
 #: ../../library/typing.rst:1779
 msgid ""
@@ -3371,10 +3611,9 @@ msgid ""
 "function and type alias definitions. See :class:`Generic` for more "
 "information on generic types.  Generic functions work as follows::"
 msgstr ""
-"型変数は主に静的型チェッカーの利益のために存在します。ジェネリック型のパラ "
-"メータとして、またジェネリック関数と型エイリアス定義のパラメータとして機能し "
-"ます。ジェネリック型に関する詳細については :class:`Generic` を参照してくだ "
-"さい。ジェネリック関数は以下のように動作します::"
+"型変数は主に静的型チェッカーのために存在します。これらは、ジェネリック型のパラメータとして、"
+"またジェネリック関数と型エイリアス定義のパラメータとして機能します。ジェネリック型の詳細については :class:`Generic` を参照してください。"
+"ジェネリック関数は次のように動作します::"
 
 #: ../../library/typing.rst:1785
 msgid ""
@@ -3393,14 +3632,28 @@ msgid ""
 "    \"\"\"Add two strings or bytes objects together.\"\"\"\n"
 "    return x + y"
 msgstr ""
+"def repeat[T](x: T, n: int) -> Sequence[T]:\n"
+"    \"\"\"x への n 個の参照を含むリストを返す。\"\"\"\n"
+"    return [x]*n\n"
+"\n"
+"\n"
+"def print_capitalized[S: str](x: S) -> S:\n"
+"    \"\"\"x を大文字で印刷し、x を返す。\"\"\"\n"
+"    print(x.capitalize())\n"
+"    return x\n"
+"\n"
+"\n"
+"def concatenate[A: (str, bytes)](x: A, y: A) -> A:\n"
+"    \"\"\"2つの文字列または bytes オブジェクトを結合する。\"\"\"\n"
+"    return x + y"
 
 #: ../../library/typing.rst:1800
 msgid ""
 "Note that type variables can be *bounded*, *constrained*, or neither, but "
 "cannot be both bounded *and* constrained."
 msgstr ""
-"型変数は *境界のある* 、 *制約のある* 、またはどちらでもないことができます "
-"が、境界 *と* 制約の両方を持つことはできません。"
+"型変数は *境界付き* 、*制約付き* 、またはそのどちらでもない場合がありますが、"
+"境界付き *かつ* 制約付きの両方にはできないことに注意してください。"
 
 #: ../../library/typing.rst:1803
 msgid ""
@@ -3411,12 +3664,10 @@ msgid ""
 "or ``contravariant=True``. By default, manually created type variables are "
 "invariant. See :pep:`484` and :pep:`695` for more details."
 msgstr ""
-"型変数の分散は、 :ref:`type parameter syntax <type-params>` で作成されたと "
-"きや ``infer_variance=True`` が渡されたときに型チェッカーによって推論されま "
-"す。手動で作成された型変数は、 ``covariant=True`` または "
-"``contravariant=True`` を渡すことで明示的に共変または反変としてマークできま "
-"す。デフォルトでは、手動で作成された型変数は不変です。詳細については :pep: "
-"`484` と :pep:`695` を参照してください。"
+"型変数の変性は、:ref:`型パラメータ構文 <type-params>` で作成されるか、``infer_variance=True`` が渡されたときに"
+"型チェッカーによって推論されます。手動で作成された型変数は、``covariant=True`` または ``contravariant=True`` を渡すことで"
+"明示的に共変または反変とマークできます。デフォルトでは、手動で作成された型変数は不変です。"
+"詳細については :pep:`484` と :pep:`695` を参照してください。"
 
 #: ../../library/typing.rst:1811
 msgid ""
@@ -3424,9 +3675,8 @@ msgid ""
 "semantics in several important ways. Using a *bounded* type variable means "
 "that the ``TypeVar`` will be solved using the most specific type possible::"
 msgstr ""
-"境界のある型変数と制約のある型変数は、いくつかの重要な点で異なるセマンティ "
-"クスを持ちます。 *境界のある* 型変数を使用すると、 ``TypeVar`` は可能な限り "
-"最も具体的な型を使用して解決されます::"
+"境界付き型変数と制約付き型変数は、いくつかの重要な点で異なるセマンティクスを持ちます。"
+"*境界付き* 型変数を使用することは、``TypeVar`` が可能な限り最も具体的な型を使用して解決されることを意味します::"
 
 #: ../../library/typing.rst:1815
 msgid ""
@@ -3441,14 +3691,23 @@ msgid ""
 "\n"
 "z = print_capitalized(45)  # error: int is not a subtype of str"
 msgstr ""
+"x = print_capitalized('a string')\n"
+"reveal_type(x)  # 明かされた型は str\n"
+"\n"
+"class StringSubclass(str):\n"
+"    pass\n"
+"\n"
+"y = print_capitalized(StringSubclass('another string'))\n"
+"reveal_type(y)  # 明かされた型は StringSubclass\n"
+"\n"
+"z = print_capitalized(45)  # エラー: int は str のサブタイプではない"
 
 #: ../../library/typing.rst:1826
 msgid ""
 "The upper bound of a type variable can be a concrete type, abstract type "
 "(ABC or Protocol), or even a union of types::"
 msgstr ""
-"型変数の上限は、具象型、抽象型 (ABC または Protocol)、さらには型のユニオンであっ "
-"ても構いません::"
+"型変数の上限は、具体的な型、抽象型（ABC または Protocol）、または型の合併型でも可能です::"
 
 #: ../../library/typing.rst:1829
 msgid ""
@@ -3460,14 +3719,19 @@ msgid ""
 "bytes\n"
 "V = TypeVar('V', bound=SupportsAbs)  # Can be anything with an __abs__ method"
 msgstr ""
+"# __abs__ メソッドを持つものなら何でも可能\n"
+"def print_abs[T: SupportsAbs](arg: T) -> None:\n"
+"    print(\"Absolute value:\", abs(arg))\n"
+"\n"
+"U = TypeVar('U', bound=str|bytes)  # 合併型 str|bytes のサブタイプなら何でも可能\n"
+"V = TypeVar('V', bound=SupportsAbs)  # __abs__ メソッドを持つものなら何でも可能"
 
 #: ../../library/typing.rst:1838
 msgid ""
 "Using a *constrained* type variable, however, means that the ``TypeVar`` can "
 "only ever be solved as being exactly one of the constraints given::"
 msgstr ""
-"一方、 *制約のある* 型変数を使用すると、 ``TypeVar`` は与えられた制約のうち "
-"正確に1つとしてのみ解決されます::"
+"しかし、*制約付き* 型変数を使用することは、``TypeVar`` が与えられた制約の正確に1つとしてのみ解決されることを意味します::"
 
 #: ../../library/typing.rst:1841
 msgid ""
@@ -3481,32 +3745,39 @@ msgid ""
 "c = concatenate('one', b'two')  # error: type variable 'A' can be either str "
 "or bytes in a function call, but not both"
 msgstr ""
+"a = concatenate('one', 'two')\n"
+"reveal_type(a)  # 明かされた型は str\n"
+"\n"
+"b = concatenate(StringSubclass('one'), StringSubclass('two'))\n"
+"reveal_type(b)  # StringSubclass が渡されているにもかかわらず、明かされた型は str\n"
+"\n"
+"c = concatenate('one', b'two')  # エラー: 型変数 'A' は関数呼び出しで str または bytes のいずれかですが、両方ではありません"
 
 #: ../../library/typing.rst:1849
 msgid "At runtime, ``isinstance(x, T)`` will raise :exc:`TypeError`."
-msgstr "実行時には、``isinstance(x, T)`` は :exc:`TypeError` を発生させます。"
+msgstr "実行時に ``isinstance(x, T)`` は :exc:`TypeError` を発生させます。"
 
 #: ../../library/typing.rst:1853
 msgid "The name of the type variable."
-msgstr "型変数の名前です。"
+msgstr "型変数の名前。"
 
 #: ../../library/typing.rst:1857
 msgid "Whether the type var has been explicitly marked as covariant."
-msgstr "型変数が明示的に共変としてマークされているかどうかです。"
+msgstr "型変数が明示的に共変としてマークされているかどうか。"
 
 #: ../../library/typing.rst:1861
 msgid "Whether the type var has been explicitly marked as contravariant."
-msgstr "型変数が明示的に反変としてマークされているかどうかです。"
+msgstr "型変数が明示的に反変としてマークされているかどうか。"
 
 #: ../../library/typing.rst:1865
 msgid ""
 "Whether the type variable's variance should be inferred by type checkers."
 msgstr ""
-"型変数の分散が型チェッカーによって推論されるべきかどうか。"
+"型変数の変性が型チェッカーによって推論されるべきかどうか。"
 
 #: ../../library/typing.rst:1871
 msgid "The upper bound of the type variable, if any."
-msgstr "型変数の上限境界があれば、その境界です。"
+msgstr "型変数の上限（存在する場合）。"
 
 #: ../../library/typing.rst:1875
 msgid ""
@@ -3514,9 +3785,8 @@ msgid ""
 "params>`, the bound is evaluated only when the attribute is accessed, not "
 "when the type variable is created (see :ref:`lazy-evaluation`)."
 msgstr ""
-":ref:`type parameter syntax <type-params>` で作成された型変数の場合、境界 "
-"は型変数が作成されたときではなく、属性がアクセスされたときにのみ評価されま "
-"す（ :ref:`lazy-evaluation` を参照）。"
+":ref:`型パラメータ構文 <type-params>` を通じて作成された型変数の場合、境界は型変数が作成されたときではなく、"
+"属性がアクセスされたときにのみ評価されます（:ref:`lazy-evaluation` を参照）。"
 
 #: ../../library/typing.rst:1881
 msgid ""
@@ -3527,13 +3797,14 @@ msgid ""
 "passed to :func:`annotationlib.call_evaluate_function` to evaluate the value "
 "in a different format."
 msgstr ""
-":attr:`~TypeVar.__bound__` 属性に対応する :term:`evaluate function` です。"
-"直接呼び出されると、このメソッドは :attr:`~annotationlib.Format.VALUE` フォーマットのみをサポートし、これは :attr:`~TypeVar.__bound__` 属性に直接アクセスするのと同等です。"
-"しかし、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡すことで、異なるフォーマットで値を評価することができます。"
+":attr:`~TypeVar.__bound__` 属性に対応する :term:`評価関数` です。直接呼び出された場合、このメソッドは "
+":attr:`~annotationlib.Format.VALUE` 形式のみをサポートします。これは :attr:`~TypeVar.__bound__` 属性に直接"
+"アクセスするのと同等ですが、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡して"
+"異なる形式で値を評価することができます。"
 
 #: ../../library/typing.rst:1891
 msgid "A tuple containing the constraints of the type variable, if any."
-msgstr "型変数の制約があれば、それを含むタプルです。"
+msgstr "型変数の制約を含むタプル（存在する場合）。"
 
 #: ../../library/typing.rst:1895
 msgid ""
@@ -3541,7 +3812,8 @@ msgid ""
 "params>`, the constraints are evaluated only when the attribute is accessed, "
 "not when the type variable is created (see :ref:`lazy-evaluation`)."
 msgstr ""
-":ref:`型パラメーター構文 <type-params>` で作成された型変数の場合、制約は型変数が作成されたときではなく、属性がアクセスされたときにのみ評価されます（ :ref:`lazy-evaluation` を参照）。"
+":ref:`型パラメータ構文 <type-params>` を通じて作成された型変数の場合、制約は型変数が作成されたときではなく、"
+"属性がアクセスされたときにのみ評価されます（:ref:`lazy-evaluation` を参照）。"
 
 #: ../../library/typing.rst:1901
 msgid ""
@@ -3552,17 +3824,17 @@ msgid ""
 "method object can be passed to :func:`annotationlib.call_evaluate_function` "
 "to evaluate the value in a different format."
 msgstr ""
-":attr:`~TypeVar.__constraints__` 属性に対応する :term:`evaluate function` です。"
-"直接呼び出されると、このメソッドは :attr:`~annotationlib.Format.VALUE` フォーマットのみをサポートし、これは :attr:`~TypeVar.__constraints__` 属性に直接アクセスするのと同等です。"
-"しかし、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡すことで、異なるフォーマットで値を評価することができます。"
+":attr:`~TypeVar.__constraints__` 属性に対応する :term:`評価関数` です。直接呼び出された場合、このメソッドは "
+":attr:`~annotationlib.Format.VALUE` 形式のみをサポートします。これは :attr:`~TypeVar.__constraints__` 属性に"
+"直接アクセスするのと同等ですが、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡して"
+"異なる形式で値を評価することができます。"
 
 #: ../../library/typing.rst:1911
 msgid ""
 "The default value of the type variable, or :data:`typing.NoDefault` if it "
 "has no default."
 msgstr ""
-"型変数のデフォルト値、またはデフォルトがない場合は :data:`typing.NoDefault` "
-"。"
+"型変数のデフォルト値、またはデフォルトがない場合は :data:`typing.NoDefault`。"
 
 #: ../../library/typing.rst:1918
 msgid ""
@@ -3573,9 +3845,10 @@ msgid ""
 "can be passed to :func:`annotationlib.call_evaluate_function` to evaluate "
 "the value in a different format."
 msgstr ""
-":attr:`~TypeVar.__default__` 属性に対応する :term:`evaluate function` です。"
-"直接呼び出されると、このメソッドは :attr:`~annotationlib.Format.VALUE` フォーマットのみをサポートし、これは :attr:`~TypeVar.__default__` 属性に直接アクセスするのと同等です。"
-"しかし、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡すことで、異なるフォーマットで値を評価することができます。"
+":attr:`~TypeVar.__default__` 属性に対応する :term:`評価関数` です。直接呼び出された場合、このメソッドは "
+":attr:`~annotationlib.Format.VALUE` 形式のみをサポートします。これは :attr:`~TypeVar.__default__` 属性に"
+"直接アクセスするのと同等ですが、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡して"
+"異なる形式で値を評価することができます。"
 
 #: ../../library/typing.rst:1928
 msgid ""
@@ -3584,10 +3857,9 @@ msgid ""
 "NoDefault` singleton, except that it does not force evaluation of the :ref:"
 "`lazily evaluated <lazy-evaluation>` default value."
 msgstr ""
-"型変数がデフォルト値を持つかどうかを返します。これは :attr:`__default__` が "
-":data:`typing.NoDefault` シングルトンでないかどうかをチェックすることと同等で "
-"すが、 :ref:`lazily evaluated <lazy-evaluation>` デフォルト値の評価を強制し "
-"ません。"
+"型変数がデフォルト値を持つかどうかを返します。これは :attr:`__default__` が :data:`typing.NoDefault` "
+"シングルトンでないかをチェックするのと同等ですが、:ref:`遅延評価 <lazy-evaluation>` されるデフォルト値の"
+"評価を強制しません。"
 
 #: ../../library/typing.rst:1937
 msgid ""
@@ -3595,9 +3867,8 @@ msgid ""
 "params>` syntax introduced by :pep:`695`. The ``infer_variance`` parameter "
 "was added."
 msgstr ""
-"型変数は :pep:`695` で導入された :ref:`type parameter <type-params>` 構文を "
-"使用して宣言できるようになりました。 ``infer_variance`` パラメータが追加さ "
-"れました。"
+"型変数は :pep:`695` で導入された :ref:`型パラメータ <type-params>` 構文を使用して宣言できるようになりました。"
+"``infer_variance`` パラメータが追加されました。"
 
 #: ../../library/typing.rst:1943 ../../library/typing.rst:2092
 #: ../../library/typing.rst:2204
@@ -3609,16 +3880,15 @@ msgid ""
 "Type variable tuple. A specialized form of :ref:`type variable <typevar>` "
 "that enables *variadic* generics."
 msgstr ""
-"型変数タプル。 *可変個* ジェネリックを可能にする :ref:`type variable "
-"<typevar>` の特殊な形式です。"
+"型変数タプル。*可変長* ジェネリクスを可能にする :ref:`型変数 <typevar>` の特殊化された形式。"
 
 #: ../../library/typing.rst:1952
 msgid ""
 "Type variable tuples can be declared in :ref:`type parameter lists <type-"
 "params>` using a single asterisk (``*``) before the name::"
 msgstr ""
-"型変数タプルは :ref:`type parameter lists <type-params>` で名前の前に単一の "
-"アスタリスク (``*``) を使用して宣言できます::"
+"型変数タプルは :ref:`型パラメータリスト <type-params>` で名前の前に単一のアスタリスク（``*``）を使用して"
+"宣言できます::"
 
 #: ../../library/typing.rst:1955
 msgid ""
@@ -3626,10 +3896,13 @@ msgid ""
 "T]:\n"
 "    return (*tup[1:], tup[0])"
 msgstr ""
+"def move_first_element_to_last[T, *Ts](tup: tuple[T, *Ts]) -> tuple[*Ts, "
+"T]:\n"
+"    return (*tup[1:], tup[0])"
 
 #: ../../library/typing.rst:1958
 msgid "Or by explicitly invoking the ``TypeVarTuple`` constructor::"
-msgstr "または ``TypeVarTuple`` コンストラクタを明示的に呼び出すことでも::"
+msgstr "または ``TypeVarTuple`` コンストラクタを明示的に呼び出すことで::"
 
 #: ../../library/typing.rst:1960
 msgid ""
@@ -3652,9 +3925,8 @@ msgid ""
 "number of types by acting like an *arbitrary* number of type variables "
 "wrapped in a tuple. For example::"
 msgstr ""
-"通常の型変数は単一の型でのパラメータ化を可能にします。一方、型変数タプルは "
-"タプルにラップされた *任意の* 数の型変数のように動作し、 *任意の* 数の型での "
-"パラメータ化を可能にします。例えば::"
+"通常の型変数は単一の型でのパラメータ化を可能にします。対照的に、型変数タプルは、タプルにラップされた *任意の* 数の"
+"型変数のように動作することで、*任意の* 数の型でのパラメータ化を可能にします。例えば::"
 
 #: ../../library/typing.rst:1971
 msgid ""
@@ -3675,19 +3947,19 @@ msgid ""
 "# (at least one element is required)\n"
 "move_first_element_to_last(tup=())"
 msgstr ""
-"# T は int にバインド、Ts は () にバインド\n"
+"# T は int に束縛され、Ts は () に束縛される\n"
 "# 戻り値は (1,) で、型は tuple[int]\n"
 "move_first_element_to_last(tup=(1,))\n"
 "\n"
-"# T は int にバインド、Ts は (str,) にバインド\n"
+"# T は int に束縛され、Ts は (str,) に束縛される\n"
 "# 戻り値は ('spam', 1) で、型は tuple[str, int]\n"
 "move_first_element_to_last(tup=(1, 'spam'))\n"
 "\n"
-"# T は int にバインド、Ts は (str, float) にバインド\n"
+"# T は int に束縛され、Ts は (str, float) に束縛される\n"
 "# 戻り値は ('spam', 3.0, 1) で、型は tuple[str, float, int]\n"
 "move_first_element_to_last(tup=(1, 'spam', 3.0))\n"
 "\n"
-"# これは型チェックに失敗する（実行時にも失敗する）\n"
+"# これは型チェックに失敗します（実行時にも失敗します）\n"
 "# tuple[()] は tuple[T, *Ts] と互換性がないため\n"
 "# （少なくとも1つの要素が必要）\n"
 "move_first_element_to_last(tup=())"
@@ -3701,17 +3973,17 @@ msgid ""
 "older versions of Python, you might see this written using :data:`Unpack "
 "<Unpack>` instead, as ``Unpack[Ts]``.)"
 msgstr ""
-"``tuple[T, *Ts]`` でアンパック演算子 ``*`` を使用していることに注意してください。"
-"概念的には、``Ts`` を型変数のタプル ``(T1, T2, ...)`` として考えることができます。"
-"``tuple[T, *Ts]`` は ``tuple[T, *(T1, T2, ...)]`` となり、これは ``tuple[T, T1, T2, ...]`` と同等です。"
-"（古いバージョンの Python では、代わりに :data:`Unpack <Unpack>` を使用して ``Unpack[Ts]`` と書かれることもあります。）"
+"``tuple[T, *Ts]`` での展開演算子 ``*`` の使用に注意してください。概念的には、``Ts`` を型変数のタプル "
+"``(T1, T2, ...)`` と考えることができます。そうすると ``tuple[T, *Ts]`` は ``tuple[T, *(T1, T2, ...)]`` "
+"となり、これは ``tuple[T, T1, T2, ...]`` と等価です。（Python の古いバージョンでは、代わりに "
+":data:`Unpack <Unpack>` を使用して ``Unpack[Ts]`` と書かれているのを見ることがあります。）"
 
 #: ../../library/typing.rst:1996
 msgid ""
 "Type variable tuples must *always* be unpacked. This helps distinguish type "
 "variable tuples from normal type variables::"
 msgstr ""
-"型変数タプルは *常に* アンパックされる必要があります。これにより、型変数タプルと通常の型変数を区別できます::"
+"型変数タプルは *常に* 展開される必要があります。これは型変数タプルを通常の型変数と区別するのに役立ちます::"
 
 #: ../../library/typing.rst:1999
 msgid ""
@@ -3728,6 +4000,7 @@ msgid ""
 "Type variable tuples can be used in the same contexts as normal type "
 "variables. For example, in class definitions, arguments, and return types::"
 msgstr ""
+"型変数タプルは通常の型変数と同じコンテキストで使用できます。例えば、クラス定義、引数、戻り値の型で::"
 
 #: ../../library/typing.rst:2006
 msgid ""
@@ -3736,12 +4009,16 @@ msgid ""
 "    def __abs__(self) -> \"Array[*Shape]\": ...\n"
 "    def get_shape(self) -> tuple[*Shape]: ..."
 msgstr ""
+"class Array[*Shape]:\n"
+"    def __getitem__(self, key: tuple[*Shape]) -> float: ...\n"
+"    def __abs__(self) -> \"Array[*Shape]\": ...\n"
+"    def get_shape(self) -> tuple[*Shape]: ..."
 
 #: ../../library/typing.rst:2011
 msgid ""
 "Type variable tuples can be happily combined with normal type variables:"
 msgstr ""
-"型変数タプルは通常の型変数と組み合わせることができます:"
+"型変数タプルは通常の型変数と組み合わせて使用できます:"
 
 #: ../../library/typing.rst:2013
 msgid ""
@@ -3757,13 +4034,24 @@ msgid ""
 "float_array_1d: Array[float, Height] = Array()     # Totally fine\n"
 "int_array_2d: Array[int, Height, Width] = Array()  # Yup, fine too"
 msgstr ""
+"class Array[DType, *Shape]:  # これはOK\n"
+"    pass\n"
+"\n"
+"class Array2[*Shape, DType]:  # これもOK\n"
+"    pass\n"
+"\n"
+"class Height: ...\n"
+"class Width: ...\n"
+"\n"
+"float_array_1d: Array[float, Height] = Array()     # 完全にOK\n"
+"int_array_2d: Array[int, Height, Width] = Array()  # これもOK"
 
 #: ../../library/typing.rst:2027
 msgid ""
 "However, note that at most one type variable tuple may appear in a single "
 "list of type arguments or type parameters::"
 msgstr ""
-"ただし、単一の型引数または型パラメーターのリストには、最大1つの型変数タプルのみが現れることができることに注意してください::"
+"ただし、単一の型引数または型パラメータのリストには、最大で一つの型変数タプルしか出現できないことに注意してください::"
 
 #: ../../library/typing.rst:2030
 msgid ""
@@ -3771,13 +4059,16 @@ msgid ""
 "class Array[*Shape, *Shape]:  # Not valid\n"
 "    pass"
 msgstr ""
+"x: tuple[*Ts, *Ts]            # 無効\n"
+"class Array[*Shape, *Shape]:  # 無効\n"
+"    pass"
 
 #: ../../library/typing.rst:2034
 msgid ""
 "Finally, an unpacked type variable tuple can be used as the type annotation "
 "of ``*args``::"
 msgstr ""
-"最後に、アンパックされた型変数タプルを ``*args`` の型アノテーションとして使用できます::"
+"最後に、展開された型変数タプルは ``*args`` の型アノテーションとして使用できます::"
 
 #: ../../library/typing.rst:2037
 msgid ""
@@ -3788,6 +4079,12 @@ msgid ""
 "    ...\n"
 "    callback(*args)"
 msgstr ""
+"def call_soon[*Ts](\n"
+"    callback: Callable[[*Ts], None],\n"
+"    *args: *Ts\n"
+") -> None:\n"
+"    ...\n"
+"    callback(*args)"
 
 #: ../../library/typing.rst:2044
 msgid ""
@@ -3797,8 +4094,9 @@ msgid ""
 "Here, this allows us to ensure the types of the ``*args`` passed to "
 "``call_soon`` match the types of the (positional) arguments of ``callback``."
 msgstr ""
-"``*args`` のアンパックされていないアノテーション（例：``*args: int``）は *すべての* 引数が ``int`` であることを指定するのに対し、``*args: *Ts`` は ``*args`` の *個々の* 引数の型を参照できます。"
-"ここでは、``call_soon`` に渡される ``*args`` の型が ``callback`` の（位置）引数の型と一致することを保証できます。"
+"``*args`` の展開されないアノテーション（例：``*args: int``）が *すべての* 引数が ``int`` であることを指定するのと対照的に、"
+"``*args: *Ts`` は ``*args`` 内の *個々の* 引数の型への参照を可能にします。ここでは、これにより"
+"``call_soon`` に渡される ``*args`` の型が ``callback`` の（位置）引数の型と一致することを保証できます。"
 
 #: ../../library/typing.rst:2051
 msgid "See :pep:`646` for more details on type variable tuples."
@@ -3806,14 +4104,14 @@ msgstr "型変数タプルの詳細については :pep:`646` を参照してく
 
 #: ../../library/typing.rst:2055
 msgid "The name of the type variable tuple."
-msgstr "型変数タプルの名前です。"
+msgstr "型変数タプルの名前。"
 
 #: ../../library/typing.rst:2059
 msgid ""
 "The default value of the type variable tuple, or :data:`typing.NoDefault` if "
 "it has no default."
 msgstr ""
-"型変数タプルのデフォルト値、またはデフォルトがない場合は :data:`typing.NoDefault` です。"
+"型変数タプルのデフォルト値、またはデフォルトがない場合は :data:`typing.NoDefault`。"
 
 #: ../../library/typing.rst:2066
 msgid ""
@@ -3824,9 +4122,10 @@ msgid ""
 "object can be passed to :func:`annotationlib.call_evaluate_function` to "
 "evaluate the value in a different format."
 msgstr ""
-":attr:`~TypeVarTuple.__default__` 属性に対応する :term:`evaluate function` です。"
-"直接呼び出されると、このメソッドは :attr:`~annotationlib.Format.VALUE` フォーマットのみをサポートし、これは :attr:`~TypeVarTuple.__default__` 属性に直接アクセスするのと同等です。"
-"しかし、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡すことで、異なるフォーマットで値を評価することができます。"
+":attr:`~TypeVarTuple.__default__` 属性に対応する :term:`評価関数` です。直接呼び出された場合、このメソッドは "
+":attr:`~annotationlib.Format.VALUE` 形式のみをサポートします。これは :attr:`~TypeVarTuple.__default__` 属性に"
+"直接アクセスするのと同等ですが、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡して"
+"異なる形式で値を評価することができます。"
 
 #: ../../library/typing.rst:2076
 msgid ""
@@ -3835,30 +4134,30 @@ msgid ""
 "NoDefault` singleton, except that it does not force evaluation of the :ref:"
 "`lazily evaluated <lazy-evaluation>` default value."
 msgstr ""
-"型変数タプルがデフォルト値を持つかどうかを返します。これは、:attr:`__default__` が :data:`typing.NoDefault` シングルトンでないかどうかをチェックするのと同等ですが、:ref:`遅延評価 <lazy-evaluation>` されるデフォルト値の評価を強制しません。"
+"型変数タプルがデフォルト値を持つかどうかを返します。これは :attr:`__default__` が :data:`typing.NoDefault` "
+"シングルトンでないかをチェックするのと同等ですが、:ref:`遅延評価 <lazy-evaluation>` されるデフォルト値の"
+"評価を強制しません。"
 
 #: ../../library/typing.rst:2087
 msgid ""
 "Type variable tuples can now be declared using the :ref:`type parameter "
 "<type-params>` syntax introduced by :pep:`695`."
 msgstr ""
-"型変数タプルは、:pep:`695` で導入された :ref:`型パラメーター <type-params>` 構文を使用して宣言できるようになりました。"
+"型変数タプルは :pep:`695` で導入された :ref:`型パラメータ <type-params>` 構文を使用して宣言できるようになりました。"
 
 #: ../../library/typing.rst:2096
 msgid ""
 "Parameter specification variable.  A specialized version of :ref:`type "
 "variables <typevar>`."
 msgstr ""
-"パラメータ仕様変数。 :ref:`type variables <typevar>` の特殊なバージョンで "
-"す。"
+"パラメータ仕様変数。:ref:`型変数 <typevar>` の特殊化版。"
 
 #: ../../library/typing.rst:2099
 msgid ""
 "In :ref:`type parameter lists <type-params>`, parameter specifications can "
 "be declared with two asterisks (``**``)::"
 msgstr ""
-":ref:`type parameter lists <type-params>` では、パラメータ仕様を二重アス "
-"タリスク (``**``) で宣言できます::"
+":ref:`型パラメータリスト <type-params>` では、パラメータ仕様は2つのアスタリスク（``**``）で宣言できます::"
 
 #: ../../library/typing.rst:2102
 msgid "type IntFunc[**P] = Callable[P, int]"
@@ -3869,8 +4168,7 @@ msgid ""
 "For compatibility with Python 3.11 and earlier, ``ParamSpec`` objects can "
 "also be created as follows::"
 msgstr ""
-"Python 3.11 以前との互換性のため、 ``ParamSpec`` オブジェクトは以下のよう "
-"にも作成できます::"
+"Python 3.11 以前との互換性のため、``ParamSpec`` オブジェクトは以下のように作成することもできます::"
 
 #: ../../library/typing.rst:2107
 msgid "P = ParamSpec('P')"
@@ -3885,12 +4183,11 @@ msgid ""
 "first argument to ``Callable``, or as parameters for user-defined Generics.  "
 "See :class:`Generic` for more information on generic types."
 msgstr ""
-"パラメータ仕様変数は主に静的型チェッカーの利益のために存在します。これらは "
-"ある callable のパラメータ型を別の callable に転送するために使用され、これ "
-"は高階関数やデコレーターで一般的に見られるパターンです。これらは "
-"``Concatenate`` で使用されるか、 ``Callable`` の最初の引数として、またはユー "
-"ザー定義の Generics のパラメータとして使用される場合のみ有効です。ジェネ "
-"リック型の詳細については :class:`Generic` を参照してください。"
+"パラメータ仕様変数は主に静的型チェッカーのために存在します。これらは、ある呼び出し可能オブジェクトの"
+"パラメータ型を別の呼び出し可能オブジェクトに転送するために使用されます。これは高階関数やデコレータで"
+"一般的に見られるパターンです。これらは ``Concatenate`` で使用されるか、``Callable`` の最初の引数として使用されるか、"
+"ユーザー定義のジェネリクスのパラメータとして使用される場合にのみ有効です。ジェネリック型の詳細については :class:`Generic` を"
+"参照してください。"
 
 #: ../../library/typing.rst:2116
 msgid ""
@@ -3899,10 +4196,9 @@ msgid ""
 "tells the type checker that the callable passed into the decorator and the "
 "new callable returned by it have inter-dependent type parameters::"
 msgstr ""
-"例えば、関数に基本的なログ記録を追加するために、関数呼び出しをログに記録す "
-"る ``add_logging`` デコレーターを作成できます。パラメータ仕様変数は、デコ "
-"レーターに渡される callable と、それによって返される新しい callable が相互 "
-"依存の型パラメータを持つことを型チェッカーに伝えます::"
+"例えば、関数に基本的なログ機能を追加するために、関数呼び出しをログ出力するデコレータ ``add_logging`` を"
+"作成できます。パラメータ仕様変数は、デコレータに渡される呼び出し可能オブジェクトとそれが返す新しい"
+"呼び出し可能オブジェクトが相互依存する型パラメータを持つことを型チェッカーに伝えます::"
 
 #: ../../library/typing.rst:2121
 msgid ""
@@ -3921,6 +4217,20 @@ msgid ""
 "    '''Add two numbers together.'''\n"
 "    return x + y"
 msgstr ""
+"from collections.abc import Callable\n"
+"import logging\n"
+"\n"
+"def add_logging[T, **P](f: Callable[P, T]) -> Callable[P, T]:\n"
+"    '''関数にログ機能を追加する型安全なデコレータ。'''\n"
+"    def inner(*args: P.args, **kwargs: P.kwargs) -> T:\n"
+"        logging.info(f'{f.__name__} was called')\n"
+"        return f(*args, **kwargs)\n"
+"    return inner\n"
+"\n"
+"@add_logging\n"
+"def add_two(x: float, y: float) -> float:\n"
+"    '''二つの数値を加算する。'''\n"
+"    return x + y"
 
 #: ../../library/typing.rst:2136
 msgid ""
@@ -3928,16 +4238,15 @@ msgid ""
 "use a :class:`TypeVar` with upper bound ``Callable[..., Any]``.  However "
 "this causes two problems:"
 msgstr ""
-"``ParamSpec`` がなければ、以前これをアノテーションする最も簡単な方法は、上 "
-"限境界 ``Callable[..., Any]`` を持つ :class:`TypeVar` を使用することでした。 "
-"しかし、これは2つの問題を引き起こします:"
+"``ParamSpec`` がない場合、以前はこれをアノテーションする最も簡単な方法は、上限が ``Callable[..., Any]`` の "
+":class:`TypeVar` を使用することでした。しかし、これには2つの問題があります:"
 
 #: ../../library/typing.rst:2140
 msgid ""
 "The type checker can't type check the ``inner`` function because ``*args`` "
 "and ``**kwargs`` have to be typed :data:`Any`."
 msgstr ""
-"型チェッカーは ``inner`` 関数を型チェックできません。なぜなら ``*args`` と ``**kwargs`` は :data:`Any` として型付けされる必要があるからです。"
+"``*args`` と ``**kwargs`` が :data:`Any` で型付けされる必要があるため、型チェッカーは ``inner`` 関数を型チェックできません。"
 
 #: ../../library/typing.rst:2142
 msgid ""
@@ -3945,9 +4254,8 @@ msgid ""
 "when returning the ``inner`` function, or the static type checker must be "
 "told to ignore the ``return inner``."
 msgstr ""
-"``inner`` 関数を返すときに ``add_logging`` デコレータの本体で :func:`~cast` が "
-"必要になる場合があります。または静的型チェッカーに ``return inner`` を無視する "
-"よう伝える必要があります。"
+"``inner`` 関数を返すときに ``add_logging`` デコレータの本体で :func:`~cast` が必要になるか、"
+"または静的型チェッカーに ``return inner`` を無視するように指示する必要があります。"
 
 #: ../../library/typing.rst:2149
 msgid ""
@@ -3961,26 +4269,23 @@ msgid ""
 "``P.kwargs`` are instances respectively of :class:`ParamSpecArgs` and :class:"
 "`ParamSpecKwargs`."
 msgstr ""
-"``ParamSpec`` は位置引数とキーワード引数の両方をキャプチャするため、 ``P."
-"args`` と ``P.kwargs`` を使用して ``ParamSpec`` を構成要素に分割できます。 "
-"``P.args`` は指定された呼び出しの位置パラメータのタプルを表し、 ``*args`` の "
-"アノテーションにのみ使用すべきです。 ``P.kwargs`` は指定された呼び出しのキー "
-"ワードパラメータとその値のマッピングを表し、 ``**kwargs`` のアノテーションに "
-"のみ使用すべきです。両方の属性は、アノテーションされたパラメータがスコープ内 "
-"にあることを要求します。実行時には、 ``P.args`` と ``P.kwargs`` はそれぞれ :"
-"class:`ParamSpecArgs` と :class:`ParamSpecKwargs` のインスタンスです。"
+"``ParamSpec`` は位置パラメータとキーワードパラメータの両方をキャプチャするため、``P.args`` と ``P.kwargs`` を"
+"使用して ``ParamSpec`` をその構成要素に分割できます。``P.args`` は与えられた呼び出しでの位置パラメータの"
+"タプルを表し、``*args`` のアノテーションにのみ使用すべきです。``P.kwargs`` は与えられた呼び出しでの"
+"キーワードパラメータとその値のマッピングを表し、``**kwargs`` のアノテーションにのみ使用すべきです。"
+"両方の属性は、アノテートされたパラメータがスコープ内にあることを必要とします。実行時には、"
+"``P.args`` と ``P.kwargs`` はそれぞれ :class:`ParamSpecArgs` と :class:`ParamSpecKwargs` のインスタンスです。"
 
 #: ../../library/typing.rst:2161
 msgid "The name of the parameter specification."
-msgstr "パラメータ仕様の名前です。"
+msgstr "パラメータ仕様の名前。"
 
 #: ../../library/typing.rst:2165
 msgid ""
 "The default value of the parameter specification, or :data:`typing."
 "NoDefault` if it has no default."
 msgstr ""
-"パラメータ仕様のデフォルト値、またはデフォルトがない場合は :data:`typing."
-"NoDefault` 。"
+"パラメータ仕様のデフォルト値、またはデフォルトがない場合は :data:`typing.NoDefault`。"
 
 #: ../../library/typing.rst:2172
 msgid ""
@@ -3991,9 +4296,10 @@ msgid ""
 "can be passed to :func:`annotationlib.call_evaluate_function` to evaluate "
 "the value in a different format."
 msgstr ""
-":attr:`~ParamSpec.__default__` 属性に対応する :term:`evaluate function` です。"
-"直接呼び出されると、このメソッドは :attr:`~annotationlib.Format.VALUE` フォーマットのみをサポートし、これは :attr:`~ParamSpec.__default__` 属性に直接アクセスするのと同等です。"
-"しかし、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡すことで、異なるフォーマットで値を評価することができます。"
+":attr:`~ParamSpec.__default__` 属性に対応する :term:`評価関数` です。直接呼び出された場合、このメソッドは "
+":attr:`~annotationlib.Format.VALUE` 形式のみをサポートします。これは :attr:`~ParamSpec.__default__` 属性に"
+"直接アクセスするのと同等ですが、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡して"
+"異なる形式で値を評価することができます。"
 
 #: ../../library/typing.rst:2182
 msgid ""
@@ -4002,7 +4308,9 @@ msgid ""
 "`typing.NoDefault` singleton, except that it does not force evaluation of "
 "the :ref:`lazily evaluated <lazy-evaluation>` default value."
 msgstr ""
-"パラメータ仕様がデフォルト値を持つかどうかを返します。これは、:attr:`__default__` が :data:`typing.NoDefault` シングルトンでないかどうかをチェックするのと同等ですが、:ref:`遅延評価 <lazy-evaluation>` されるデフォルト値の評価を強制しません。"
+"パラメータ仕様がデフォルト値を持つかどうかを返します。これは :attr:`__default__` が :data:`typing.NoDefault` "
+"シングルトンでないかをチェックするのと同等ですが、:ref:`遅延評価 <lazy-evaluation>` されるデフォルト値の"
+"評価を強制しません。"
 
 #: ../../library/typing.rst:2189
 msgid ""
@@ -4012,22 +4320,23 @@ msgid ""
 "`TypeVar`.  However the actual semantics of these keywords are yet to be "
 "decided."
 msgstr ""
-"``covariant=True`` または ``contravariant=True`` で作成されたパラメータ仕様変数は、共変性または反変性のジェネリック型を宣言するために使用できます。"
-":class:`TypeVar` と同様に、``bound`` 引数も受け入れられます。しかし、これらのキーワードの実際のセマンティクスはまだ決定されていません。"
+"``covariant=True`` または ``contravariant=True`` で作成されたパラメータ仕様変数は、共変または反変の"
+"ジェネリック型を宣言するために使用できます。:class:`TypeVar` と同様に ``bound`` 引数も受け付けられます。"
+"しかし、これらのキーワードの実際のセマンティクスはまだ決定されていません。"
 
 #: ../../library/typing.rst:2199
 msgid ""
 "Parameter specifications can now be declared using the :ref:`type parameter "
 "<type-params>` syntax introduced by :pep:`695`."
 msgstr ""
-"パラメータ仕様は、:pep:`695` で導入された :ref:`型パラメーター <type-params>` 構文を使用して宣言できるようになりました。"
+"パラメータ仕様は :pep:`695` で導入された :ref:`型パラメータ <type-params>` 構文を使用して宣言できるようになりました。"
 
 #: ../../library/typing.rst:2207
 msgid ""
 "Only parameter specification variables defined in global scope can be "
 "pickled."
 msgstr ""
-"グローバルスコープで定義されたパラメータ仕様変数のみをpickleできます。"
+"グローバルスコープで定義されたパラメータ仕様変数のみが pickle 可能です。"
 
 #: ../../library/typing.rst:2213
 msgid ":data:`Concatenate`"
@@ -4040,15 +4349,16 @@ msgid ""
 "``P.kwargs`` is an instance of ``ParamSpecKwargs``. They are intended for "
 "runtime introspection and have no special meaning to static type checkers."
 msgstr ""
-":class:`ParamSpec` の引数とキーワード引数の属性です。``ParamSpec`` の ``P.args`` 属性は ``ParamSpecArgs`` のインスタンスで、``P.kwargs`` は ``ParamSpecKwargs`` のインスタンスです。これらは実行時のイントロスペクション用で、静的型チェッカーには特別な意味はありません。"
+":class:`ParamSpec` の引数とキーワード引数の属性です。``ParamSpec`` の ``P.args`` 属性は ``ParamSpecArgs`` のインスタンスで、"
+"``P.kwargs`` は ``ParamSpecKwargs`` のインスタンスです。これらは実行時のイントロスペクションを意図しており、"
+"静的型チェッカーにとって特別な意味はありません。"
 
 #: ../../library/typing.rst:2224
 msgid ""
 "Calling :func:`get_origin` on either of these objects will return the "
 "original ``ParamSpec``:"
 msgstr ""
-"これらのオブジェクトのいずれかで :func:`get_origin` を呼び出すと、元の "
-"``ParamSpec`` が返されます:"
+"これらのオブジェクトのいずれかに対して :func:`get_origin` を呼び出すと、元の ``ParamSpec`` が返されます:"
 
 #: ../../library/typing.rst:2227
 msgid ""
@@ -4059,10 +4369,16 @@ msgid ""
 ">>> get_origin(P.kwargs) is P\n"
 "True"
 msgstr ""
+">>> from typing import ParamSpec, get_origin\n"
+">>> P = ParamSpec(\"P\")\n"
+">>> get_origin(P.args) is P\n"
+"True\n"
+">>> get_origin(P.kwargs) is P\n"
+"True"
 
 #: ../../library/typing.rst:2241
 msgid "The type of type aliases created through the :keyword:`type` statement."
-msgstr ":keyword:`type` 文で作成された型エイリアスの型です。"
+msgstr ":keyword:`type` 文を通じて作成された型エイリアスの型。"
 
 #: ../../library/typing.rst:2245
 msgid ""
@@ -4070,6 +4386,9 @@ msgid ""
 ">>> type(Alias)\n"
 "<class 'typing.TypeAliasType'>"
 msgstr ""
+">>> type Alias = int\n"
+">>> type(Alias)\n"
+"<class 'typing.TypeAliasType'>"
 
 #: ../../library/typing.rst:2255
 msgid "The name of the type alias:"
@@ -4081,6 +4400,9 @@ msgid ""
 ">>> Alias.__name__\n"
 "'Alias'"
 msgstr ""
+">>> type Alias = int\n"
+">>> Alias.__name__\n"
+"'Alias'"
 
 #: ../../library/typing.rst:2265
 msgid "The module in which the type alias was defined::"
@@ -4092,14 +4414,16 @@ msgid ""
 ">>> Alias.__module__\n"
 "'__main__'"
 msgstr ""
+">>> type Alias = int\n"
+">>> Alias.__module__\n"
+"'__main__'"
 
 #: ../../library/typing.rst:2273
 msgid ""
 "The type parameters of the type alias, or an empty tuple if the alias is not "
 "generic:"
 msgstr ""
-"型エイリアスの型パラメータ、またはエイリアスがジェネリックでない場合は空の "
-"タプル:"
+"型エイリアスの型パラメータ、またはエイリアスがジェネリックでない場合は空のタプル:"
 
 #: ../../library/typing.rst:2276
 msgid ""
@@ -4110,6 +4434,12 @@ msgid ""
 ">>> NotGeneric.__type_params__\n"
 "()"
 msgstr ""
+">>> type ListOrSet[T] = list[T] | set[T]\n"
+">>> ListOrSet.__type_params__\n"
+"(T,)\n"
+">>> type NotGeneric = int\n"
+">>> NotGeneric.__type_params__\n"
+"()"
 
 #: ../../library/typing.rst:2287
 msgid ""
@@ -4117,9 +4447,8 @@ msgid ""
 "so names used in the definition of the alias are not resolved until the "
 "``__value__`` attribute is accessed:"
 msgstr ""
-"型エイリアスの値。これは :ref:`lazily evaluated <lazy-evaluation>` であり、 "
-"エイリアスの定義で使用される名前は ``__value__`` 属性がアクセスされるまで解 "
-"決されません:"
+"型エイリアスの値。これは :ref:`遅延評価 <lazy-evaluation>` されるため、エイリアスの定義で使用される名前は"
+"``__value__`` 属性がアクセスされるまで解決されません:"
 
 #: ../../library/typing.rst:2291
 msgid ""
@@ -4134,6 +4463,16 @@ msgid ""
 ">>> Recursive.__value__\n"
 "Mutually"
 msgstr ""
+">>> type Mutually = Recursive\n"
+">>> type Recursive = Mutually\n"
+">>> Mutually\n"
+"Mutually\n"
+">>> Recursive\n"
+"Recursive\n"
+">>> Mutually.__value__\n"
+"Recursive\n"
+">>> Recursive.__value__\n"
+"Mutually"
 
 #: ../../library/typing.rst:2306
 msgid ""
@@ -4144,7 +4483,10 @@ msgid ""
 "func:`annotationlib.call_evaluate_function` to evaluate the value in a "
 "different format:"
 msgstr ""
-":attr:`__value__` 属性に対応する :term:`evaluate function` です。直接呼び出されると、このメソッドは :attr:`~annotationlib.Format.VALUE` フォーマットのみをサポートし、これは :attr:`__value__` 属性に直接アクセスするのと同等です。しかし、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡すことで、異なるフォーマットで値を評価することができます:"
+":attr:`__value__` 属性に対応する :term:`評価関数` です。直接呼び出された場合、このメソッドは "
+":attr:`~annotationlib.Format.VALUE` 形式のみをサポートします。これは :attr:`__value__` 属性に直接"
+"アクセスするのと同等ですが、メソッドオブジェクトを :func:`annotationlib.call_evaluate_function` に渡して"
+"異なる形式で値を評価することができます:"
 
 #: ../../library/typing.rst:2312
 msgid ""
@@ -4161,6 +4503,18 @@ msgid ""
 ">>> call_evaluate_function(Alias.evaluate_value, Format.FORWARDREF)\n"
 "ForwardRef('undefined')"
 msgstr ""
+">>> type Alias = undefined\n"
+">>> Alias.__value__\n"
+"Traceback (most recent call last):\n"
+"...\n"
+"NameError: name 'undefined' is not defined\n"
+">>> from annotationlib import Format, call_evaluate_function\n"
+">>> Alias.evaluate_value(Format.VALUE)\n"
+"Traceback (most recent call last):\n"
+"...\n"
+"NameError: name 'undefined' is not defined\n"
+">>> call_evaluate_function(Alias.evaluate_value, Format.FORWARDREF)\n"
+"ForwardRef('undefined')"
 
 #: ../../library/typing.rst:2330
 msgid "Unpacking"
@@ -4171,7 +4525,7 @@ msgid ""
 "Type aliases support star unpacking using the ``*Alias`` syntax. This is "
 "equivalent to using ``Unpack[Alias]`` directly:"
 msgstr ""
-"型エイリアスは ``*Alias`` 構文を使用したスターアンパックをサポートします。これは ``Unpack[Alias]`` を直接使用するのと同等です:"
+"型エイリアスは ``*Alias`` 構文を使用してスター展開をサポートします。これは ``Unpack[Alias]`` を直接使用するのと等価です:"
 
 #: ../../library/typing.rst:2334
 msgid ""
@@ -4180,6 +4534,10 @@ msgid ""
 ">>> Unpacked.__value__\n"
 "tuple[bool, typing.Unpack[Alias]]"
 msgstr ""
+">>> type Alias = tuple[int, str]\n"
+">>> type Unpacked = tuple[bool, *Alias]\n"
+">>> Unpacked.__value__\n"
+"tuple[bool, typing.Unpack[Alias]]"
 
 #: ../../library/typing.rst:2345
 msgid "Other special directives"
@@ -4191,7 +4549,8 @@ msgid ""
 "Their intended purpose is to be building blocks for creating and declaring "
 "types."
 msgstr ""
-"これらの関数とクラスは、アノテーションとして直接使用すべきではありません。これらの意図された目的は、型を作成し宣言するためのビルディングブロックとなることです。"
+"これらの関数とクラスは直接アノテーションとして使用すべきではありません。これらの意図された目的は、"
+"型を作成し宣言するための構成要素となることです。"
 
 #: ../../library/typing.rst:2353
 msgid "Typed version of :func:`collections.namedtuple`."
@@ -4208,6 +4567,9 @@ msgid ""
 "    name: str\n"
 "    id: int"
 msgstr ""
+"class Employee(NamedTuple):\n"
+"    name: str\n"
+"    id: int"
 
 #: ../../library/typing.rst:2361
 msgid "This is equivalent to::"
@@ -4231,6 +4593,12 @@ msgid ""
 "employee = Employee('Guido')\n"
 "assert employee.id == 3"
 msgstr ""
+"class Employee(NamedTuple):\n"
+"    name: str\n"
+"    id: int = 3\n"
+"\n"
+"employee = Employee('Guido')\n"
+"assert employee.id == 3"
 
 #: ../../library/typing.rst:2374
 msgid ""
@@ -4266,10 +4634,17 @@ msgid ""
 "    def __repr__(self) -> str:\n"
 "        return f'<Employee {self.name}, id={self.id}>'"
 msgstr ""
+"class Employee(NamedTuple):\n"
+"    \"\"\"従業員を表す。\"\"\"\n"
+"    name: str\n"
+"    id: int = 3\n"
+"\n"
+"    def __repr__(self) -> str:\n"
+"        return f'<Employee {self.name}, id={self.id}>'"
 
 #: ../../library/typing.rst:2392
 msgid "``NamedTuple`` subclasses can be generic::"
-msgstr "``NamedTuple`` サブクラスはジェネリックにできます::"
+msgstr "``NamedTuple`` のサブクラスはジェネリックにできます::"
 
 #: ../../library/typing.rst:2394
 msgid ""
@@ -4277,6 +4652,9 @@ msgid ""
 "    key: T\n"
 "    group: list[T]"
 msgstr ""
+"class Group[T](NamedTuple):\n"
+"    key: T\n"
+"    group: list[T]"
 
 #: ../../library/typing.rst:2398
 msgid "Backward-compatible usage::"
@@ -4294,6 +4672,15 @@ msgid ""
 "# A functional syntax is also supported\n"
 "Employee = NamedTuple('Employee', [('name', str), ('id', int)])"
 msgstr ""
+"# Python 3.11 でジェネリック NamedTuple を作成する場合\n"
+"T = TypeVar(\"T\")\n"
+"\n"
+"class Group(NamedTuple, Generic[T]):\n"
+"    key: T\n"
+"    group: list[T]\n"
+"\n"
+"# 関数的構文もサポートされています\n"
+"Employee = NamedTuple('Employee', [('name', str), ('id', int)])"
 
 #: ../../library/typing.rst:2410
 msgid "Added support for :pep:`526` variable annotation syntax."
@@ -4301,7 +4688,7 @@ msgstr ":pep:`526` 変数アノテーションのシンタックスが追加さ�
 
 #: ../../library/typing.rst:2413
 msgid "Added support for default values, methods, and docstrings."
-msgstr "デフォルト値、メソッド、ドキュメンテーション文字列のサポートが追加されました。"
+msgstr ""
 "デフォルト値、メソッド、ドキュメンテーション文字列への対応が追加されました。"
 
 #: ../../library/typing.rst:2416
@@ -4330,7 +4717,8 @@ msgid ""
 "methods of ``NamedTuple`` subclasses is unsupported and causes a :class:"
 "`TypeError`."
 msgstr ""
-"``NamedTuple`` サブクラスのメソッドで :func:`super` （と ``__class__`` :term:`クロージャ変数`）を使用することはサポートされておらず、:class:`TypeError` を引き起こします。"
+"``NamedTuple`` サブクラスのメソッドで :func:`super` （および ``__class__`` :term:`クロージャ変数`）を"
+"使用することはサポートされておらず、:class:`TypeError` を引き起こします。"
 
 #: ../../library/typing.rst:2431
 msgid ""
@@ -4338,7 +4726,8 @@ msgid ""
 "(``NT = NamedTuple(\"NT\", x=int)``) is deprecated, and will be disallowed "
 "in 3.15. Use the class-based syntax or the functional syntax instead."
 msgstr ""
-"NamedTuple クラスを作成するための文書化されていないキーワード引数構文（``NT = NamedTuple(\"NT\", x=int)``）は非推奨で、Python 3.15 では禁止されます。代わりにクラスベースの構文または関数型構文を使用してください。"
+"NamedTuple クラスを作成するための非文書化キーワード引数構文（``NT = NamedTuple(\"NT\", x=int)``）は"
+"非推奨であり、3.15 で禁止されます。代わりにクラスベース構文または関数的構文を使用してください。"
 
 #: ../../library/typing.rst:2436
 msgid ""
@@ -4349,24 +4738,23 @@ msgid ""
 "Python 3.15. To create a NamedTuple class with 0 fields, use ``class "
 "NT(NamedTuple): pass`` or ``NT = NamedTuple(\"NT\", [])``."
 msgstr ""
-"NamedTuple クラスを作成するために関数型構文を使用する際、'fields' パラメータに "
-"値を渡さない (``NT = NamedTuple(\"NT\")``) ことは非推奨です。'fields' パラメータ "
-"に ``None`` を渡すこと (``NT = NamedTuple(\"NT\", None)``) も非推奨です。両方とも "
-"Python 3.15 で許可されなくなります。フィールドが 0 個の NamedTuple クラスを作成 "
-"するには、``class NT(NamedTuple): pass`` または ``NT = NamedTuple(\"NT\", [])`` "
-"を使用してください。"
+"関数的構文を使用して NamedTuple クラスを作成する際に、'fields' パラメータに値を渡さない"
+"（``NT = NamedTuple(\"NT\")``）ことは非推奨です。'fields' パラメータに ``None`` を渡す"
+"（``NT = NamedTuple(\"NT\", None)``）ことも非推奨です。どちらも Python 3.15 で禁止されます。"
+"0個のフィールドを持つ NamedTuple クラスを作成するには、``class NT(NamedTuple): pass`` または "
+"``NT = NamedTuple(\"NT\", [])`` を使用してください。"
 
 #: ../../library/typing.rst:2446
 msgid "Helper class to create low-overhead :ref:`distinct types <distinct>`."
-msgstr ""
+msgstr "低オーバーヘッドの :ref:`独立した型 <distinct>` を作成するためのヘルパークラス。"
 
 #: ../../library/typing.rst:2448
 msgid ""
 "A ``NewType`` is considered a distinct type by a typechecker. At runtime, "
 "however, calling a ``NewType`` returns its argument unchanged."
 msgstr ""
-"``NewType`` は型チェッカーによって異なる型とみなされます。しかし実行時には、 "
-"``NewType`` を呼び出すとその引数を変更せずに返します。"
+"``NewType`` は型チェッカーによって独立した型とみなされます。しかし実行時には、``NewType`` を呼び出すと"
+"引数を変更せずに返します。"
 
 #: ../../library/typing.rst:2453
 msgid ""
@@ -4379,27 +4767,27 @@ msgstr ""
 
 #: ../../library/typing.rst:2458
 msgid "The module in which the new type is defined."
-msgstr "新しい型が定義されたモジュールです。"
+msgstr "新しい型が定義されたモジュール。"
 
 #: ../../library/typing.rst:2462
 msgid "The name of the new type."
-msgstr "新しい型の名前です。"
+msgstr "新しい型の名前。"
 
 #: ../../library/typing.rst:2466
 msgid "The type that the new type is based on."
-msgstr "新しい型のベースとなる型です。"
+msgstr "新しい型のベースとなる型。"
 
 #: ../../library/typing.rst:2470
 msgid "``NewType`` is now a class rather than a function."
-msgstr ""
+msgstr "``NewType`` は関数ではなくクラスになりました。"
 
 #: ../../library/typing.rst:2475
 msgid "Base class for protocol classes."
-msgstr ""
+msgstr "プロトコルクラスの基底クラス。"
 
 #: ../../library/typing.rst:2477
 msgid "Protocol classes are defined like this::"
-msgstr "Protocol クラスは以下のように定義します::"
+msgstr "プロトコルクラスは次のように定義します::"
 
 #: ../../library/typing.rst:2479
 msgid ""
@@ -4407,6 +4795,9 @@ msgid ""
 "    def meth(self) -> int:\n"
 "        ..."
 msgstr ""
+"class Proto(Protocol):\n"
+"    def meth(self) -> int:\n"
+"        ..."
 
 #: ../../library/typing.rst:2483
 msgid ""
@@ -4427,6 +4818,14 @@ msgid ""
 "\n"
 "func(C())  # Passes static type check"
 msgstr ""
+"class C:\n"
+"    def meth(self) -> int:\n"
+"        return 0\n"
+"\n"
+"def func(x: Proto) -> int:\n"
+"    return x.meth()\n"
+"\n"
+"func(C())  # 静的型チェックをパス"
 
 #: ../../library/typing.rst:2495
 msgid ""
@@ -4436,11 +4835,10 @@ msgid ""
 "signatures. Protocol classes without this decorator cannot be used as the "
 "second argument to :func:`isinstance` or :func:`issubclass`."
 msgstr ""
-"詳細については :pep:`544` を参照してください。 :func:`runtime_checkable` "
-"（後述）でデコレートされた Protocol クラスは、型シグネチャを無視して指定され "
-"た属性の存在のみをチェックする単純な実行時プロトコルとして機能します。このデ "
-"コレーターのない Protocol クラスは :func:`isinstance` や :func:`issubclass` "
-"の第2引数として使用できません。"
+"詳細については :pep:`544` を参照してください。:func:`runtime_checkable` （後述）でデコレートされた"
+"プロトコルクラスは、与えられた属性の存在のみをチェックし、その型シグネチャを無視する"
+"単純な実行時プロトコルとして動作します。このデコレータがないプロトコルクラスは、"
+":func:`isinstance` や :func:`issubclass` の第2引数として使用できません。"
 
 #: ../../library/typing.rst:2501
 msgid "Protocol classes can be generic, for example::"
@@ -4452,13 +4850,16 @@ msgid ""
 "    def meth(self) -> T:\n"
 "        ..."
 msgstr ""
+"class GenProto[T](Protocol):\n"
+"    def meth(self) -> T:\n"
+"        ..."
 
 #: ../../library/typing.rst:2507
 msgid ""
 "In code that needs to be compatible with Python 3.11 or older, generic "
 "Protocols can be written as follows::"
 msgstr ""
-"Python 3.11 以前との互換性が必要なコードでは、ジェネリック Protocol を以下のように書くことができます::"
+"Python 3.11 以前との互換性が必要なコードでは、ジェネリックプロトコルは次のように書くことができます::"
 
 #: ../../library/typing.rst:2510
 msgid ""
@@ -4476,8 +4877,7 @@ msgstr ""
 
 #: ../../library/typing.rst:2520
 msgid "Mark a protocol class as a runtime protocol."
-msgstr ""
-"プロトコルクラスをランタイムプロトコルとしてマークします。"
+msgstr "プロトコルクラスを実行時プロトコルとしてマークします。"
 
 #: ../../library/typing.rst:2522
 msgid ""
@@ -4486,7 +4886,9 @@ msgid ""
 "ponies\" in :mod:`collections.abc` such as :class:`~collections.abc."
 "Iterable`.  For example::"
 msgstr ""
-"このようなプロトコルは :func:`isinstance` や :func:`issubclass` と一緒に使用できます。これにより、:mod:`collections.abc` の :class:`~collections.abc.Iterable` のような\"ワントリックポニー\"と非常に似た単純な構造チェックが可能になります。例えば::"
+"このようなプロトコルは :func:`isinstance` や :func:`issubclass` と組み合わせて使用できます。"
+"これにより、:mod:`collections.abc` の :class:`~collections.abc.Iterable` などの「ワントリックポニー」と非常に"
+"似た単純な構造チェックが可能になります。例えば::"
 
 #: ../../library/typing.rst:2526
 msgid ""
@@ -4503,12 +4905,24 @@ msgid ""
 "import threading\n"
 "assert isinstance(threading.Thread(name='Bob'), Named)"
 msgstr ""
+"@runtime_checkable\n"
+"class Closable(Protocol):\n"
+"    def close(self): ...\n"
+"\n"
+"assert isinstance(open('/some/file'), Closable)\n"
+"\n"
+"@runtime_checkable\n"
+"class Named(Protocol):\n"
+"    name: str\n"
+"\n"
+"import threading\n"
+"assert isinstance(threading.Thread(name='Bob'), Named)"
 
 #: ../../library/typing.rst:2539
 msgid ""
 "This decorator raises :exc:`TypeError` when applied to a non-protocol class."
 msgstr ""
-"このデコレーターは、非プロトコルクラスに適用されると :exc:`TypeError` を発生させます。"
+"このデコレータは非プロトコルクラスに適用されたときに :exc:`TypeError` を発生させます。"
 
 #: ../../library/typing.rst:2543
 msgid ""
@@ -4520,12 +4934,11 @@ msgid ""
 "more informative message, therefore making it impossible to call "
 "(instantiate) :class:`ssl.SSLObject`."
 msgstr ""
-":func:`!runtime_checkable` は必要なメソッドや属性の存在のみをチェックし、その型 "
-"シグネチャーや型はチェックしません。例えば、:class:`ssl.SSLObject` はクラスなので、 "
-":ref:`Callable <annotating-callables>` に対する :func:`issubclass` チェックを通過 "
-"します。しかし、``ssl.SSLObject.__init__`` メソッドはより詳細なメッセージで :exc:"
-"`TypeError` を発生させるためにのみ存在するため、:class:`ssl.SSLObject` を呼び出す "
-"（インスタンス化する）ことは不可能です。"
+":func:`!runtime_checkable` は必要なメソッドや属性の存在のみをチェックし、その型シグネチャや型はチェックしません。"
+"例えば、:class:`ssl.SSLObject` はクラスであるため、:ref:`Callable <annotating-callables>` に対する "
+":func:`issubclass` チェックをパスします。しかし、``ssl.SSLObject.__init__`` メソッドはより情報性のあるメッセージで "
+":exc:`TypeError` を発生させるためだけに存在し、:class:`ssl.SSLObject` を呼び出す（インスタンス化する）ことを"
+"不可能にしています。"
 
 #: ../../library/typing.rst:2554
 msgid ""
@@ -4534,7 +4947,9 @@ msgid ""
 "protocol class. Consider using alternative idioms such as :func:`hasattr` "
 "calls for structural checks in performance-sensitive code."
 msgstr ""
-"ランタイムチェック可能プロトコルに対する :func:`isinstance` チェックは、非プロトコルクラスに対する ``isinstance()`` チェックと比べて驚くほど遅い場合があります。パフォーマンスに敏感なコードでは、構造チェックのために :func:`hasattr` 呼び出しなどの代替イディオムの使用を検討してください。"
+"実行時チェック可能プロトコルに対する :func:`isinstance` チェックは、非プロトコルクラスに対する "
+"``isinstance()`` チェックと比較して驚くほど遅い場合があります。パフォーマンスを重視するコードでは、"
+"構造チェックのために :func:`hasattr` 呼び出しなどの代替手法の使用を検討してください。"
 
 #: ../../library/typing.rst:2562
 msgid ""
@@ -4545,7 +4960,11 @@ msgid ""
 "longer be considered instances of that protocol on Python 3.12+, and vice "
 "versa. Most users are unlikely to be affected by this change."
 msgstr ""
-"ランタイムチェック可能プロトコルに対する :func:`isinstance` チェックの内部実装は、属性を検索するために :func:`inspect.getattr_static` を使用するようになりました（以前は :func:`hasattr` が使用されていました）。その結果、Python 3.12+ では、以前はランタイムチェック可能プロトコルのインスタンスとみなされていた一部のオブジェクトが、もはやそのプロトコルのインスタンスとみなされない場合があり、その逆もあります。ほとんどのユーザーはこの変更の影響を受けないと思われます。"
+"実行時チェック可能プロトコルに対する :func:`isinstance` チェックの内部実装は、属性を検索するために"
+":func:`inspect.getattr_static` を使用するようになりました（以前は :func:`hasattr` が使用されていました）。"
+"その結果、以前は実行時チェック可能プロトコルのインスタンスとみなされていた一部のオブジェクトが、"
+"Python 3.12+ ではそのプロトコルのインスタンスとみなされなくなる可能性があります（その逆も同様）。"
+"ほとんどのユーザーはこの変更の影響を受ける可能性は低いでしょう。"
 
 #: ../../library/typing.rst:2571
 msgid ""
@@ -4555,19 +4974,17 @@ msgid ""
 "on :func:`isinstance` checks comparing objects to the protocol. See :ref:"
 "`\"What's new in Python 3.12\" <whatsnew-typing-py312>` for more details."
 msgstr ""
-"実行時チェック可能なプロトコルのメンバーは、クラスが作成されるとすぐに実行時に"
-"「固定」されるようになりました。実行時チェック可能なプロトコルへの属性のモンキー"
-"パッチは引き続き機能しますが、オブジェクトをプロトコルと比較する :func:`isinstance` "
-"チェックには影響しません。詳細については :ref:`\"What's new in Python 3.12\" "
-"<whatsnew-typing-py312>` を参照してください。"
+"実行時チェック可能プロトコルのメンバーは、クラスが作成されると即座に実行時に「凍結」されるようになりました。"
+"実行時チェック可能プロトコルに属性をモンキーパッチすることは引き続き機能しますが、"
+"オブジェクトとプロトコルを比較する :func:`isinstance` チェックには影響しません。"
+"詳細については :ref:`\"What's new in Python 3.12\" <whatsnew-typing-py312>` を参照してください。"
 
 #: ../../library/typing.rst:2582
 msgid ""
 "Special construct to add type hints to a dictionary. At runtime it is a "
 "plain :class:`dict`."
 msgstr ""
-"辞書に型ヒントを追加するための特別な構成です。実行時には通常の :class:`dict` "
-"です。"
+"辞書に型ヒントを追加するための特別な構造です。実行時には通常の :class:`dict` です。"
 
 #: ../../library/typing.rst:2585
 msgid ""
@@ -4594,14 +5011,22 @@ msgid ""
 "\n"
 "assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')"
 msgstr ""
+"class Point2D(TypedDict):\n"
+"    x: int\n"
+"    y: int\n"
+"    label: str\n"
+"\n"
+"a: Point2D = {'x': 1, 'y': 2, 'label': 'good'}  # OK\n"
+"b: Point2D = {'z': 3, 'label': 'bad'}           # 型チェックで失敗\n"
+"\n"
+"assert Point2D(x=1, y=2, label='first') == dict(x=1, y=2, label='first')"
 
 #: ../../library/typing.rst:2601
 msgid ""
 "An alternative way to create a ``TypedDict`` is by using function-call "
 "syntax. The second argument must be a literal :class:`dict`::"
 msgstr ""
-"``TypedDict`` を作成する代替方法は、関数呼び出し構文を使用することです。第2 "
-"引数はリテラル :class:`dict` である必要があります::"
+"``TypedDict`` を作成する代替手法は、関数呼び出し構文を使用することです。第2引数はリテラルの :class:`dict` でなければなりません::"
 
 #: ../../library/typing.rst:2604
 msgid "Point2D = TypedDict('Point2D', {'x': int, 'y': int, 'label': str})"
@@ -4614,7 +5039,9 @@ msgid ""
 "contain hyphens, or when key names must not be :ref:`mangled <private-name-"
 "mangling>` like regular private names::"
 msgstr ""
-"この関数型構文では、有効な :ref:`識別子 <identifiers>` ではないキーを定義できます。例えば、キーワードであったりハイフンを含んでいたり、或いは通常のプライベート名のように :ref:`マングル <private-name-mangling>` されたくないキー名の場合です::"
+"この関数的構文では、有効な :ref:`識別子 <identifiers>` でないキーを定義できます。例えば、キーワードであったり、"
+"ハイフンを含んでいたり、或いは通常のプライベート名のようにキー名が :ref:`マングル <private-name-mangling>` "
+"されてはいけない場合などです::"
 
 #: ../../library/typing.rst:2611
 msgid ""
@@ -4630,15 +5057,23 @@ msgid ""
 "Point2D = TypedDict('Point2D', {'in': int, 'x-y': int})\n"
 "Definition = TypedDict('Definition', {'__schema': str})  # not mangled"
 msgstr ""
+"# SyntaxError を発生\n"
+"class Point2D(TypedDict):\n"
+"    in: int  # 'in' はキーワード\n"
+"    x-y: int  # ハイフンを含む名前\n"
+"\n"
+"class Definition(TypedDict):\n"
+"    __schema: str  # `_Definition__schema` にマングルされる\n"
+"\n"
+"# OK、関数的構文\n"
+"Point2D = TypedDict('Point2D', {'in': int, 'x-y': int})\n"
+"Definition = TypedDict('Definition', {'__schema': str})  # マングルされない"
 
 #: ../../library/typing.rst:2623
 msgid ""
 "By default, all keys must be present in a ``TypedDict``. It is possible to "
 "mark individual keys as non-required using :data:`NotRequired`::"
 msgstr ""
-"デフォルトでは、``TypedDict`` のすべてのキーが必要です。:data:`NotRequired` を使用して個別のキーを非必須としてマークすることが可能です::"
-"デフォルトでは、 ``TypedDict`` ではすべてのキーが必要です。 :data:"
-"`NotRequired` を使用して個別のキーを不要としてマークすることも可能です::"
 
 #: ../../library/typing.rst:2626
 msgid ""
@@ -4657,14 +5092,12 @@ msgid ""
 "This means that a ``Point2D`` ``TypedDict`` can have the ``label`` key "
 "omitted."
 msgstr ""
-"これは、``Point2D`` ``TypedDict`` が ``label`` キーを省略できることを意味します。"
 
 #: ../../library/typing.rst:2637
 msgid ""
 "It is also possible to mark all keys as non-required by default by "
 "specifying a totality of ``False``::"
 msgstr ""
-"``False`` の totality を指定することで、デフォルトですべてのキーを非必須としてマークすることも可能です::"
 
 #: ../../library/typing.rst:2640
 msgid ""
@@ -4689,7 +5122,6 @@ msgid ""
 "Individual keys of a ``total=False`` ``TypedDict`` can be marked as required "
 "using :data:`Required`::"
 msgstr ""
-"``total=False`` の ``TypedDict`` の個別のキーは、:data:`Required` を使用して必須としてマークできます::"
 
 #: ../../library/typing.rst:2655
 msgid ""
@@ -4711,7 +5143,6 @@ msgid ""
 "It is possible for a ``TypedDict`` type to inherit from one or more other "
 "``TypedDict`` types using the class-based syntax. Usage::"
 msgstr ""
-"``TypedDict`` 型は、クラスベースの構文を使用して、1つ以上の他の ``TypedDict`` 型から継承することが可能です。使い方::"
 
 #: ../../library/typing.rst:2671
 msgid ""
@@ -4724,7 +5155,6 @@ msgid ""
 "``Point3D`` has three items: ``x``, ``y`` and ``z``. It is equivalent to "
 "this definition::"
 msgstr ""
-"``Point3D`` は3つの項目を持ちます：``x``、``y``、``z``。これは次の定義と同等です::"
 
 #: ../../library/typing.rst:2677
 msgid ""
@@ -4739,7 +5169,6 @@ msgid ""
 "A ``TypedDict`` cannot inherit from a non-\\ ``TypedDict`` class, except "
 "for :class:`Generic`. For example::"
 msgstr ""
-"``TypedDict`` は :class:`Generic` を除いて、非 ``TypedDict`` クラスから継承できません。例えば::"
 
 #: ../../library/typing.rst:2685
 msgid ""
@@ -4755,6 +5184,17 @@ msgid ""
 "\n"
 "class XZ(X, Z): pass  # raises TypeError"
 msgstr ""
+"class X(TypedDict):\n"
+"    x: int\n"
+"\n"
+"class Y(TypedDict):\n"
+"    y: int\n"
+"\n"
+"class Z(object): pass  # TypedDict でないクラス\n"
+"\n"
+"class XY(X, Y): pass  # OK\n"
+"\n"
+"class XZ(X, Z): pass  # TypeError を発生"
 
 #: ../../library/typing.rst:2697
 msgid "A ``TypedDict`` can be generic::"
@@ -4766,13 +5206,16 @@ msgid ""
 "    key: T\n"
 "    group: list[T]"
 msgstr ""
+"class Group[T](TypedDict):\n"
+"    key: T\n"
+"    group: list[T]"
 
 #: ../../library/typing.rst:2703
 msgid ""
 "To create a generic ``TypedDict`` that is compatible with Python 3.11 or "
 "lower, inherit from :class:`Generic` explicitly:"
 msgstr ""
-"Python 3.11 以下と互換性のあるジェネリック ``TypedDict`` を作成するには、:class:`Generic` を明示的に継承してください:"
+"Python 3.11 以下と互換性のあるジェネリック ``TypedDict`` を作成するには、:class:`Generic` から明示的に継承します:"
 
 #: ../../library/typing.rst:2706
 msgid ""
@@ -4794,7 +5237,9 @@ msgid ""
 "`annotations-howto` for more information on annotations best practices), :"
 "attr:`__total__`, :attr:`__required_keys__`, and :attr:`__optional_keys__`."
 msgstr ""
-"``TypedDict`` は、アノテーション辞書（アノテーションのベストプラクティスの詳細は :ref:`annotations-howto` を参照）、:attr:`__total__`、:attr:`__required_keys__`、:attr:`__optional_keys__` を通じてイントロスペクションできます。"
+"``TypedDict`` はアノテーション辞書（アノテーションのベストプラクティスの詳細については "
+":ref:`annotations-howto` を参照）、:attr:`__total__`、:attr:`__required_keys__`、:attr:`__optional_keys__` を通じて"
+"イントロスペクションできます。"
 
 #: ../../library/typing.rst:2720
 msgid ""
@@ -4815,6 +5260,16 @@ msgid ""
 ">>> Point3D.__total__\n"
 "True"
 msgstr ""
+">>> from typing import TypedDict\n"
+">>> class Point2D(TypedDict): pass\n"
+">>> Point2D.__total__\n"
+"True\n"
+">>> class Point2D(TypedDict, total=False): pass\n"
+">>> Point2D.__total__\n"
+"False\n"
+">>> class Point3D(Point2D): pass\n"
+">>> Point3D.__total__\n"
+"True"
 
 #: ../../library/typing.rst:2736
 msgid ""
@@ -4826,6 +5281,10 @@ msgid ""
 "use :attr:`__required_keys__` and :attr:`__optional_keys__` for "
 "introspection."
 msgstr ""
+"この属性は、現在の ``TypedDict`` クラスの ``total`` 引数の値 *のみ* を反映し、クラスが意味的に total かどうかは反映しません。"
+"例えば、``__total__`` が ``True`` に設定された ``TypedDict`` でも :data:`NotRequired` でマークされたキーを持つ場合や、"
+"``total=False`` の別の ``TypedDict`` から継承している場合があります。そのため、イントロスペクションには"
+"一般的に :attr:`__required_keys__` と :attr:`__optional_keys__` を使用する方が良いでしょう。"
 
 #: ../../library/typing.rst:2749
 msgid ""
@@ -4833,8 +5292,6 @@ msgid ""
 "class:`frozenset` objects containing required and non-required keys, "
 "respectively."
 msgstr ""
-"``Point2D.__required_keys__`` と ``Point2D.__optional_keys__`` は、それぞれ必須 "
-"および非必須のキーを含む :class:`frozenset` オブジェクトを返します。"
 
 #: ../../library/typing.rst:2752
 msgid ""
@@ -4842,7 +5299,6 @@ msgid ""
 "``__required_keys__`` and keys marked with :data:`NotRequired` will always "
 "appear in ``__optional_keys__``."
 msgstr ""
-":data:`Required` でマークされたキーは常に ``__required_keys__`` に表示され、:data:`NotRequired` でマークされたキーは常に ``__optional_keys__`` に表示されます。"
 
 #: ../../library/typing.rst:2755
 msgid ""
@@ -4852,7 +5308,6 @@ msgid ""
 "value for the ``total`` argument and then inheriting from it in another "
 "``TypedDict`` with a different value for ``total``:"
 msgstr ""
-"Python 3.10 以下との後方互換性のため、同じ ``TypedDict`` で必須と非必須のキーの両方を宣言するために継承を使用することも可能です。これは、``total`` 引数に1つの値を指定した ``TypedDict`` を宣言し、それを別の ``total`` 値を持つ別の ``TypedDict`` で継承することで行います:"
 
 #: ../../library/typing.rst:2762
 msgid ""
@@ -4880,46 +5335,46 @@ msgstr ""
 
 #: ../../library/typing.rst:2786
 msgid "Support for :data:`ReadOnly` is reflected in the following attributes:"
-msgstr ":data:`ReadOnly` のサポートは以下の属性に反映されます:"
+msgstr ""
 
 #: ../../library/typing.rst:2790
 msgid ""
 "A :class:`frozenset` containing the names of all read-only keys. Keys are "
 "read-only if they carry the :data:`ReadOnly` qualifier."
-msgstr "すべての読み取り専用キーの名前を含む :class:`frozenset` です。:data:`ReadOnly` 修飾子を持つキーが読み取り専用になります。"
+msgstr ""
 
 #: ../../library/typing.rst:2797
 msgid ""
 "A :class:`frozenset` containing the names of all mutable keys. Keys are "
 "mutable if they do not carry the :data:`ReadOnly` qualifier."
-msgstr "すべての可変キーの名前を含む :class:`frozenset` です。:data:`ReadOnly` 修飾子を持たないキーが可変になります。"
+msgstr ""
 
 #: ../../library/typing.rst:2802
 msgid ""
 "See the `TypedDict <https://typing.python.org/en/latest/spec/typeddict."
 "html#typeddict>`_ section in the typing documentation for more examples and "
 "detailed rules."
-msgstr "より多くの例と詳細なルールについては、型付けドキュメントの `TypedDict <https://typing.python.org/en/latest/spec/typeddict.html#typeddict>`_ セクションを参照してください。"
+msgstr ""
 
 #: ../../library/typing.rst:2806
 msgid ""
 "Added support for marking individual keys as :data:`Required` or :data:"
 "`NotRequired`. See :pep:`655`."
-msgstr "個別のキーを :data:`Required` または :data:`NotRequired` としてマークするサポートが追加されました。:pep:`655` を参照してください。"
+msgstr ""
 
 #: ../../library/typing.rst:2810
 msgid "Added support for generic ``TypedDict``\\ s."
-msgstr "ジェネリック ``TypedDict`` のサポートが追加されました。"
+msgstr ""
 
 #: ../../library/typing.rst:2813
 msgid ""
 "Removed support for the keyword-argument method of creating ``TypedDict``\\ "
 "s."
-msgstr "``TypedDict`` を作成するキーワード引数メソッドのサポートが削除されました。"
+msgstr ""
 
 #: ../../library/typing.rst:2816
 msgid "Support for the :data:`ReadOnly` qualifier was added."
-msgstr ":data:`ReadOnly` 修飾子のサポートが追加されました。"
+msgstr ""
 
 #: ../../library/typing.rst:2819
 msgid ""
@@ -4929,7 +5384,7 @@ msgid ""
 "TypedDict(\"TD\", None)``) is also deprecated. Both will be disallowed in "
 "Python 3.15. To create a TypedDict class with 0 fields, use ``class "
 "TD(TypedDict): pass`` or ``TD = TypedDict(\"TD\", {})``."
-msgstr "関数構文を使って TypedDict クラスを作成する際、'fields' パラメータに値を渡さない（``TD = TypedDict(\"TD\")``）ことは非推奨です。'fields' パラメータに ``None`` を渡す（``TD = TypedDict(\"TD\", None)``）ことも非推奨です。どちらも Python 3.15 では禁止されます。0個のフィールドを持つ TypedDict クラスを作成するには、``class TD(TypedDict): pass`` または ``TD = TypedDict(\"TD\", {})`` を使用してください。"
+msgstr ""
 
 #: ../../library/typing.rst:2828
 msgid "Protocols"
@@ -4939,7 +5394,7 @@ msgstr "プロトコル"
 msgid ""
 "The following protocols are provided by the :mod:`!typing` module. All are "
 "decorated with :func:`@runtime_checkable <runtime_checkable>`."
-msgstr "以下のプロトコルは :mod:`!typing` モジュールによって提供されます。すべて :func:`@runtime_checkable <runtime_checkable>` でデコレートされています。"
+msgstr ""
 
 #: ../../library/typing.rst:2835
 msgid ""
@@ -4975,7 +5430,7 @@ msgstr "返り値の型と共変な抽象メソッド ``__round__`` を備えた
 
 #: ../../library/typing.rst:2868
 msgid "ABCs and Protocols for working with I/O"
-msgstr "I/O での作業のための ABC と Protocol"
+msgstr "I/O を扱うための ABC とプロトコル"
 
 #: ../../library/typing.rst:2874
 msgid ""
@@ -4985,9 +5440,8 @@ msgid ""
 "interface is fairly broad."
 msgstr ""
 "ジェネリッククラス ``IO[AnyStr]`` とそのサブクラス ``TextIO(IO[str])`` および "
-"``BinaryIO(IO[bytes])`` は、:func:`open` によって返されるような I/O ストリームの "
-"型を表します。これらのクラスはプロトコルではなく、そのインターフェースは非常に "
-"幅広いことに注意してください。"
+"``BinaryIO(IO[bytes])`` は、:func:`open` により返されるような I/O ストリームの型を表します。"
+"これらのクラスはプロトコルではなく、そのインターフェースはかなり広範囲であることに注意してください。"
 
 #: ../../library/typing.rst:2880
 msgid ""
@@ -4995,7 +5449,8 @@ msgid ""
 "alternative for argument types, when only the ``read()`` or ``write()`` "
 "methods are accessed, respectively::"
 msgstr ""
-"プロトコル :class:`io.Reader` と :class:`io.Writer` は、``read()`` または ``write()`` メソッドのみがアクセスされる場合の引数型のより簡単な代替手段を提供します::"
+"プロトコル :class:`io.Reader` と :class:`io.Writer` は、それぞれ ``read()`` メソッドまたは ``write()`` メソッドのみにアクセスする場合において、"
+"引数の型のより簡潔な代替手段を提供します::"
 
 #: ../../library/typing.rst:2884
 msgid ""
@@ -5009,7 +5464,7 @@ msgid ""
 "Also consider using :class:`collections.abc.Iterable` for iterating over the "
 "lines of an input stream::"
 msgstr ""
-"入力ストリームの行を反復するために :class:`collections.abc.Iterable` を使用することも検討してください::"
+"入力ストリームの行を反復処理するために、:class:`collections.abc.Iterable` の使用も検討してください::"
 
 #: ../../library/typing.rst:2891
 msgid ""
@@ -5020,7 +5475,7 @@ msgstr ""
 
 #: ../../library/typing.rst:2896
 msgid "Functions and decorators"
-msgstr "関数とデコレータ"
+msgstr "関数とデコレーター"
 
 #: ../../library/typing.rst:2900
 msgid "Cast a value to a type."
@@ -5042,21 +5497,22 @@ msgid ""
 "Ask a static type checker to confirm that *val* has an inferred type of "
 "*typ*."
 msgstr ""
-"静的型チェッカーに *val* が *typ* の推論型を持つことを確認するよう求めます。"
+"静的型チェッカーに対し、*val* の推論された型が *typ* であることを確認するよう求めます。"
 
 #: ../../library/typing.rst:2911
 msgid ""
 "At runtime this does nothing: it returns the first argument unchanged with "
 "no checks or side effects, no matter the actual type of the argument."
 msgstr ""
-"実行時にこれは何もしません:引数の実際の型に関係なく、チェックや副作用なしで最初の引数を変更せずに返します。"
+"実行時にこの関数は何もしません。引数の実際の型に関係なく、最初の引数を変更せずに返し、"
+"検査や副作用は一切ありません。"
 
 #: ../../library/typing.rst:2914
 msgid ""
 "When a static type checker encounters a call to ``assert_type()``, it emits "
 "an error if the value is not of the specified type::"
 msgstr ""
-"静的型チェッカーが ``assert_type()`` の呼び出しに遇うと、値が指定された型でない場合にエラーを発生させます::"
+"静的型チェッカーが ``assert_type()`` の呼び出しに遭遇すると、値が指定された型でない場合にエラーを発生させます::"
 
 #: ../../library/typing.rst:2917
 msgid ""
@@ -5070,7 +5526,7 @@ msgid ""
 "This function is useful for ensuring the type checker's understanding of a "
 "script is in line with the developer's intentions::"
 msgstr ""
-"この関数は、スクリプトに対する型チェッカーの理解が開発者の意図と一致していることを確認するために有用です::"
+"この関数は、型チェッカーのスクリプトの理解が開発者の意図と一致することを確認するのに有用です::"
 
 #: ../../library/typing.rst:2924
 msgid ""
@@ -5086,7 +5542,7 @@ msgstr ""
 msgid ""
 "Ask a static type checker to confirm that a line of code is unreachable."
 msgstr ""
-"静的型チェッカーにコードの行が到達不可能であることを確認するよう求めます。"
+"静的型チェッカーに対し、コードの行が到達不能であることを確認するよう求めます。"
 
 #: ../../library/typing.rst:2937
 msgid "Example::"
@@ -5110,7 +5566,9 @@ msgid ""
 "never execute, because ``arg`` is either an :class:`int` or a :class:`str`, "
 "and both options are covered by earlier cases."
 msgstr ""
-"ここでは、アノテーションにより型チェッカーは最後のケースが決して実行されないことを推論できます。なぜなら ``arg`` は :class:`int` または :class:`str` のいずれかであり、両方のオプションが以前のケースでカバーされているからです。"
+"ここで、アノテーションにより型チェッカーは最後のケースが決して実行されないことを推論できます。"
+"なぜなら ``arg`` は :class:`int` または :class:`str` のいずれかであり、"
+"両方の選択肢は以前のケースで網羅されているからです。"
 
 #: ../../library/typing.rst:2953
 msgid ""
@@ -5121,11 +5579,15 @@ msgid ""
 "``assert_never`` to pass type checking, the inferred type of the argument "
 "passed in must be the bottom type, :data:`Never`, and nothing else."
 msgstr ""
-"型チェッカーが ``assert_never()`` の呼び出しに到達可能であることを発見した場合、エラーを発生させます。例えば、``arg`` の型アノテーションが代わりに ``int | str | float`` であった場合、型チェッカーは ``unreachable`` が :class:`float` 型であることを指摘するエラーを発生させます。``assert_never`` の呼び出しが型チェックをパスするためには、渡される引数の推論型はボトム型である :data:`Never` でなければならず、それ以外はありません。"
+"型チェッカーが ``assert_never()`` の呼び出しが到達可能であることを発見すると、エラーを発生させます。"
+"例えば、``arg`` の型アノテーションが ``int | str | float`` であった場合、"
+"型チェッカーは ``unreachable`` が :class:`float` 型であることを指摘するエラーを発生させるでしょう。"
+"``assert_never`` の呼び出しが型チェックを通過するためには、"
+"渡された引数の推論された型はボトム型である :data:`Never` でなければならず、それ以外は許可されません。"
 
 #: ../../library/typing.rst:2961
 msgid "At runtime, this throws an exception when called."
-msgstr "実行時に呼び出されると例外を発生させます。"
+msgstr "実行時に、この関数は呼び出されると例外を発生させます。"
 
 #: ../../library/typing.rst:2964
 msgid ""
@@ -5133,34 +5595,32 @@ msgid ""
 "latest/guides/unreachable.html>`__ has more information about exhaustiveness "
 "checking with static typing."
 msgstr ""
-"`Unreachable Code and Exhaustiveness Checking <https://typing.python.org/en/latest/guides/unreachable.html>`__ には、静的型指定での網羅性チェックについての詳細情報があります。"
+"`Unreachable Code and Exhaustiveness Checking <https://typing.python.org/en/"
+"latest/guides/unreachable.html>`__ には、静的型付けによる網羅性チェックについての詳しい情報があります。"
 
 #: ../../library/typing.rst:2972
 msgid "Ask a static type checker to reveal the inferred type of an expression."
-msgstr "静的型チェッカーに式の推論された型を明かすよう求めます。"
+msgstr "静的型チェッカーに対し、式の推論された型を明示するよう求めます。"
 
 #: ../../library/typing.rst:2974
 msgid ""
 "When a static type checker encounters a call to this function, it emits a "
 "diagnostic with the inferred type of the argument. For example::"
 msgstr ""
-"静的型チェッカーがこの関数の呼び出しに遭遇すると、引数の推論された型ととも "
-"に診断を出力します。例えば::"
+"静的型チェッカーがこの関数の呼び出しに遭遇すると、引数の推論された型と共に診断メッセージを発行します。例::"
 
 #: ../../library/typing.rst:2977
 msgid ""
 "x: int = 1\n"
 "reveal_type(x)  # Revealed type is \"builtins.int\""
 msgstr ""
-"x: int = 1\n"
-"reveal_type(x)  # Revealed type is \"builtins.int\""
 
 #: ../../library/typing.rst:2980
 msgid ""
 "This can be useful when you want to debug how your type checker handles a "
 "particular piece of code."
 msgstr ""
-"型チェッカーが特定のコード片をどのように処理するかをデバッグしたいときに役立ちます。"
+"これは、型チェッカーが特定のコードをどのように扱うかをデバッグしたい場合に有用です。"
 
 #: ../../library/typing.rst:2983
 msgid ""
@@ -5168,22 +5628,22 @@ msgid ""
 "`sys.stderr` and returns the argument unchanged (allowing the call to be "
 "used within an expression)::"
 msgstr ""
-"実行時に、この関数は引数の実行時型を :data:`sys.stderr` に出力し、引数を変更せずに返します（呼び出しを式内で使用できるようにします）::"
+"実行時に、この関数は引数の実行時型を :data:`sys.stderr` に出力し、引数を変更せずに返します"
+"(これにより、呼び出しを式内で使用できます)::"
 
 #: ../../library/typing.rst:2987
 msgid ""
 "x = reveal_type(1)  # prints \"Runtime type is int\"\n"
 "print(x)  # prints \"1\""
 msgstr ""
-"x = reveal_type(1)  # prints \"Runtime type is int\"\n"
-"print(x)  # prints \"1\""
 
 #: ../../library/typing.rst:2990
 msgid ""
 "Note that the runtime type may be different from (more or less specific "
 "than) the type statically inferred by a type checker."
 msgstr ""
-"実行時型は型チェッカーによって静的に推論される型と異なる（より具体的またはより抽象的な）場合があることに注意してください。"
+"実行時型は、型チェッカーにより静的に推論された型と異なる場合があることに注意してください。"
+"(より具体的であったり、より抽象的であったりすることがあります。)"
 
 #: ../../library/typing.rst:2993
 msgid ""
@@ -5192,15 +5652,15 @@ msgid ""
 "allows your code to run without runtime errors and communicates intent more "
 "clearly."
 msgstr ""
-"ほとんどの型チェッカーは、名前が ``typing`` からインポートされていなくても、どこででも ``reveal_type()`` をサポートします。しかし、``typing`` から名前をインポートすることで、コードを実行時エラーなしで実行でき、意図をより明確に伝えることができます。"
+"ほとんどの型チェッカーは、名前が ``typing`` からインポートされていなくても、どこででも ``reveal_type()`` をサポートします。"
+"しかし、``typing`` から名前をインポートすることで、コードが実行時エラーなしで実行されるようになり、意図もより明確に伝わります。"
 
 #: ../../library/typing.rst:3004
 msgid ""
 "Decorator to mark an object as providing :func:`dataclass <dataclasses."
 "dataclass>`-like behavior."
 msgstr ""
-"オブジェクトが :func:`dataclass <dataclasses.dataclass>` のような動作を提供する "
-"ことをマークするデコレータです。"
+"オブジェクトが :func:`dataclass <dataclasses.dataclass>` のような動作を提供することをマークするデコレーターです。"
 
 #: ../../library/typing.rst:3007
 msgid ""
@@ -5210,15 +5670,13 @@ msgid ""
 "object performs runtime \"magic\" that transforms a class in a similar way "
 "to :func:`@dataclasses.dataclass <dataclasses.dataclass>`."
 msgstr ""
-"``dataclass_transform`` は、クラス、メタクラス、またはそれ自体がデコレータで "
-"ある関数をデコレートするのに使用できます。``@dataclass_transform()`` の存在は、 "
-"静的型チェッカーに対して、デコレートされたオブジェクトが :func:`@dataclasses.dataclass "
-"<dataclasses.dataclass>` と同様の方法でクラスを変換する実行時「マジック」を実行 "
-"することを伝えます。"
+"``dataclass_transform`` は、クラス、メタクラス、またはデコレーターである関数を装飾するために使用できます。"
+"``@dataclass_transform()`` の存在は、静的型チェッカーに対して、装飾されたオブジェクトが、"
+":func:`@dataclasses.dataclass <dataclasses.dataclass>` と同様の方法でクラスを変換する実行時の「魔法」を実行することを告げます。"
 
 #: ../../library/typing.rst:3014
 msgid "Example usage with a decorator function:"
-msgstr "デコレータ関数での使用例:"
+msgstr "デコレーター関数での使用例:"
 
 #: ../../library/typing.rst:3016
 msgid ""
@@ -5235,7 +5693,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3028
 msgid "On a base class::"
-msgstr "ベースクラスで::"
+msgstr "ベースクラスでの使用::"
 
 #: ../../library/typing.rst:3030
 msgid ""
@@ -5249,7 +5707,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3037
 msgid "On a metaclass::"
-msgstr "メタクラスで::"
+msgstr "メタクラスでの使用::"
 
 #: ../../library/typing.rst:3039
 msgid ""
@@ -5270,10 +5728,9 @@ msgid ""
 "dataclass>`. For example, type checkers will assume these classes have "
 "``__init__`` methods that accept ``id`` and ``name``."
 msgstr ""
-"上記で定義された ``CustomerModel`` クラスは、型チェッカーによって :func:`@dataclasses."
-"dataclass <dataclasses.dataclass>` で作成されたクラスと同様に扱われます。例えば、型 "
-"チェッカーはこれらのクラスが ``id`` と ``name`` を受け入れる ``__init__`` メソッドを "
-"持つと仮定します。"
+"上記で定義した ``CustomerModel`` クラスは、型チェッカーにより、"
+":func:`@dataclasses.dataclass <dataclasses.dataclass>` で作成されたクラスと同様に扱われます。"
+"例えば、型チェッカーは、これらのクラスは ``id`` と ``name`` を受け取る ``__init__`` メソッドを持っていると仮定します。"
 
 #: ../../library/typing.rst:3054
 msgid ""
@@ -5284,7 +5741,10 @@ msgid ""
 "``kw_only``, and ``slots``. It must be possible for the value of these "
 "arguments (``True`` or ``False``) to be statically evaluated."
 msgstr ""
-"デコレートされたクラス、メタクラス、または関数は、:func:`@dataclasses.dataclass<dataclasses.dataclass>` デコレーターと同じ効果を持つと型チェッカーが仮定する以下の bool 引数を受け入れることができます: ``init``、``eq``、``order``、``unsafe_hash``、``frozen``、``match_args``、``kw_only``、``slots``。これらの引数の値（``True`` または ``False``）が静的に評価できる必要があります。"
+"装飾されたクラス、メタクラス、または関数は、以下のbool引数を受け取ることができます。"
+"型チェッカーは、これらの引数が :func:`@dataclasses.dataclass<dataclasses.dataclass>` デコレーターでの効果と同じであると仮定します: "
+"``init``、``eq``、``order``、``unsafe_hash``、``frozen``、``match_args``、``kw_only``、``slots``。"
+"これらの引数の値（``True`` または ``False``）は静的に評価できる必要があります。"
 
 #: ../../library/typing.rst:3062
 msgid ""
@@ -5292,7 +5752,7 @@ msgid ""
 "customize the default behaviors of the decorated class, metaclass, or "
 "function:"
 msgstr ""
-"``dataclass_transform`` デコレーターの引数は、デコレートされたクラス、メタクラス、または関数のデフォルト動作をカスタマイズするために使用できます:"
+"``dataclass_transform`` デコレーターへの引数を使用して、装飾されたクラス、メタクラス、または関数のデフォルト動作をカスタマイズできます:"
 
 #: ../../library/typing.rst:0
 msgid "Parameters"
@@ -5303,21 +5763,24 @@ msgid ""
 "Indicates whether the ``eq`` parameter is assumed to be ``True`` or "
 "``False`` if it is omitted by the caller. Defaults to ``True``."
 msgstr ""
-"呼び出し元によって省略された場合に ``eq`` パラメータが ``True`` とみなされるか ``False`` とみなされるかを示します。デフォルトは ``True`` です。"
+"呼び出し元が省略した場合、``eq`` パラメーターが ``True`` と ``False`` のどちらであると仮定されるかを示します。"
+"デフォルトは ``True`` です。"
 
 #: ../../library/typing.rst:3071
 msgid ""
 "Indicates whether the ``order`` parameter is assumed to be ``True`` or "
 "``False`` if it is omitted by the caller. Defaults to ``False``."
 msgstr ""
-"呼び出し元によって省略された場合に ``order`` パラメータが ``True`` とみなされるか ``False`` とみなされるかを示します。デフォルトは ``False`` です。"
+"呼び出し元が省略した場合、``order`` パラメーターが ``True`` と ``False`` のどちらであると仮定されるかを示します。"
+"デフォルトは ``False`` です。"
 
 #: ../../library/typing.rst:3076
 msgid ""
 "Indicates whether the ``kw_only`` parameter is assumed to be ``True`` or "
 "``False`` if it is omitted by the caller. Defaults to ``False``."
 msgstr ""
-"呼び出し元によって省略された場合に ``kw_only`` パラメータが ``True`` とみなされるか ``False`` とみなされるかを示します。デフォルトは ``False`` です。"
+"呼び出し元が省略した場合、``kw_only`` パラメーターが ``True`` と ``False`` のどちらであると仮定されるかを示します。"
+"デフォルトは ``False`` です。"
 
 #: ../../library/typing.rst:3081
 msgid ""
@@ -5325,43 +5788,46 @@ msgid ""
 "``False`` if it is omitted by the caller. Defaults to ``False``.  .. "
 "versionadded:: 3.12"
 msgstr ""
-"呼び出し元によって省略された場合に ``frozen`` パラメータが ``True`` とみなされるか ``False`` とみなされるかを示します。デフォルトは ``False`` です。  .. versionadded:: 3.12"
+"呼び出し元が省略した場合、``frozen`` パラメーターが ``True`` と ``False`` のどちらであると仮定されるかを示します。"
+"デフォルトは ``False`` です。  .. versionadded:: 3.12"
 
 #: ../../library/typing.rst:3082
 msgid ""
 "Indicates whether the ``frozen`` parameter is assumed to be ``True`` or "
 "``False`` if it is omitted by the caller. Defaults to ``False``."
 msgstr ""
-"呼び出し元によって省略された場合に ``frozen`` パラメータが ``True`` とみなされるか ``False`` とみなされるかを示します。デフォルトは ``False`` です。"
+"呼び出し元が省略した場合、``frozen`` パラメーターが ``True`` と ``False`` のどちらであると仮定されるかを示します。"
+"デフォルトは ``False`` です。"
 
 #: ../../library/typing.rst:3088
 msgid ""
 "Specifies a static list of supported classes or functions that describe "
 "fields, similar to :func:`dataclasses.field`. Defaults to ``()``."
 msgstr ""
-":func:`dataclasses.field` と同様にフィールドを記述するサポートされたクラスまたは関数の静的リストを指定します。デフォルトは ``()`` です。"
+"フィールドを記述するサポートされたクラスまたは関数の静的リストを指定します。"
+":func:`dataclasses.field` と同様です。デフォルトは ``()`` です。"
 
 #: ../../library/typing.rst:3094
 msgid ""
 "Arbitrary other keyword arguments are accepted in order to allow for "
 "possible future extensions."
 msgstr ""
-"将来の拡張の可能性を考慮して、任意の他のキーワード引数が受け入れられます。"
+"将来的な拡張を可能にするために、任意のその他のキーワード引数が受け入れられます。"
 
 #: ../../library/typing.rst:3098
 msgid ""
 "Type checkers recognize the following optional parameters on field "
 "specifiers:"
 msgstr ""
-"型チェッカーはフィールド指定子で以下のオプションパラメータを認識します:"
+"型チェッカーは、フィールド指定子の以下のオプションパラメーターを認識します:"
 
 #: ../../library/typing.rst:3101
 msgid "**Recognised parameters for field specifiers**"
-msgstr "**フィールド指定子で認識されるパラメータ**"
+msgstr "**フィールド指定子の認識されるパラメーター**"
 
 #: ../../library/typing.rst:3105
 msgid "Parameter name"
-msgstr "パラメータ名"
+msgstr "パラメーター名"
 
 #: ../../library/typing.rst:3106
 msgid "Description"
@@ -5369,14 +5835,15 @@ msgstr "説明"
 
 #: ../../library/typing.rst:3107
 msgid "``init``"
-msgstr "``init``"
+msgstr ""
 
 #: ../../library/typing.rst:3108
 msgid ""
 "Indicates whether the field should be included in the synthesized "
 "``__init__`` method. If unspecified, ``init`` defaults to ``True``."
 msgstr ""
-"合成された ``__init__`` メソッドにフィールドを含めるかどうかを示します。指定されない場合、``init`` のデフォルトは ``True`` です。"
+"フィールドが合成された ``__init__`` メソッドに含まれるべきかどうかを示します。"
+"指定されない場合、``init`` のデフォルトは ``True`` です。"
 
 #: ../../library/typing.rst:3111
 msgid "``default``"
@@ -5397,6 +5864,9 @@ msgid ""
 "assumed to have no default value and must be provided a value when the class "
 "is instantiated."
 msgstr ""
+"フィールドのデフォルト値を返す実行時コールバックを提供します。"
+"``default`` と ``default_factory`` のどちらも指定されていない場合、フィールドにデフォルト値はないとみなされ、"
+"クラスのインスタンス化時に値を提供しなければなりません。"
 
 #: ../../library/typing.rst:3119
 msgid "``factory``"
@@ -5404,7 +5874,7 @@ msgstr "``factory``"
 
 #: ../../library/typing.rst:3120
 msgid "An alias for the ``default_factory`` parameter on field specifiers."
-msgstr "フィールド指定子の ``default_factory`` パラメータのエイリアスです。"
+msgstr "フィールド指定子の ``default_factory`` パラメーターのエイリアスです。"
 
 #: ../../library/typing.rst:3121
 msgid "``kw_only``"
@@ -5419,7 +5889,11 @@ msgid ""
 "unspecified, the value of ``kw_only_default`` on ``dataclass_transform`` "
 "will be used."
 msgstr ""
-"フィールドをキーワード専用としてマークするかどうかを示します。``True`` の場合、フィールドはキーワード専用になります。``False`` の場合、キーワード専用ではありません。指定されない場合、``dataclass_transform`` でデコレートされたオブジェクトの ``kw_only`` パラメータの値が使用され、それも指定されていない場合は ``dataclass_transform`` の ``kw_only_default`` の値が使用されます。"
+"フィールドがキーワード専用としてマークされるべきかどうかを示します。"
+"``True`` の場合、フィールドはキーワード専用になります。"
+"``False`` の場合、キーワード専用にはなりません。"
+"指定されない場合、``dataclass_transform`` で装飾されたオブジェクトの ``kw_only`` パラメーターの値が使用されます。"
+"それも指定されない場合、``dataclass_transform`` の ``kw_only_default`` の値が使用されます。"
 
 #: ../../library/typing.rst:3128
 msgid "``alias``"
@@ -5438,7 +5912,8 @@ msgid ""
 "``__dataclass_transform__`` attribute on the decorated object. It has no "
 "other runtime effect."
 msgstr ""
-"実行時に、このデコレーターはデコレートされたオブジェクトの ``__dataclass_transform__`` 属性に引数を記録します。他に実行時の効果はありません。"
+"実行時に、このデコレーターはその引数を装飾されたオブジェクトの ``__dataclass_transform__`` 属性に記録します。"
+"それ以外の実行時の効果はありません。"
 
 #: ../../library/typing.rst:3136
 msgid "See :pep:`681` for more details."
@@ -5446,7 +5921,7 @@ msgstr "より詳しくは :pep:`681` を参照してください。"
 
 #: ../../library/typing.rst:3144
 msgid "Decorator for creating overloaded functions and methods."
-msgstr "オーバーロードされた関数とメソッドを作成するためのデコレータです。"
+msgstr "オーバーロードされた関数やメソッドを作成するためのデコレーターです。"
 
 #: ../../library/typing.rst:3146
 msgid ""
@@ -5455,7 +5930,8 @@ msgid ""
 "``@overload``-decorated definitions must be followed by exactly one non-"
 "``@overload``-decorated definition (for the same function/method)."
 msgstr ""
-"``@overload`` デコレーターは、引数型の異なる組み合わせをサポートする関数やメソッドを記述できます。一連の ``@overload`` デコレートされた定義の後には、非 ``@overload`` デコレート定義（同じ関数/メソッド用）がちょうど1つ続く必要があります。"
+"``@overload`` デコレーターにより、引数の型の異なる組み合わせを複数サポートする関数やメソッドを記述できます。"
+"``@overload`` で装飾された一連の定義の後には、その関数/メソッドに対して正確に一つの非 ``@overload`` 装飾の定義が必須です。"
 
 #: ../../library/typing.rst:3151
 msgid ""
@@ -5466,18 +5942,16 @@ msgid ""
 "calling an ``@overload``-decorated function directly will raise :exc:"
 "`NotImplementedError`."
 msgstr ""
-"``@overload`` でデコレートされた定義は型チェッカーのためだけのものです。なぜなら、 "
-"``@overload`` でデコレートされていない定義によって上書きされるからです。一方、"
-"``@overload`` でデコレートされていない定義は実行時に使用されますが、型チェッカーに "
-"よって無視されるべきです。実行時に ``@overload`` でデコレートされた関数を直接呼び出す "
-"と :exc:`NotImplementedError` が発生します。"
+"``@overload`` で装飾された定義は型チェッカーのためだけのもので、非 ``@overload`` 装飾の定義で上書きされます。"
+"一方、非 ``@overload`` 装飾の定義は実行時に使用されますが、型チェッカーはこれを無視するべきです。"
+"実行時に ``@overload`` 装飾の関数を直接呼び出すと :exc:`NotImplementedError` が発生します。"
 
 #: ../../library/typing.rst:3159
 msgid ""
 "An example of overload that gives a more precise type than can be expressed "
 "using a union or a type variable:"
 msgstr ""
-"ユニオンや型変数では表現できない、より精密な型を与えるオーバーロードの例:"
+"ユニオンや型変数では表現できない、より精密な型を提供するオーバーロードの例:"
 
 #: ../../library/typing.rst:3162
 msgid ""
@@ -5504,14 +5978,14 @@ msgid ""
 "Overloaded functions can now be introspected at runtime using :func:"
 "`get_overloads`."
 msgstr ""
-"オーバーロードされた関数は、:func:`get_overloads` を使用して実行時にイントロスペクションできるようになりました。"
+"オーバーロードされた関数は、今や :func:`get_overloads` を使用して実行時にイントロスペクトできます。"
 
 #: ../../library/typing.rst:3185
 msgid ""
 "Return a sequence of :func:`@overload <overload>`-decorated definitions for "
 "*func*."
 msgstr ""
-"*func* の :func:`@overload <overload>` デコレートされた定義のシーケンスを返します。"
+"*func* の :func:`@overload <overload>` で装飾された定義のシーケンスを返します。"
 
 #: ../../library/typing.rst:3188
 msgid ""
@@ -5522,18 +5996,17 @@ msgid ""
 "overloads. If called on a function with no overloads, ``get_overloads()`` "
 "returns an empty sequence."
 msgstr ""
-"*func* はオーバーロードされた関数の実装の関数オブジェクトです。例えば、:func:"
-"`@overload <overload>` のドキュメントで定義された ``process`` の定義を考えると、 "
-"``get_overloads(process)`` は定義された3つのオーバーロードに対する3つの関数 "
-"オブジェクトのシーケンスを返します。オーバーロードのない関数で呼び出された場合、 "
-"``get_overloads()`` は空のシーケンスを返します。"
+"*func* はオーバーロードされた関数の実装の関数オブジェクトです。"
+"例えば、:func:`@overload <overload>` のドキュメントの ``process`` の定義がある場合、"
+"``get_overloads(process)`` は定義された3つのオーバーロードに対して、3つの関数オブジェクトのシーケンスを返します。"
+"オーバーロードがない関数で呼び出された場合、``get_overloads()`` は空のシーケンスを返します。"
 
 #: ../../library/typing.rst:3195
 msgid ""
 "``get_overloads()`` can be used for introspecting an overloaded function at "
 "runtime."
 msgstr ""
-"``get_overloads()`` は実行時にオーバーロードされた関数をイントロスペクションするために使用できます。"
+"``get_overloads()`` は実行時にオーバーロードされた関数をイントロスペクトするために使用できます。"
 
 #: ../../library/typing.rst:3203
 msgid "Clear all registered overloads in the internal registry."
@@ -5541,11 +6014,11 @@ msgstr "内部レジストリの登録されたすべてのオーバーロード
 
 #: ../../library/typing.rst:3205
 msgid "This can be used to reclaim the memory used by the registry."
-msgstr "これはレジストリが使用しているメモリを回収するために使用できます。"
+msgstr "これはレジストリにより使用されたメモリを回収するために使用できます。"
 
 #: ../../library/typing.rst:3212
 msgid "Decorator to indicate final methods and final classes."
-msgstr "ファイナルメソッドとファイナルクラスを示すデコレータです。"
+msgstr "ファイナルメソッドとファイナルクラスを示すデコレーターです。"
 
 #: ../../library/typing.rst:3214
 msgid ""
@@ -5553,6 +6026,8 @@ msgid ""
 "method cannot be overridden in a subclass. Decorating a class with "
 "``@final`` indicates that it cannot be subclassed."
 msgstr ""
+"メソッドを ``@final`` で装飾することで、型チェッカーに対して、そのメソッドがサブクラスでオーバーライドできないことを示します。"
+"クラスを ``@final`` で装飾することで、そのクラスがサブクラス化できないことを示します。"
 
 #: ../../library/typing.rst:3220
 msgid ""
@@ -5580,7 +6055,11 @@ msgid ""
 "attributes, the decorator returns the object unchanged without raising an "
 "exception."
 msgstr ""
-"デコレーターは、デコレートされたオブジェクトに ``__final__`` 属性を ``True`` に設定しようと試みるようになりました。したがって、``if getattr(obj, \"__final__\", False)`` のようなチェックを実行時に使用して、オブジェクト ``obj`` がファイナルとしてマークされているかどうかを判断できます。デコレートされたオブジェクトが属性の設定をサポートしていない場合、デコレーターは例外を発生させずにオブジェクトを変更せずに返します。"
+"デコレーターは装飾されたオブジェクトの ``__final__`` 属性を ``True`` に設定しようとします。"
+"したがって、``if getattr(obj, \"__final__\", False)`` のようなチェックを実行時に使用して、"
+"オブジェクト ``obj`` がファイナルとしてマークされているかどうかを判定できます。"
+"装飾されたオブジェクトが属性の設定をサポートしていない場合、"
+"デコレーターは例外を発生させることなく、オブジェクトを変更せずに返します。"
 
 #: ../../library/typing.rst:3250
 msgid "Decorator to indicate that annotations are not type hints."
@@ -5593,10 +6072,13 @@ msgid ""
 "not to methods defined in its superclasses or subclasses). Type checkers "
 "will ignore all annotations in a function or class with this decorator."
 msgstr ""
+"これはクラスまたは関数の :term:`decorator` として機能します。クラスでは、そのクラスで定義されたすべてのメソッドやクラスに再帰的に適用されます。"
+"(しかし、そのスーパークラスやサブクラスで定義されたメソッドには適用されません。)"
+"型チェッカーは、このデコレーターが付いた関数やクラスのすべてのアノテーションを無視します。"
 
 #: ../../library/typing.rst:3258
 msgid "``@no_type_check`` mutates the decorated object in place."
-msgstr "``@no_type_check`` はデコレートされたオブジェクトをその場で変更します。"
+msgstr "``@no_type_check`` は装飾されたオブジェクトをインプレースで変更します。"
 
 #: ../../library/typing.rst:3262
 msgid "Decorator to give another decorator the :func:`no_type_check` effect."
@@ -5607,6 +6089,7 @@ msgid ""
 "This wraps the decorator with something that wraps the decorated function "
 "in :func:`no_type_check`."
 msgstr ""
+"これはデコレーターを、装飾された関数を :func:`no_type_check` でラップするものでラップします。"
 "これは何かの関数をラップするデコレータを :func:`no_type_check` でラップしま"
 "す。"
 
@@ -5615,7 +6098,8 @@ msgid ""
 "No type checker ever added support for ``@no_type_check_decorator``. It is "
 "therefore deprecated, and will be removed in Python 3.15."
 msgstr ""
-"``@no_type_check_decorator`` のサポートを追加した型チェッカーはありませんでした。そのため非推奨となり、Python 3.15 で削除されます。"
+"どの型チェッカーも ``@no_type_check_decorator`` のサポートを追加しませんでした。"
+"そのためこれは非推奨となり、Python 3.15 で削除される予定です。"
 
 #: ../../library/typing.rst:3273
 msgid ""
@@ -5630,6 +6114,8 @@ msgid ""
 "does not, in fact, override anything. This helps prevent bugs that may occur "
 "when a base class is changed without an equivalent change to a child class."
 msgstr ""
+"型チェッカーは、``@override`` で装飾されたメソッドが実際には何もオーバーライドしていない場合にエラーを発生させるべきです。"
+"これは、ベースクラスが変更されたのに子クラスが同等に変更されない場合に発生する可能性のあるバグを防ぐのに役立ちます。"
 
 #: ../../library/typing.rst:3283
 msgid ""
@@ -5660,7 +6146,11 @@ msgid ""
 "not support setting attributes, the decorator returns the object unchanged "
 "without raising an exception."
 msgstr ""
-"デコレーターは、デコレートされたオブジェクトに ``__override__`` 属性を ``True`` に設定しようと試みます。したがって、``if getattr(obj, \"__override__\", False)`` のようなチェックを実行時に使用して、オブジェクト ``obj`` がオーバーライドとしてマークされているかどうかを判断できます。デコレートされたオブジェクトが属性の設定をサポートしていない場合、デコレーターは例外を発生させずにオブジェクトを変更せずに返します。"
+"デコレーターは装飾されたオブジェクトの ``__override__`` 属性を ``True`` に設定しようとします。"
+"したがって、``if getattr(obj, \"__override__\", False)`` のようなチェックを実行時に使用して、"
+"オブジェクト ``obj`` がオーバーライドとしてマークされているかどうかを判定できます。"
+"装飾されたオブジェクトが属性の設定をサポートしていない場合、"
+"デコレーターは例外を発生させることなく、オブジェクトを変更せずに返します。"
 
 #: ../../library/typing.rst:3307
 msgid "See :pep:`698` for more details."
@@ -5668,7 +6158,7 @@ msgstr "詳細は :pep:`698` を参照してください。"
 
 #: ../../library/typing.rst:3314
 msgid "Decorator to mark a class or function as unavailable at runtime."
-msgstr ""
+msgstr "クラスまたは関数が実行時に利用できないことをマークするデコレーターです。"
 
 #: ../../library/typing.rst:3316
 msgid ""
@@ -5715,8 +6205,7 @@ msgid ""
 "This is often the same as ``obj.__annotations__``, but this function makes "
 "the following changes to the annotations dictionary:"
 msgstr ""
-"これはしばしば ``obj.__annotations__`` と同じですが、この関数はアノテーショ "
-"ン辞書に以下の変更を加えます:"
+"これは通常 ``obj.__annotations__`` と同じですが、この関数はアノテーション辞書に以下の変更を加えます:"
 
 #: ../../library/typing.rst:3341
 msgid ""
@@ -5726,18 +6215,20 @@ msgid ""
 "*globalns* or *localns* is not given, appropriate namespace dictionaries are "
 "inferred from *obj*."
 msgstr ""
-"文字列リテラルまたは :class:`ForwardRef` オブジェクトとしてエンコードされた前方参照は、*globalns*、*localns*、および（該当する場合）*obj* の :ref:`型パラメーター <type-params>` 名前空間で評価することによって処理されます。*globalns* または *localns* が指定されていない場合、適切な名前空間辞書が *obj* から推測されます。"
+"文字列リテラルや :class:`ForwardRef` オブジェクトとしてエンコードされた前方参照は、"
+"*globalns*、*localns*、および（該当する場合）*obj* の :ref:`type parameter <type-params>` 名前空間で評価することによって処理されます。"
+"*globalns* や *localns* が与えられない場合、適切な名前空間辞書が *obj* から推論されます。"
 
 #: ../../library/typing.rst:3346
 msgid "``None`` is replaced with :class:`types.NoneType`."
-msgstr "``None`` は :class:`types.NoneType` に置き換えられます。"
+msgstr "``None`` は :class:`types.NoneType` で置き換えられます。"
 
 #: ../../library/typing.rst:3347
 msgid ""
 "If :func:`@no_type_check <no_type_check>` has been applied to *obj*, an "
 "empty dictionary is returned."
 msgstr ""
-":func:`@no_type_check <no_type_check>` が *obj* に適用されている場合、空の辞書が返されます。"
+"*obj* に :func:`@no_type_check <no_type_check>` が適用されている場合、空の辞書が返されます。"
 
 #: ../../library/typing.rst:3349
 msgid ""
@@ -5748,11 +6239,10 @@ msgid ""
 "earlier in the :term:`method resolution order` always take precedence over "
 "annotations on classes appearing later in the method resolution order."
 msgstr ""
-"*obj* がクラス ``C`` の場合、この関数は ``C`` の基底クラスのアノテーションと "
-"``C`` 直接のアノテーションをマージした辞書を返します。これは :attr:`C.__mro__ "
-"<type.__mro__>` を走査し、``__annotations__`` 辞書を反復的に結合することで行わ "
-"れます。:term:`method resolution order` の前方に現れるクラスのアノテーションは、 "
-"メソッド解決順序の後方に現れるクラスのアノテーションよりも常に優先されます。"
+"*obj* がクラス ``C`` の場合、この関数は ``C`` のベースクラスからのアノテーションと ``C`` 上のアノテーションを直接マージした辞書を返します。"
+"これは :attr:`C.__mro__ <type.__mro__>` を辺って ``__annotations__`` 辞書を反復的に結合することで行われます。"
+":term:`method resolution order` の早い段階で登場するクラスのアノテーションは、"
+"後の段階で登場するクラスのアノテーションより常に優先されます。"
 
 #: ../../library/typing.rst:3356
 msgid ""
@@ -5760,7 +6250,9 @@ msgid ""
 "with ``T``, unless *include_extras* is set to ``True`` (see :class:"
 "`Annotated` for more information)."
 msgstr ""
-"この関数は、*include_extras* が ``True`` に設定されていない限り、``Annotated[T, ...]`` のすべての出現を ``T`` で再帰的に置き換えます（詳細は :class:`Annotated` を参照）。"
+"この関数は、*include_extras* が ``True`` に設定されていない限り、"
+"すべての ``Annotated[T, ...]`` を ``T`` で再帰的に置き換えます。"
+"(詳細は :class:`Annotated` を参照してください。)"
 
 #: ../../library/typing.rst:3360
 msgid ""
@@ -5777,17 +6269,18 @@ msgid ""
 "aliases <type-aliases>` that include forward references, or with names "
 "imported under :data:`if TYPE_CHECKING <TYPE_CHECKING>`."
 msgstr ""
-"*obj* のアノテーション内の前方参照が解決できない場合や有効な Python コードで "
-"ない場合、この関数は :exc:`NameError` などの例外を発生させます。例えば、これは "
-"前方参照を含むインポートされた :ref:`type aliases <type-aliases>` や、:data:`if "
-"TYPE_CHECKING <TYPE_CHECKING>` の下でインポートされた名前で発生する可能性があります。"
+"*obj* のアノテーションの前方参照が解決できないか、有効なPythonコードでない場合、"
+"この関数は :exc:`NameError` などの例外を発生させます。"
+"例えば、前方参照を含むインポートされた :ref:`type aliases <type-aliases>` や、"
+":data:`if TYPE_CHECKING <TYPE_CHECKING>` の下でインポートされた名前でこれが発生する可能性があります。"
 
 #: ../../library/typing.rst:3371
 msgid ""
 "Added ``include_extras`` parameter as part of :pep:`593`. See the "
 "documentation on :data:`Annotated` for more information."
 msgstr ""
-":pep:`593` の一部として ``include_extras`` パラメータが追加されました。詳細は :data:`Annotated` のドキュメントを参照してください。"
+":pep:`593` の一部として ``include_extras`` パラメーターが追加されました。"
+"詳細は :data:`Annotated` のドキュメントを参照してください。"
 
 #: ../../library/typing.rst:3375
 msgid ""
@@ -5795,15 +6288,15 @@ msgid ""
 "a default value equal to ``None`` was set. Now the annotation is returned "
 "unchanged."
 msgstr ""
-"以前は、デフォルト値が ``None`` に設定されている場合、関数やメソッドのアノテーションに ``Optional[t]`` が追加されていました。現在はアノテーションは変更されずに返されます。"
+"以前は、デフォルト値が ``None`` に設定されている場合、関数やメソッドのアノテーションに ``Optional[t]`` が追加されていました。"
+"現在はアノテーションは変更されずに返されます。"
 
 #: ../../library/typing.rst:3382
 msgid ""
 "Get the unsubscripted version of a type: for a typing object of the form "
 "``X[Y, Z, ...]`` return ``X``."
 msgstr ""
-"型の添字なしバージョンを取得します: ``X[Y, Z, ...]`` 形式の型付けオブジェクトに "
-"対して ``X`` を返します。"
+"型の非サブスクリプト版を取得します: ``X[Y, Z, ...]`` の形の型付けオブジェクトに対して ``X`` を返します。"
 
 #: ../../library/typing.rst:3385
 msgid ""
@@ -5812,10 +6305,10 @@ msgid ""
 "class:`ParamSpecArgs` or :class:`ParamSpecKwargs`, return the underlying :"
 "class:`ParamSpec`. Return ``None`` for unsupported objects."
 msgstr ""
-"``X`` がビルトインまたは :mod:`collections` クラスの typing モジュールエイリアス "
-"の場合、元のクラスに正規化されます。``X`` が :class:`ParamSpecArgs` または :class:"
-"`ParamSpecKwargs` のインスタンスの場合、基底の :class:`ParamSpec` を返します。サポート "
-"されていないオブジェクトに対しては ``None`` を返します。"
+"``X`` が組み込みクラスや :mod:`collections` クラスのための typing モジュールのエイリアスである場合、"
+"元のクラスに正規化されます。"
+"``X`` が :class:`ParamSpecArgs` や :class:`ParamSpecKwargs` のインスタンスである場合、"
+"基礎となる :class:`ParamSpec` を返します。サポートされていないオブジェクトには ``None`` を返します。"
 
 #: ../../library/typing.rst:3391 ../../library/typing.rst:3415
 msgid "Examples:"
@@ -5837,8 +6330,7 @@ msgid ""
 "Get type arguments with all substitutions performed: for a typing object of "
 "the form ``X[Y, Z, ...]`` return ``(Y, Z, ...)``."
 msgstr ""
-"すべての置換が実行された型引数を取得します: ``X[Y, Z, ...]`` 形式の型付けオブ "
-"ジェクトに対して ``(Y, Z, ...)`` を返します。"
+"すべての置換が実行された型引数を取得します: ``X[Y, Z, ...]`` の形の型付けオブジェクトに対して ``(Y, Z, ...)`` を返します。"
 
 #: ../../library/typing.rst:3410
 msgid ""
@@ -5847,7 +6339,9 @@ msgid ""
 "arguments ``[Y, Z, ...]`` due to type caching. Return ``()`` for unsupported "
 "objects."
 msgstr ""
-"``X`` が他のジェネリック型に含まれるユニオンまたは :class:`Literal` である場合、型キャッシュのために ``(Y, Z, ...)`` の順序が元の引数 ``[Y, Z, ...]`` の順序と異なる場合があります。サポートされていないオブジェクトに対しては ``()`` を返します。"
+"``X`` が、他のジェネリック型に含まれるユニオンや :class:`Literal` である場合、"
+"型キャッシュのために ``(Y, Z, ...)`` の順序が元の引数 ``[Y, Z, ...]`` の順序と異なる場合があります。"
+"サポートされていないオブジェクトには ``()`` を返します。"
 
 #: ../../library/typing.rst:3417
 msgid ""
@@ -5858,7 +6352,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3427
 msgid "Return the set of members defined in a :class:`Protocol`."
-msgstr ":class:`Protocol` で定義されたメンバーのセットを返します。"
+msgstr ":class:`Protocol` で定義されたメンバーの集合を返します。"
 
 #: ../../library/typing.rst:3429
 msgid ""
@@ -5872,7 +6366,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3438
 msgid "Raise :exc:`TypeError` for arguments that are not Protocols."
-msgstr "Protocol でない引数に対して :exc:`TypeError` を発生させます。"
+msgstr "プロトコルでない引数に対して :exc:`TypeError` を発生させます。"
 
 #: ../../library/typing.rst:3444
 msgid "Determine if a type is a :class:`Protocol`."
@@ -5910,7 +6404,7 @@ msgstr ""
 msgid ""
 "Class used for internal typing representation of string forward references."
 msgstr ""
-"文字列の前方参照の内部型表現に使用されるクラスです。"
+"文字列の前方参照の内部型付け表現に使用されるクラスです。"
 
 #: ../../library/typing.rst:3482
 msgid ""
@@ -5918,7 +6412,8 @@ msgid ""
 "``List[ForwardRef(\"SomeClass\")]``.  :class:`!ForwardRef` should not be "
 "instantiated by a user, but may be used by introspection tools."
 msgstr ""
-"例えば、``List[\"SomeClass\"]`` は暗黙的に ``List[ForwardRef(\"SomeClass\")]`` に変換されます。:class:`!ForwardRef` はユーザーによってインスタンス化されるべきではありませんが、イントロスペクションツールによって使用される場合があります。"
+"例えば、``List[\"SomeClass\"]`` は暗黙的に ``List[ForwardRef(\"SomeClass\")]`` に変換されます。"
+":class:`!ForwardRef` はユーザーがインスタンス化すべきではありませんが、イントロスペクションツールで使用される場合があります。"
 
 #: ../../library/typing.rst:3487
 msgid ""
@@ -5926,7 +6421,8 @@ msgid ""
 "implicitly transformed into ``list[ForwardRef(\"SomeClass\")]`` and thus "
 "will not automatically resolve to ``list[SomeClass]``."
 msgstr ""
-":pep:`585` のジェネリック型（``list[\"SomeClass\"]`` など）は、``list[ForwardRef(\"SomeClass\")]`` に暗黙的に変換されず、したがって ``list[SomeClass]`` に自動的に解決されません。"
+":pep:`585` の ``list[\"SomeClass\"]`` のようなジェネリック型は、暗黙的に ``list[ForwardRef(\"SomeClass\")]`` に変換されず、"
+"したがって自動的に ``list[SomeClass]`` に解決されません。"
 
 #: ../../library/typing.rst:3493
 msgid ""
@@ -5934,6 +6430,8 @@ msgid ""
 "undocumented behaviors of this class have been changed; for example, after a "
 "``ForwardRef`` has been evaluated, the evaluated value is no longer cached."
 msgstr ""
+"これは現在 :class:`annotationlib.ForwardRef` のエイリアスです。このクラスのいくつかの文書化されていない動作が変更されました。"
+"例えば、``ForwardRef`` が評価された後、評価された値はもはやキャッシュされません。"
 
 #: ../../library/typing.rst:3500
 msgid "Evaluate an :class:`annotationlib.ForwardRef` as a :term:`type hint`."
@@ -5945,7 +6443,8 @@ msgid ""
 "unlike that method, :func:`!evaluate_forward_ref` also recursively evaluates "
 "forward references nested within the type hint."
 msgstr ""
-"これは :meth:`annotationlib.ForwardRef.evaluate` を呼び出すのと似ていますが、そのメソッドとは異なり、:func:`!evaluate_forward_ref` は型ヒント内にネストされた前方参照も再帰的に評価します。"
+"これは :meth:`annotationlib.ForwardRef.evaluate` を呼び出すのと似ていますが、"
+"そのメソッドとは異なり、:func:`!evaluate_forward_ref` は型ヒント内にネストされた前方参照を再帰的に評価します。"
 
 #: ../../library/typing.rst:3506
 msgid ""
@@ -5953,14 +6452,15 @@ msgid ""
 "meaning of the *owner*, *globals*, *locals*, *type_params*, and *format* "
 "parameters."
 msgstr ""
-"*owner*、*globals*、*locals*、*type_params*、*format* パラメータの意味については :meth:`annotationlib.ForwardRef.evaluate` のドキュメントを参照してください。"
+"*owner*、*globals*、*locals*、*type_params*、*format* パラメーターの意味については、"
+":meth:`annotationlib.ForwardRef.evaluate` のドキュメントを参照してください。"
 
 #: ../../library/typing.rst:3513
 msgid ""
 "A sentinel object used to indicate that a type parameter has no default "
 "value. For example:"
 msgstr ""
-"型パラメータがデフォルト値を持たないことを示すために使用されるセンチネルオブジェクトです。例えば:"
+"型パラメーターにデフォルト値がないことを示すために使用されるセンチネルオブジェクトです。例:"
 
 #: ../../library/typing.rst:3516
 msgid ""
@@ -5981,7 +6481,8 @@ msgid ""
 "A special constant that is assumed to be ``True`` by 3rd party static type "
 "checkers. It's ``False`` at runtime."
 msgstr ""
-"サードパーティの静的型チェッカーによって ``True`` とみなされる特別な定数です。実行時は ``False`` です。"
+"サードパーティの静的型チェッカーによって ``True`` であると仮定される特別な定数です。"
+"実行時には ``False`` です。"
 
 #: ../../library/typing.rst:3535
 msgid ""
@@ -5994,7 +6495,13 @@ msgid ""
 "static type analysis, which means the module will be imported and the types "
 "will be checked properly during such analysis."
 msgstr ""
-"インポートに時間がかかり、型アノテーション用の型のみを含むモジュールは、``if TYPE_CHECKING:`` ブロック内で安全にインポートできます。これにより、実行時にモジュールが実際にインポートされることを防ぎます。アノテーションは積極的に評価されない（:pep:`649` を参照）ため、アノテーションで未定義のシンボルを使用することは無害です――後でそれらを調べない限り。静的型解析ツールは静的型解析中に ``TYPE_CHECKING`` を ``True`` に設定するため、そのような解析中にモジュールがインポートされ、型が適切にチェックされます。"
+"インポートが高コストで、型付けアノテーションに使用される型のみを含むモジュールは、"
+"``if TYPE_CHECKING:`` ブロック内で安全にインポートできます。"
+"これにより、モジュールが実行時に実際にインポートされることを防げます。"
+"アノテーションは積極的に評価されないため (:pep:`649` を参照)、"
+"アノテーションで未定義のシンボルを使用することは無害です——後でそれらを検査しない限り。"
+"静的型解析ツールは静的型解析中に ``TYPE_CHECKING`` を ``True`` に設定します。"
+"これはモジュールがインポートされ、その解析中に型が適切にチェックされることを意味します。"
 
 #: ../../library/typing.rst:3547
 msgid ""
@@ -6013,7 +6520,9 @@ msgid ""
 "`annotationlib.Format.FORWARDREF` to safely retrieve the annotations without "
 "raising :exc:`NameError`."
 msgstr ""
-"未定義のシンボルを含む可能性のある型アノテーションを実行時に調べる必要が時々ある場合は、:exc:`NameError` を発生させずにアノテーションを安全に取得するために、:attr:`annotationlib.Format.STRING` または :attr:`annotationlib.Format.FORWARDREF` の ``format`` パラメータで :meth:`annotationlib.get_annotations` を使用してください。"
+"実行時に未定義のシンボルを含む可能性のある型アノテーションを検査する必要が時々ある場合は、"
+"``format`` パラメーターを :attr:`annotationlib.Format.STRING` または :attr:`annotationlib.Format.FORWARDREF` に設定した"
+":meth:`annotationlib.get_annotations` を使用して、:exc:`NameError` を発生させることなく安全にアノテーションを取得してください。"
 
 #: ../../library/typing.rst:3566
 msgid "Deprecated aliases"
@@ -6027,11 +6536,9 @@ msgid ""
 "However, the aliases became redundant in Python 3.9 when the corresponding "
 "pre-existing classes were enhanced to support ``[]`` (see :pep:`585`)."
 msgstr ""
-"このモジュールは、既存の標準ライブラリクラスに対していくつかの非推奨エイリア "
-"スを定義しています。これらは当初、これらのジェネリッククラスを ``[]`` を使用 "
-"してパラメータ化をサポートするために :mod:`!typing` モジュールに含まれていま "
-"した。しかし、Python 3.9 で対応する既存クラスが ``[]`` をサポートするよう "
-"に拡張されたため、エイリアスは冗長になりました（ :pep:`585` を参照）。"
+"このモジュールは、既存の標準ライブラリクラスへのいくつかの非推奨エイリアスを定義しています。"
+"これらは元々、これらのジェネリッククラスを ``[]`` を使用してパラメータ化することをサポートするために :mod:`!typing` モジュールに含まれていました。"
+"しかし、Python 3.9 で対応する既存クラスが ``[]`` をサポートするように強化されたとき、これらのエイリアスは冗長になりました (:pep:`585` を参照)。"
 
 #: ../../library/typing.rst:3575
 msgid ""
@@ -6040,10 +6547,9 @@ msgid ""
 "currently planned. As such, no deprecation warnings are currently issued by "
 "the interpreter for these aliases."
 msgstr ""
-"冗長な型は Python 3.9 で非推奨となりました。しかし、エイリアスはいつかの時 "
-"点で削除される可能性がありますが、これらのエイリアスの削除は現在のところ計画 "
-"されていません。そのため、これらのエイリアスに対してインタープリターによる非 "
-"推奨警告は現在発行されていません。"
+"冗長な型はPython 3.9で非推奨となりました。しかし、これらのエイリアスはいつかの時点で削除される可能性があるものの、"
+"これらのエイリアスの削除は現在のところ予定されていません。そのため、現在のところ、"
+"これらのエイリアスに対してインタープリターによる非推奨警告は発行されていません。"
 
 #: ../../library/typing.rst:3580
 msgid ""
@@ -6052,18 +6558,21 @@ msgid ""
 "releases prior to removal. The aliases are guaranteed to remain in the :mod:"
 "`!typing` module without deprecation warnings until at least Python 3.14."
 msgstr ""
-"いつかこれらの非推奨エイリアスを削除することが決定された場合、削除の少なくとも2リリース前にインタープリターによって非推奨警告が発行されます。これらのエイリアスは、少なくともPython 3.14までは非推奨警告なしで :mod:`!typing` モジュールに残ることが保証されています。"
+"いつかの時点でこれらの非推奨エイリアスを削除することが決定された場合、"
+"削除の少なくとも2リリース前にインタープリターによる非推奨警告が発行されます。"
+"これらのエイリアスは、少なくともPython 3.14までは非推奨警告なしで :mod:`!typing` モジュールに残ることが保証されています。"
 
 #: ../../library/typing.rst:3585
 msgid ""
 "Type checkers are encouraged to flag uses of the deprecated types if the "
 "program they are checking targets a minimum Python version of 3.9 or newer."
 msgstr ""
-"チェック対象のプログラムが最低 Python バージョン 3.9 以上をターゲットとしている場合、型チェッカーは非推奨型の使用にフラグを立てることを推奨します。"
+"型チェッカーは、チェックしているプログラムが最低Pythonバージョンを3.9以降を対象としている場合、"
+"非推奨型の使用にフラグを立てることが推奨されています。"
 
 #: ../../library/typing.rst:3591
 msgid "Aliases to built-in types"
-msgstr "組み込み型へのエイリアス"
+msgstr "組み込み型のエイリアス"
 
 #: ../../library/typing.rst:3595
 msgid "Deprecated alias to :class:`dict`."
@@ -6075,9 +6584,8 @@ msgid ""
 "collection type such as :class:`~collections.abc.Mapping` rather than to "
 "use :class:`dict` or :class:`!typing.Dict`."
 msgstr ""
-"引数をアノテーションする際には、 :class:`dict` や :class:`!typing.Dict` よ "
-"りも :class:`~collections.abc.Mapping` のような抽象コレクション型を使用する "
-"ことが好ましいことに注意してください。"
+"引数にアノテーションを付ける場合、:class:`dict` や :class:`!typing.Dict` を使用するよりも、"
+":class:`~collections.abc.Mapping` などの抽象コレクション型を使用することが好ましいことに注意してください。"
 
 #: ../../library/typing.rst:3601
 msgid ""
@@ -6099,7 +6607,8 @@ msgid ""
 "`~collections.abc.Iterable` rather than to use :class:`list` or :class:`!"
 "typing.List`."
 msgstr ""
-"引数をアノテーションする際には、:class:`list` や :class:`!typing.List` よりも :class:`~collections.abc.Sequence` や :class:`~collections.abc.Iterable` のような抽象コレクション型を使用することが好ましいことに注意してください。"
+"引数にアノテーションを付ける場合、:class:`list` や :class:`!typing.List` を使用するよりも、"
+":class:`~collections.abc.Sequence` や :class:`~collections.abc.Iterable` などの抽象コレクション型を使用することが好ましいことに注意してください。"
 
 #: ../../library/typing.rst:3614
 msgid ""
@@ -6111,7 +6620,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3620
 msgid "Deprecated alias to :class:`builtins.set <set>`."
-msgstr ":class:`builtins.set <set>` の非推奨エイリアスです。"
+msgstr ":class:`builtins.set <set>` の非推奨なエイリアス。"
 
 #: ../../library/typing.rst:3622
 msgid ""
@@ -6119,7 +6628,8 @@ msgid ""
 "collection type such as :class:`collections.abc.Set` rather than to use :"
 "class:`set` or :class:`typing.Set`."
 msgstr ""
-"引数をアノテーションする際には、:class:`set` や :class:`typing.Set` よりも :class:`collections.abc.Set` のような抽象コレクション型を使用することが好ましいことに注意してください。"
+"引数にアノテーションを付ける場合、:class:`set` や :class:`typing.Set` を使用するよりも、"
+":class:`collections.abc.Set` などの抽象コレクション型を使用することが好ましいことに注意してください。"
 
 #: ../../library/typing.rst:3626
 msgid ""
@@ -6132,7 +6642,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3632
 msgid "Deprecated alias to :class:`builtins.frozenset <frozenset>`."
-msgstr ":class:`builtins.frozenset <frozenset>` の非推奨エイリアスです。"
+msgstr ":class:`builtins.frozenset <frozenset>` の非推奨なエイリアス。"
 
 #: ../../library/typing.rst:3634
 msgid ""
@@ -6152,7 +6662,7 @@ msgid ""
 ":class:`tuple` and ``Tuple`` are special-cased in the type system; see :ref:"
 "`annotating-tuples` for more details."
 msgstr ""
-":class:`tuple` と ``Tuple`` は型システムで特別に扱われます。詳細は :ref:`annotating-tuples` を参照してください。"
+":class:`tuple` と ``Tuple`` は型システムで特別扱いされます。詳細は :ref:`annotating-tuples` を参照してください。"
 
 #: ../../library/typing.rst:3646
 msgid ""
@@ -6172,7 +6682,7 @@ msgid ""
 "See :ref:`type-of-class-objects` for details on using :class:`type` or "
 "``typing.Type`` in type annotations."
 msgstr ""
-"型アノテーションでの :class:`type` や ``typing.Type`` の使用についての詳細は :ref:`type-of-class-objects` を参照してください。"
+"型アノテーションで :class:`type` や ``typing.Type`` を使用する詳細は :ref:`type-of-class-objects` を参照してください。"
 
 #: ../../library/typing.rst:3659
 msgid ""
@@ -6185,7 +6695,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3666
 msgid "Aliases to types in :mod:`collections`"
-msgstr ":mod:`collections` の型へのエイリアス"
+msgstr ":mod:`collections` の型のエイリアス"
 
 #: ../../library/typing.rst:3670
 msgid "Deprecated alias to :class:`collections.defaultdict`."
@@ -6254,15 +6764,14 @@ msgstr ""
 
 #: ../../library/typing.rst:3721
 msgid "Aliases to other concrete types"
-msgstr "その他の具体的な型へのエイリアス"
+msgstr "その他の具体型のエイリアス"
 
 #: ../../library/typing.rst:3726
 msgid ""
 "Deprecated aliases corresponding to the return types from :func:`re.compile` "
 "and :func:`re.match`."
 msgstr ""
-":func:`re.compile` と :func:`re.match` からの戻り値型に対応する非推奨エイリアス "
-"です。"
+":func:`re.compile` と :func:`re.match` の返り値の型に対応する非推奨エイリアスです。"
 
 #: ../../library/typing.rst:3729
 msgid ""
@@ -6271,25 +6780,29 @@ msgid ""
 "``Pattern[bytes]``; ``Match`` can be specialised as ``Match[str]`` or "
 "``Match[bytes]``."
 msgstr ""
-"これらの型（と対応する関数）は :data:`AnyStr` でジェネリックです。``Pattern`` は ``Pattern[str]`` または ``Pattern[bytes]`` として特化でき、``Match`` は ``Match[str]`` または ``Match[bytes]`` として特化できます。"
+"これらの型（および対応する関数）は :data:`AnyStr` のジェネリックです。"
+"``Pattern`` は ``Pattern[str]`` や ``Pattern[bytes]`` として特化でき、"
+"``Match`` は ``Match[str]`` や ``Match[bytes]`` として特化できます。"
 
 #: ../../library/typing.rst:3734
 msgid ""
 "Classes ``Pattern`` and ``Match`` from :mod:`re` now support ``[]``. See :"
 "pep:`585` and :ref:`types-genericalias`."
 msgstr ""
-":mod:`re` のクラス ``Pattern`` と ``Match`` は ``[]`` をサポートするようになりました。:pep:`585` と :ref:`types-genericalias` を参照してください。"
+":mod:`re` の ``Pattern`` と ``Match`` クラスは ``[]`` をサポートするようになりました。"
+":pep:`585` と :ref:`types-genericalias` を参照してください。"
 
 #: ../../library/typing.rst:3740
 msgid "Deprecated alias for :class:`str`."
-msgstr ":class:`str` の非推奨エイリアスです。"
+msgstr ":class:`str` の非推奨なエイリアス。"
 
 #: ../../library/typing.rst:3742
 msgid ""
 "``Text`` is provided to supply a forward compatible path for Python 2 code: "
 "in Python 2, ``Text`` is an alias for ``unicode``."
 msgstr ""
-"``Text`` は Python 2 コードの前方互換パスを提供するために提供されています: Python 2 では、``Text`` は ``unicode`` のエイリアスです。"
+"``Text`` はPython 2コードのために前方互換パスを提供するために提供されています:"
+"Python 2では、``Text`` は ``unicode`` のエイリアスです。"
 
 #: ../../library/typing.rst:3746
 msgid ""
@@ -6311,11 +6824,12 @@ msgid ""
 "support type checking Python 2 code. Removal of the alias is not currently "
 "planned, but users are encouraged to use :class:`str` instead of ``Text``."
 msgstr ""
-"Python 2 はもはやサポートされておらず、ほとんどの型チェッカーも Python 2 コードの型チェックをサポートしなくなりました。エイリアスの削除は現在計画されていませんが、ユーザーは ``Text`` の代わりに :class:`str` を使用することを推奨します。"
+"Python 2はもはやサポートされておらず、ほとんどの型チェッカーもPython 2コードの型チェックをサポートしなくなりました。"
+"エイリアスの削除は現在のところ予定されていませんが、ユーザーは ``Text`` の代わりに :class:`str` を使用することが推奨されています。"
 
 #: ../../library/typing.rst:3764
 msgid "Aliases to container ABCs in :mod:`collections.abc`"
-msgstr ":mod:`collections.abc` のコンテナ ABC へのエイリアス"
+msgstr ":mod:`collections.abc` のコンテナ ABC のエイリアス"
 
 #: ../../library/typing.rst:3768
 msgid "Deprecated alias to :class:`collections.abc.Set`."
@@ -6475,7 +6989,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3869
 msgid "Aliases to asynchronous ABCs in :mod:`collections.abc`"
-msgstr ":mod:`collections.abc` の非同期 ABC へのエイリアス"
+msgstr ":mod:`collections.abc` の非同期 ABC のエイリアス"
 
 #: ../../library/typing.rst:3873
 msgid "Deprecated alias to :class:`collections.abc.Coroutine`."
@@ -6486,9 +7000,7 @@ msgid ""
 "See :ref:`annotating-generators-and-coroutines` for details on using :class:"
 "`collections.abc.Coroutine` and ``typing.Coroutine`` in type annotations."
 msgstr ""
-"型アノテーションで :class:`collections.abc.Coroutine` と ``typing."
-"Coroutine`` を使用する詳細については :ref:`annotating-generators-and-"
-"coroutines` を参照してください。"
+"型アノテーションで :class:`collections.abc.Coroutine` と ``typing.Coroutine`` を使用する詳細は :ref:`annotating-generators-and-coroutines` を参照してください。"
 
 #: ../../library/typing.rst:3881
 msgid ""
@@ -6509,9 +7021,7 @@ msgid ""
 "`collections.abc.AsyncGenerator` and ``typing.AsyncGenerator`` in type "
 "annotations."
 msgstr ""
-"型アノテーションで :class:`collections.abc.AsyncGenerator` と ``typing."
-"AsyncGenerator`` を使用する詳細については :ref:`annotating-generators-and-"
-"coroutines` を参照してください。"
+"型アノテーションで :class:`collections.abc.AsyncGenerator` と ``typing.AsyncGenerator`` を使用する詳細は :ref:`annotating-generators-and-coroutines` を参照してください。"
 
 #: ../../library/typing.rst:3895
 msgid ""
@@ -6524,7 +7034,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3900
 msgid "The ``SendType`` parameter now has a default."
-msgstr "``SendType`` パラメータにデフォルト値が設定されました。"
+msgstr "``SendType`` パラメーターにデフォルト値が設定されました。"
 
 #: ../../library/typing.rst:3905
 msgid "Deprecated alias to :class:`collections.abc.AsyncIterable`."
@@ -6567,7 +7077,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3936
 msgid "Aliases to other ABCs in :mod:`collections.abc`"
-msgstr ":mod:`collections.abc` のその他の ABC へのエイリアス"
+msgstr ":mod:`collections.abc` のその他の ABC のエイリアス"
 
 #: ../../library/typing.rst:3940
 msgid "Deprecated alias to :class:`collections.abc.Iterable`."
@@ -6604,8 +7114,7 @@ msgid ""
 "See :ref:`annotating-callables` for details on how to use :class:"
 "`collections.abc.Callable` and ``typing.Callable`` in type annotations."
 msgstr ""
-"型アノテーションで :class:`collections.abc.Callable` と ``typing.Callable`` を使用する "
-"方法の詳細については :ref:`annotating-callables` を参照してください。"
+"型アノテーションで :class:`collections.abc.Callable` と ``typing.Callable`` を使用する方法の詳細は :ref:`annotating-callables` を参照してください。"
 
 #: ../../library/typing.rst:3961
 msgid ""
@@ -6625,8 +7134,7 @@ msgid ""
 "See :ref:`annotating-generators-and-coroutines` for details on using :class:"
 "`collections.abc.Generator` and ``typing.Generator`` in type annotations."
 msgstr ""
-"型アノテーションで :class:`collections.abc.Generator` と ``typing.Generator`` を使用 "
-"する詳細については :ref:`annotating-generators-and-coroutines` を参照してください。"
+"型アノテーションで :class:`collections.abc.Generator` と ``typing.Generator`` を使用する詳細は :ref:`annotating-generators-and-coroutines` を参照してください。"
 
 #: ../../library/typing.rst:3977
 msgid ""
@@ -6639,7 +7147,7 @@ msgstr ""
 
 #: ../../library/typing.rst:3981
 msgid "Default values for the send and return types were added."
-msgstr "send と return 型のデフォルト値が追加されました。"
+msgstr "send と return の型にデフォルト値が追加されました。"
 
 #: ../../library/typing.rst:3986
 msgid "Deprecated alias to :class:`collections.abc.Hashable`."
@@ -6672,7 +7180,7 @@ msgstr "代わりに :class:`collections.abc.Sized` を直接使用してくだ�
 
 #: ../../library/typing.rst:4009
 msgid "Aliases to :mod:`contextlib` ABCs"
-msgstr ":mod:`contextlib` ABC へのエイリアス"
+msgstr ":mod:`contextlib` ABC のエイリアス"
 
 #: ../../library/typing.rst:4013
 msgid "Deprecated alias to :class:`contextlib.AbstractContextManager`."
@@ -6685,9 +7193,9 @@ msgid ""
 "``ExitT_co``, which defaults to ``bool | None``, represents the type "
 "returned by the :meth:`~object.__exit__` method."
 msgstr ""
-"最初の型パラメータ ``T_co`` は :meth:`~object.__enter__` メソッドが返す型を "
-"表します。オプションの第2型パラメータ ``ExitT_co`` はデフォルトで ``bool | "
-"None`` で、 :meth:`~object.__exit__` メソッドが返す型を表します。"
+"最初の型パラメーター ``T_co`` は :meth:`~object.__enter__` メソッドによって返される型を表します。"
+"オプションの2番目の型パラメーター ``ExitT_co`` はデフォルトで ``bool | None`` で、"
+":meth:`~object.__exit__` メソッドによって返される型を表します。"
 
 #: ../../library/typing.rst:4022
 msgid ""
@@ -6700,7 +7208,7 @@ msgstr ""
 
 #: ../../library/typing.rst:4027
 msgid "Added the optional second type parameter, ``ExitT_co``."
-msgstr "オプションの2番目の型パラメータ ``ExitT_co`` が追加されました。"
+msgstr "オプションの2番目の型パラメーター ``ExitT_co`` が追加されました。"
 
 #: ../../library/typing.rst:4032
 msgid "Deprecated alias to :class:`contextlib.AbstractAsyncContextManager`."
@@ -6713,9 +7221,9 @@ msgid ""
 "``AExitT_co``, which defaults to ``bool | None``, represents the type "
 "returned by the :meth:`~object.__aexit__` method."
 msgstr ""
-"最初の型パラメータ ``T_co`` は :meth:`~object.__aenter__` メソッドが返す型を "
-"表します。オプションの第2型パラメータ ``AExitT_co`` はデフォルトで ``bool | "
-"None`` で、 :meth:`~object.__aexit__` メソッドが返す型を表します。"
+"最初の型パラメーター ``T_co`` は :meth:`~object.__aenter__` メソッドによって返される型を表します。"
+"オプションの2番目の型パラメーター ``AExitT_co`` はデフォルトで ``bool | None`` で、"
+":meth:`~object.__aexit__` メソッドによって返される型を表します。"
 
 #: ../../library/typing.rst:4041
 msgid ""
@@ -6728,7 +7236,7 @@ msgstr ""
 
 #: ../../library/typing.rst:4046
 msgid "Added the optional second type parameter, ``AExitT_co``."
-msgstr "オプションの2番目の型パラメータ ``AExitT_co`` が追加されました。"
+msgstr "オプションの2番目の型パラメーター ``AExitT_co`` が追加されました。"
 
 #: ../../library/typing.rst:4050
 msgid "Deprecation Timeline of Major Features"
