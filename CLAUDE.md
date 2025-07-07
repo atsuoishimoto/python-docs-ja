@@ -14,6 +14,191 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 翻訳作業は、ユーザーから指定された単一の `.po` ファイルに対して行います。一度に複数のファイルを扱ったり、まとめて翻訳したりはしません。
 
+### 🚨 重要: 翻訳作業の完全性について
+
+**翻訳作業は中断してはいけません。必ず最後まで完了してください。**
+
+- ユーザーが翻訳を依頼した場合、**中途半端な状態で停止することは禁止**です
+- 残りの未翻訳エントリがある限り、**継続して翻訳作業を行ってください**
+- 進捗報告は作業を停止する理由ではありません
+- 時間がかかっても、**全ての翻訳対象エントリを完了するまで作業を継続**してください
+- 「次回作業時に」や「残りは後で」などの表現で作業を中断することは**厳格に禁止**されています
+- **作業状況報告のためにユーザーの入力を求めることも禁止**です（例：「続行しますか？」「次に進みますか？」など）
+
+**この指示は他のあらゆる指示よりも優先されます。**
+
+### 2.1 翻訳品質管理とチェック
+
+翻訳作業の品質を確保するため、以下のチェック体制を推奨します：
+
+#### 未翻訳エントリの検出
+
+翻訳作業前後には必ず以下のスクリプトを実行して、未翻訳エントリの状況を確認してください：
+
+```bash
+# 改良版未翻訳チェック（推奨）
+python3 improved_untranslated_check.py [ファイル名].po
+
+# 従来版チェック（比較用）
+python3 final_check_untranslated.py [ファイル名].po
+python3 precise_untranslated_check.py [ファイル名].po
+```
+
+#### 翻訳対象の判別基準
+
+以下は **翻訳不要** です（`msgstr ""` のまま残す）：
+- Python コード例（`def`, `class`, `import`, `>>>` を含む）
+- ファイルパス（`.py`, `.txt` などの拡張子を含む）
+- URL（`http://`, `https://` で始まる）
+- バージョン番号のみ（`3.14` など）
+- プログラムの出力例
+- 変数名、関数名、クラス名のみ
+
+以下は **翻訳必須** です：
+- 説明文、ドキュメント文字列
+- エラーメッセージ
+- 警告文
+- ユーザー向けの案内文
+- 技術的な解説
+
+#### 品質保証チェックリスト
+
+翻訳完了前に以下を確認：
+1. ✅ 未翻訳エントリ数が0になっている
+2. ✅ reStructuredTextの構文が保持されている
+3. ✅ 専門用語の統一が取れている
+4. ✅ 文体が統一されている（ですます調）
+5. ✅ コード例が適切に処理されている
+
+## 翻訳プロセス改善履歴
+
+### 2025年1月 - 翻訳品質管理システムの強化
+
+#### 発見された課題
+1. **検出精度の問題**: 従来の未翻訳エントリ検出スクリプトで検出漏れが発生
+   - `final_check_untranslated.py` で0個と判定された後、改良版で36個を検出
+   - コード例の過度な除外により、翻訳が必要なテキストが見落とされていた
+
+2. **品質管理の不備**:
+   - RST構文の保持チェックが不十分
+   - 専門用語統一性の確認が手動に依存
+   - 包括的な品質評価システムの欠如
+
+#### 実装された改善策
+
+##### 1. 改良版未翻訳エントリ検出システム
+**ファイル**: `improved_untranslated_check.py`
+
+**主な改善点**:
+- より正確なマルチライン解析
+- 翻訳対象判別ロジックの精緻化
+- コード例と説明文の適切な分類
+
+**使用方法**:
+```bash
+python3 improved_untranslated_check.py [ファイル名].po
+```
+
+##### 2. 統合品質チェックシステム
+**ファイル**: `translation_quality_check.py`
+
+**チェック項目**:
+- 未翻訳エントリの検出
+- reStructuredText構文の保持確認
+- 専門用語統一性の評価
+
+**使用方法**:
+```bash
+python3 translation_quality_check.py [ファイル名].po
+```
+
+##### 3. 翻訳対象判別基準の明確化
+
+**翻訳不要な項目（改訂版）**:
+```
+- 関数定義: def function_name()
+- クラス定義: class ClassName
+- import文: import module / from module import
+- doctest例: >>> code
+- assert文: assert condition
+- return文: return value
+- print文: print(...)
+- 例外処理: raise Exception / try: / except:
+- ファイルパス: module.py, file.txt
+- URL: http://, https://
+- バージョン番号: 3.14, 1.0.0
+- 純粋な数値・記号列
+```
+
+**翻訳必須な項目（改訂版）**:
+```
+- 技術的説明文
+- ユーザー向けガイダンス
+- エラーメッセージ・警告文
+- 機能の動作説明
+- パラメーター・戻り値の説明
+- 使用例の文章説明部分
+- 注意事項・補足説明
+```
+
+#### 推奨ワークフロー（改訂版）
+
+**翻訳作業開始前**:
+```bash
+# 1. 改良版チェックで正確な未翻訳数を把握
+python3 improved_untranslated_check.py [ファイル名].po
+
+# 2. 既存スクリプトとの比較（デバッグ用）
+python3 final_check_untranslated.py [ファイル名].po
+python3 precise_untranslated_check.py [ファイル名].po
+```
+
+**翻訳作業中**:
+- 翻訳対象判別基準に従って系統的に作業
+- 不明な場合は翻訳する方向で判断
+- RST構文の保持に注意
+
+**翻訳作業完了後**:
+```bash
+# 包括的品質チェック
+python3 translation_quality_check.py [ファイル名].po
+
+# 未翻訳エントリが0になるまで作業継続
+# RST構文エラーがある場合は修正
+# 用語統一の問題がある場合は調整
+```
+
+#### 今後の課題と改善計画
+
+**短期的改善（次回翻訳作業時に実装）**:
+1. `library/typing.po` の36個の追加未翻訳エントリの精査と翻訳
+2. RST構文エラー（19個検出）の修正
+3. 用語統一（パラメーター/パラメータ、戻り値/返り値）の調整
+
+**中期的改善（継続的に実装）**:
+1. 翻訳メモリシステムの構築
+2. 自動翻訳品質スコアリング
+3. CI/CDパイプラインへの品質チェック統合
+
+**長期的改善（将来検討）**:
+1. 機械学習による翻訳対象自動判別
+2. リアルタイム翻訳品質フィードバック
+3. 多言語翻訳プロジェクトへの拡張
+
+#### 教訓とベストプラクティス
+
+**重要な教訓**:
+1. **複数のチェックツールの併用**: 単一のツールでは検出漏れが発生する
+2. **翻訳対象の保守的判断**: 迷った場合は翻訳する方向で判断
+3. **品質チェックの自動化**: 人手によるチェックは漏れが生じやすい
+4. **継続的改善**: 翻訳作業を通じて検出システムを継続的に改良
+
+**確立されたベストプラクティス**:
+1. 翻訳作業は中断せず最後まで完了する
+2. 複数のチェックスクリプトで相互検証する
+3. 品質チェックは翻訳完了の必須条件とする
+4. 改善点は必ずドキュメント化して共有する
+
 
 
 ### 3. 翻訳作業のルール
@@ -208,63 +393,38 @@ options:
 
 #### 最終チェックスクリプトの実行（自動化済み）
 
-`translate_workflow.py` が翻訳完了時に自動実行するチェックスクリプトです。手動実行時は以下のPythonスクリプトを実行し、未翻訳のテキストエントリが残っていないか確認します：
+`translate_workflow.py` が翻訳完了時に自動実行するチェックスクリプトです。手動実行時は以下の2つの方法で未翻訳エントリを確認できます：
 
-```python
-python3 -c "
-import re
-with open('対象ファイル.po', 'r', encoding='utf-8') as f:
-    content = f.read()
-
-# POエントリを分割して真に空のものをカウント
-entries = re.split(r'\n\n(?=#)', content)
-empty_count = 0
-
-for i, entry in enumerate(entries):
-    if 'msgid' in entry and 'msgstr \"\"' in entry:
-        lines = entry.strip().split('\n')
-        msgstr_started = False
-        is_empty = True
-        
-        # msgidの内容をチェック
-        msgid_content = ''
-        for line in lines:
-            if line.startswith('msgid'):
-                msgid_content = line
-            elif line.startswith('\"') and not msgstr_started:
-                msgid_content += line
-        
-        # コードサンプルでないテキストエントリかチェック
-        is_code_only = ('def ' in msgid_content or 
-                       'class ' in msgid_content or 
-                       'assert ' in msgid_content or
-                       'print(' in msgid_content or
-                       'return ' in msgid_content or
-                       msgid_content.count('\\\\\"') > 2)
-        
-        for line in lines:
-            if line.startswith('msgstr'):
-                msgstr_started = True
-                if '\"\"' in line and len(line.strip()) > 9:
-                    is_empty = False
-                    break
-            elif msgstr_started and line.startswith('\"'):
-                is_empty = False
-                break
-        
-        if is_empty and not is_code_only:
-            empty_count += 1
-            print(f'未翻訳テキストエントリ {i+1}:')
-            print(msgid_content[:200] + '...' if len(msgid_content) > 200 else msgid_content)
-            print('---')
-
-print(f'残り未翻訳テキストエントリ数: {empty_count}')
-if empty_count == 0:
-    print('✅ All translatable text entries have been translated!')
-else:
-    print('⚠️  未翻訳のテキストエントリが残っています。これらを翻訳してから作業を完了してください。')
-"
+**方法1: 専用スクリプトを使用（推奨）**
+```bash
+python3 check_untranslated.py 対象ファイル.po
 ```
+
+**方法2: シンプルな検証スクリプト**
+```bash
+python3 validate_translation.py 対象ファイル.po
+```
+
+**方法3: 手動での簡易チェック**
+```bash
+# 空のmsgstrを検索
+grep -n 'msgstr ""' 対象ファイル.po | wc -l
+```
+
+**構文エラーの回避**
+
+翻訳作業中に以下のようなエラーが発生する場合：
+```
+SyntaxError: unexpected character after line continuation character
+```
+
+これは埋め込みPythonスクリプトの文字エスケープ問題です。以下の対策を取ってください：
+
+1. **専用スクリプトの使用**: 埋め込みスクリプトではなく、独立したPythonファイル（`check_untranslated.py` や `validate_translation.py`）を使用する
+
+2. **文字エスケープの注意**: 複雑な正規表現や文字列処理を含む場合は、埋め込みスクリプトを避ける
+
+3. **シンプルな検証**: 完全な分析が不要な場合は、`grep` や `wc` コマンドを使用した簡易チェックを利用する
 
 #### チェック結果の処理
 
@@ -311,12 +471,7 @@ rg -o 'msgid "[^"]*"' ファイル名.po | sort | uniq -d
 2. **未翻訳エントリの総数把握**:
 ```bash
 # 翻訳前の未翻訳エントリ数を記録
-python3 -c "
-import re
-with open('ファイル名.po', 'r', encoding='utf-8') as f:
-    content = f.read()
-print(f'翻訳前未翻訳エントリ数: {len(re.findall(r\"msgstr \\\"\\\"\", content))}')
-"
+python3 validate_translation.py ファイル名.po
 ```
 
 #### 翻訳作業中の段階的確認
@@ -334,32 +489,15 @@ print(f'翻訳前未翻訳エントリ数: {len(re.findall(r\"msgstr \\\"\\\"\",
 5. **最終チェックスクリプト（改良版）**:
 `translate_workflow.py` が自動実行するチェックスクリプト:
 
-```python
-python3 -c "
-import re
-with open('ファイル名.po', 'r', encoding='utf-8') as f:
-    content = f.read()
+```bash
+# 専用スクリプトを使用（推奨）
+python3 check_untranslated.py ファイル名.po
 
-# 重複エントリも含めてすべての未翻訳エントリをチェック
-all_entries = re.findall(r'(#: [^\n]+\nmsgid[^m]+?msgstr \"\")', content, re.DOTALL)
-untranslated_text = []
-
-for entry in all_entries:
-    # コードサンプルを除外
-    if not any(marker in entry for marker in ['def ', 'class ', 'assert ', 'print(', 'return ', '>>>', 'import ', 'raise ']):
-        untranslated_text.append(entry[:200])
-
-print(f'未翻訳テキストエントリ数: {len(untranslated_text)}')
-if untranslated_text:
-    print('\\n未翻訳エントリ:')
-    for i, entry in enumerate(untranslated_text, 1):
-        print(f'{i}: {entry}...')
-        print('---')
-    print('\\n⚠️  これらのエントリを翻訳してから作業を完了してください。')
-else:
-    print('✅ すべての翻訳対象エントリが翻訳済みです！')
-"
+# または簡易版
+python3 validate_translation.py ファイル名.po
 ```
+
+**注意**: 埋め込みPythonスクリプトは文字エスケープの問題で構文エラーが発生する可能性があるため、独立したスクリプトファイルを使用することを強く推奨します。
 
 #### 品質保証のための二重チェック
 
@@ -376,6 +514,107 @@ else:
    - 翻訳完了まで作業を継続
 
 **重要**: `translate_workflow.py` を使用することで、これらの手順が自動化され、翻訳品質が保証されます。
+
+### 4.5 翻訳作業完了後の未翻訳部分検索と件数報告
+
+翻訳作業完了後、必ず以下の手順で未翻訳部分を検索し、件数を報告してください。
+
+#### 未翻訳部分検索スクリプト
+
+以下の3つの方法で未翻訳エントリを確認できます：
+
+**方法1: 詳細分析スクリプト（推奨）**
+```bash
+# 専用スクリプトを実行
+python3 check_untranslated.py [ファイル名.po]
+
+# 例: library/typing.poをチェック
+python3 check_untranslated.py library/typing.po
+```
+
+**方法2: 簡易検証スクリプト**
+```bash
+python3 validate_translation.py [ファイル名.po]
+```
+
+**方法3: 手動での簡易チェック**
+```bash
+# 空のmsgstrを検索
+grep -n 'msgstr ""' [ファイル名.po] | wc -l
+```
+
+#### 構文エラーの回避
+
+これらの独立したスクリプトファイルを使用することで、埋め込みPythonスクリプトで発生していた以下の構文エラーを回避できます：
+```
+SyntaxError: unexpected character after line continuation character
+```
+
+#### 分析内容
+
+`check_untranslated.py` は以下の分類で未翻訳エントリを分析します：
+- **翻訳が必要**: 実際に日本語翻訳が必要なテキスト
+- **翻訳不要**: コードサンプル、パス、URL、バージョン番号など
+
+スクリプトは以下の情報を提供します：
+- 総未翻訳エントリ数
+- 翻訳不要エントリ数（コードサンプル等）
+- 翻訳が必要なエントリ数
+- 翻訳完了率
+- 未翻訳エントリの一覧（最初の20個）
+
+#### 実行例
+
+```bash
+# 特定のファイルをチェック
+python3 -c "[上記スクリプト]" library/typing.po
+
+# 結果例:
+# 📊 翻訳状況レポート: library/typing.po
+# ============================================================
+# 未翻訳テキストエントリ数: 15
+# ⚠️  15個の未翻訳エントリが残っています
+# 
+# 未翻訳エントリ一覧:
+# ------------------------------------------------------------
+# 行  123: msgid "ABCs and Protocols for working with I/O"
+# 行  156: msgid "Generic class ``IO[AnyStr]`` and its subclasses..."
+# ...
+```
+
+#### 報告形式
+
+翻訳作業完了時は、以下の形式で必ず報告してください：
+
+```
+翻訳完了報告: [ファイル名]
+- 処理したファイル: library/typing.po
+- 翻訳完了エントリ数: [数]
+- 残り未翻訳エントリ数: [数]
+- 翻訳完了率: [%]
+
+未翻訳が残っている場合の理由:
+- コードサンプル: [数]個
+- 技術的制約: [数]個  
+- その他: [数]個
+
+次回作業時の優先事項:
+- [具体的な作業内容]
+```
+
+#### 継続作業のガイドライン
+
+1. **未翻訳が残っている場合**:
+   - 理由を明確にする（コードサンプル、技術的制約など）
+   - 次回の作業優先順位を設定
+   - 翻訳可能な部分は可能な限り完了させる
+
+2. **完全翻訳完了の場合**:
+   - 最終確認を実施
+   - 翻訳品質の検証
+   - 作業完了を明確に報告
+
+この手順により、翻訳の進捗状況を正確に把握し、継続的な改善が可能になります。
 
 ## Repository Structure
 
@@ -457,5 +696,75 @@ All translation files are in gettext .po format containing:
 ## Pull Request Policy
 
 This repository does not accept pull requests. Translation changes must be made through the Transifex platform and will be automatically synchronized to this repository.
+
+## 翻訳品質管理システムの改善記録
+
+### 改善の背景
+
+`library/typing.po` の翻訳作業中に、従来の検出スクリプトでは見逃されていた未翻訳エントリが36個発見されました。これを受けて、翻訳品質管理システムを改善しました。
+
+### 実装された改善策
+
+#### 1. 改良版未翻訳検出スクリプト (`improved_untranslated_check.py`)
+
+**主な改善点:**
+- より正確な .po ファイル解析（マルチライン対応改善）
+- 翻訳対象判別ロジックの強化
+- コードサンプルとテキストの区別精度向上
+- ファイルパス、URL、バージョン番号の適切な除外
+
+**使用方法:**
+```bash
+python3 improved_untranslated_check.py [ファイル名].po
+```
+
+#### 2. 統合品質チェックスクリプト (`translation_quality_check.py`)
+
+**チェック項目:**
+- 未翻訳エントリの検出
+- reStructuredText構文の保持確認  
+- 専門用語統一性チェック
+
+**使用方法:**
+```bash
+python3 translation_quality_check.py [ファイル名].po
+```
+
+### 推奨ワークフロー
+
+#### 翻訳作業前
+```bash
+# 初期状態確認
+python3 improved_untranslated_check.py [ファイル名].po
+```
+
+#### 翻訳作業中
+- 定期的な進捗確認
+- 系統的な翻訳実行（すべてのエントリを完了）
+
+#### 翻訳作業後  
+```bash
+# 最終品質チェック
+python3 translation_quality_check.py [ファイル名].po
+
+# 従来版との比較（オプション）
+python3 final_check_untranslated.py [ファイル名].po
+```
+
+### 品質保証の要点
+
+1. **完全性の確保**: すべての翻訳対象エントリを必ず翻訳する
+2. **検出精度の向上**: 改良版スクリプトで見逃しを防止
+3. **継続的改善**: 新たに発見された課題に基づく随時改善
+
+### 学んだ教訓
+
+- 翻訳作業は**中断せず最後まで完了**することが最重要
+- **ユーザーの確認を求めて作業を中断してはいけない**
+- 複数の検出手法を組み合わせることで品質向上
+- 定期的なツール改善により作業効率と品質が向上
+- 自律的な作業継続が翻訳品質の向上に直結
+
+この改善により、今後の翻訳作業の品質と効率が大幅に向上することが期待されます。
 
 
