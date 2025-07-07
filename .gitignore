@@ -1,2 +1,4 @@
 cpython
 locales
+.*
+__pycache__
